@@ -98,10 +98,19 @@ d.close()                      # Close the connection to the remote store
 
 More configuration examples for other cloud providers can be found [here](./tests/configurations/).
 
-### Supported Cloud Providers
+### Cloud Providers configuration
 
-- Azure Blob Storage (as of the current version)
-- Support for AWS S3 and Google Cloud Storage is planned (see Roadmap)
+#### Azure
+
+The Azure provider uses [Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction) as remote storage.
+
+| Option                           | Description                                                                                                                                                  | Required           | Default Value |
+|----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|---------------|
+| `account_url`                    | The URL of your Azure storage account.                                                                                                                       | :x:                |               |
+| `auth_type`                      | The authentication method to use. Currently, only `passwordless` is supported.                                                                               | :x:                |               |
+| `container_name`                 | The name of the container in your Azure storage account.                                                                                                     | :x:                |               |
+| `create_container_if_not_exists` | If set to `True`, the container will be created if it does not already exist. Note: This may impact performance during module initialization.                | :white_check_mark: | `False`       |
+
 
 ## Roadmap
 
