@@ -1,0 +1,20 @@
+[project]
+name = "cshelve"
+version = "0.1.0.dev0"
+description = "Propulsing the shelve module to the cloud"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "azure-identity>=1.19.0",
+    "azure-storage-blob>=12.23.1",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pandas>=2.2.3",
+    "pytest>=8.3.3",
+    "ruff>=0.6.9",
+]
+
+[tool.uv.sources]
+bird-feeder = { path = "./cshelve" }
