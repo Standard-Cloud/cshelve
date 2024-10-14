@@ -5,12 +5,15 @@ import cshelve
 
 
 def test_large():
-    db = cshelve.open('tests/configurations/integration-azure.ini')
+    db = cshelve.open("tests/configurations/integration-azure.ini")
 
-    key_pattern = 'test_large'
+    key_pattern = "test_large"
 
     # 167.46 MiB
-    df = pd.DataFrame(np.random.randint(0, 100, size=(844221, 26)), columns=list('ABCDEFGHIGKLMNOPQRSTUVWXYZ'))
+    df = pd.DataFrame(
+        np.random.randint(0, 100, size=(844221, 26)),
+        columns=list("ABCDEFGHIGKLMNOPQRSTUVWXYZ"),
+    )
 
     db[key_pattern] = df
     new_df = db[key_pattern]
