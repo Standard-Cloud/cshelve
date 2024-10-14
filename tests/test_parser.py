@@ -25,7 +25,7 @@ def test_azure_configuration():
     """
     Load the Azure configuration file and return it as a dictionary.
     """
-    provider, config = load('tests/config_examples/azure.ini')
+    provider, config = load('tests/configurations/azure.ini')
 
     assert provider == 'azure'
     assert config['auth_type'] == 'passwordless'

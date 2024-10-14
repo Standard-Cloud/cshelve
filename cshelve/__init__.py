@@ -15,7 +15,7 @@ class CloudShelf(shelve.Shelf):
         super().__init__(cdict, protocol, writeback)
 
 
-def open(filename, flag='c', protocol=None, writeback=False, /, loader=_loader, factory=_factory) -> shelve.Shelf:
+def open(filename, flag='c', protocol=None, writeback=False, loader=_loader, factory=_factory) -> shelve.Shelf:
     if use_local_shelf(filename):
         # The user requests a local and not a cloud shelf.
         return shelve.open(filename, flag, protocol, writeback)
