@@ -40,7 +40,6 @@ flag = key in d               # Check if the key exists in the database
 klist = list(d.keys())        # List all existing keys (could be slow for large datasets)
 
 # Note: Since writeback=True is not used, handle data carefully:
-# The writeback functionality is not yet supported in cshelve.
 d['xx'] = [0, 1, 2]           # Store a list
 d['xx'].append(3)             # This won't persist since writeback=True is not used
 
@@ -84,7 +83,6 @@ del d[key]                     # Delete the data
 flag = key in d                # Check if the key exists in the cloud store
 klist = list(d.keys())         # List all keys in the remote storage
 
-# Note: Writeback functionality is not yet supported.
 d['xx'] = [0, 1, 2]            # Store a list remotely
 d['xx'].append(3)              # Changes to the list won't persist
 
@@ -103,6 +101,7 @@ More configuration examples for other cloud providers can be found [here](./test
 #### Azure
 
 The Azure provider uses [Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction) as remote storage.
+The module considers the provided container as dedicated to the application. The impact might be significant. For example, if the flag `n` is provided to the `open` function, the entire container will be purged, aligning with the [official interface](https://docs.python.org/3/library/shelve.html#shelve.open).
 
 | Option                           | Description                                                                                                                                                  | Required           | Default Value |
 |----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|---------------|
@@ -114,7 +113,6 @@ The Azure provider uses [Azure Blob Storage](https://learn.microsoft.com/en-us/a
 
 ## Roadmap
 
-- **Support for `writeback=True`**: This feature allows data to be cached in memory, then written back to the storage only upon closing.
 - **AWS S3 Support**: Integration for AWS S3 storage is planned in upcoming versions.
 - **Google Cloud Storage Support**: Support for Google Cloud Storage is also on the roadmap.
 

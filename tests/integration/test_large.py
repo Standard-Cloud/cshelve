@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
-import pytest
 
-from cshelve import open
+import cshelve
 
 
 def test_large():
-    db = open('tests/configurations/integration-azure.ini')
+    db = cshelve.open('tests/configurations/integration-azure.ini')
 
     key_pattern = 'test_large'
 
