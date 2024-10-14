@@ -41,15 +41,15 @@ def test_read_after_reopening():
 
 
 def test_update_on_operator():
-    key_pattern = 'test_read_and_update'
-    str_data_pattern = 'test_read_and_update'
+    key_pattern = 'test_update_on_operator'
+    str_data_pattern = 'test_update_on_operator'
     list_data_pattern = [1]
 
     def write_data():
         db = cshelve.open('tests/configurations/integration-azure.ini')
 
         for i in range(100):
-            db[f'{key_pattern}{i}'] = f'{str_data_pattern}{i}'
+            db[f'{key_pattern}{i}'] = str_data_pattern
             db[f'{key_pattern}{i}-list'] = list_data_pattern
 
     def update_data():
@@ -57,8 +57,8 @@ def test_update_on_operator():
 
         for i in range(100):
             key = f'{key_pattern}{i}'
-            key_list = f'{key_pattern}{i}'
-            assert db[key] == f'{str_data_pattern}'
+            key_list = f'{key_pattern}{i}-list'
+            assert db[key] == str_data_pattern
             assert db[key_list] == list_data_pattern
             db[key] += f'{i}'
             db[key_list] += [i]
@@ -68,7 +68,7 @@ def test_update_on_operator():
 
         for i in range(100):
             key = f'{key_pattern}{i}'
-            key_list = f'{key_pattern}{i}'
+            key_list = f'{key_pattern}{i}-list'
             assert db[key] == f'{str_data_pattern}{i}'
             assert db[key_list] == list_data_pattern + [i]
             del db[key]
