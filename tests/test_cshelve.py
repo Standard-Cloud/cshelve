@@ -1,6 +1,6 @@
-from unittest.mock import Mock
 import shelve
 import tempfile
+from unittest.mock import Mock
 
 import pytest
 
@@ -12,12 +12,12 @@ def test_use_cloud_shelf():
     Based on the filename, the cloud shelve module must be used.
     At the same time, we test the parser injection functionality.
     """
-    filename = 'test.ini'
-    provider = 'myprovider'
+    filename = "test.ini"
+    provider = "myprovider"
     config = {
-        'provider': provider,
-        'auth_type': 'passwordless',
-        'container_name': 'mycontainer',
+        "provider": provider,
+        "auth_type": "passwordless",
+        "container_name": "mycontainer",
     }
 
     cdit = Mock()
@@ -39,8 +39,8 @@ def test_use_local_shelf():
     """
     Based on the filename, the default shelve module must be used.
     """
-    local_shelf_suffix = ['sqlite3', 'db', 'dat']
-    
+    local_shelf_suffix = ["sqlite3", "db", "dat"]
+
     for suffix in local_shelf_suffix:
         # When instanciate, shelf modules create the file with the provided name.
         # So we create a temporary file to garbage collect it after the test.

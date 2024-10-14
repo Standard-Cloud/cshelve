@@ -2,12 +2,11 @@ import functools
 import io
 from typing import Dict
 
+from azure.core.exceptions import ResourceNotFoundError
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobType
-from azure.core.exceptions import ResourceNotFoundError
 
 from .cloud_mutable_mapping import CloudMutableMapping
-
 
 LRU_CACHE_MAX_SIZE = 2048
 
@@ -19,17 +18,23 @@ class AzureMutableMapping(CloudMutableMapping):
         self.container_client = None
 
         cache_fct = functools.partial(self._get_client_cache)
-        self._get_client = functools.lru_cache(maxsize=LRU_CACHE_MAX_SIZE, typed=False)(cache_fct)
+        self._get_client = functools.lru_cache(maxsize=LRU_CACHE_MAX_SIZE, typed=False)(
+            cache_fct
+        )
 
     def configure(self, config: Dict[str, str]) -> None:
-        account_url = config.get('account_url')
+        account_url = config.get("account_url")
         # auth_type = config.get('auth_type')
-        self.container_name = config.get('container_name')
+        self.container_name = config.get("container_name")
 
-        self.blob_service_client = BlobServiceClient(account_url, credential=DefaultAzureCredential())
-        self.container_client = self.blob_service_client.get_container_client(self.container_name)
+        self.blob_service_client = BlobServiceClient(
+            account_url, credential=DefaultAzureCredential()
+        )
+        self.container_client = self.blob_service_client.get_container_client(
+            self.container_name
+        )
 
-        if config.get('create_container_if_not_exists', 'False').lower() == 'true':
+        if config.get("create_container_if_not_exists", "False").lower() == "true":
             self.__create_container_if_not_exists()
 
     def __getitem__(self, key: bytes):
@@ -42,7 +47,7 @@ class AzureMutableMapping(CloudMutableMapping):
             client.download_blob().readinto(stream)
             return stream.getvalue()
         except ResourceNotFoundError:
-            raise KeyError(f'Key not found: {key}')
+            raise KeyError(f"Key not found: {key}")
 
     def __setitem__(self, key, value):
         key = key.decode()
@@ -50,10 +55,7 @@ class AzureMutableMapping(CloudMutableMapping):
         client = self._get_client(key)
 
         return client.upload_blob(
-            value,
-            blob_type=BlobType.BLOCKBLOB,
-            overwrite=True,
-            length=len(value)
+            value, blob_type=BlobType.BLOCKBLOB, overwrite=True, length=len(value)
         )
 
     def __delitem__(self, key):
