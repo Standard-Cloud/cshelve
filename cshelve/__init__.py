@@ -5,10 +5,11 @@ from ._flag import clear_db
 from ._parser import load as _loader
 from ._parser import use_local_shelf
 from .exceptions import (
-    CanNotCreateDB,
+    CanNotCreateDBError,
     DBDoesNotExistsError,
+    KeyNotFoundError,
     ReadOnlyError,
-    UnknownProvider,
+    UnknownProviderError,
 )
 
 
@@ -38,9 +39,11 @@ def open(
 
 
 __all__ = [
-    "CanNotCreateDB",
+    "CanNotCreateDBError",
     "DBDoesNotExistsError",
+    "KeyNotFoundError",
     "ReadOnlyError",
-    "UnknownProvider",
+    "ResourceNotFoundError",
+    "UnknownProviderError",
     "open",
 ]

@@ -8,7 +8,12 @@ from azure.storage.blob import BlobServiceClient, BlobType
 
 from ._flag import can_create, can_write
 from .cloud_mutable_mapping import CloudMutableMapping
-from .exceptions import CanNotCreateDB, DBDoesNotExistsError
+from .exceptions import (
+    CanNotCreateDBError,
+    DBDoesNotExistsError,
+    KeyNotFoundError,
+    key_access,
+)
 
 LRU_CACHE_MAX_SIZE = 2048
 
@@ -46,17 +51,15 @@ class AzureMutableMapping(CloudMutableMapping):
                     f"Can't create database: {self.container_name}"
                 )
 
+    @key_access(ResourceNotFoundError)
     def __getitem__(self, key: bytes):
         key = key.decode()
         stream = io.BytesIO()
 
         client = self._get_client(key)
 
-        try:
-            client.download_blob().readinto(stream)
-            return stream.getvalue()
-        except ResourceNotFoundError:
-            raise KeyError(f"Key not found: {key}")
+        client.download_blob().readinto(stream)
+        return stream.getvalue()
 
     @can_write
     def __setitem__(self, key, value):
@@ -69,6 +72,7 @@ class AzureMutableMapping(CloudMutableMapping):
         )
 
     @can_write
+    @key_access(ResourceNotFoundError)
     def __delitem__(self, key):
         key = key.decode()
 
@@ -100,4 +104,6 @@ class AzureMutableMapping(CloudMutableMapping):
         try:
             self.blob_service_client.create_container(self.container_name)
         except Exception as e:
-            raise CanNotCreateDB(f"Can't create database: {self.container_name}") from e
+            raise CanNotCreateDBError(
+                f"Can't create database: {self.container_name}"
+            ) from e

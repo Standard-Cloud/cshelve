@@ -2,8 +2,13 @@ import pytest
 
 import cshelve
 
+from helpers import write_data, del_data
+
 
 def test_write_and_read():
+    """
+    Ensure we can read and write data to the DB.
+    """
     db = cshelve.open("tests/configurations/integration-azure.ini")
 
     key_pattern = "test_write_and_read"
@@ -11,68 +16,127 @@ def test_write_and_read():
 
     for i in range(100):
         key = f"{key_pattern}{i}"
+
+        # Write data to the DB.
         db[key] = f"{data_pattern}{i}"
+        # Data must be present in the DB.
         assert db[key] == f"{data_pattern}{i}"
+        # Delete the data from the DB.
         del db[key]
 
     db.close()
 
 
+def test_write_and_read():
+    """
+    Ensure we can read and write data to the DB.
+    """
+    with cshelve.open("tests/configurations/integration-azure.ini") as db:
+
+        key_pattern = "test_write_and_read"
+        data_pattern = "test_write_and_read"
+
+        for i in range(100):
+            key = f"{key_pattern}{i}"
+
+            # Write data to the DB.
+            db[key] = f"{data_pattern}{i}"
+            # Data must be present in the DB.
+            assert db[key] == f"{data_pattern}{i}"
+            # Delete the data from the DB.
+            del db[key]
+
+    db.close()
+
+
+def test_del():
+    """
+    Ensure we can delete data from the DB.
+    """
+    config_file = "tests/configurations/integration-azure-del.ini"
+    key_pattern = "test_del"
+    data_pattern = "test_del"
+
+    def _del_data():
+        db = cshelve.open(config_file)
+
+        for i in range(100):
+            key = f"{key_pattern}{i}"
+            assert db[key] == f"{data_pattern}{i}"
+            del db[f"{key_pattern}{i}"]
+
+        assert len(db) == 0
+        db.close()
+
+    write_data(config_file, key_pattern, data_pattern)
+    _del_data()
+
+
 def test_read_after_reopening():
+    """
+    Ensure the data is still present after reopening the DB.
+    """
+    config_file = "tests/configurations/integration-azure.ini"
     key_pattern = "test_read_after_reopening"
     data_pattern = "test_read_after_reopening"
 
-    def write_data():
-        db = cshelve.open("tests/configurations/integration-azure.ini")
-
-        for i in range(100):
-            db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
-
     def read_data():
-        db = cshelve.open("tests/configurations/integration-azure.ini")
+        db = cshelve.open(config_file)
 
         for i in range(100):
             key = f"{key_pattern}{i}"
             assert db[key] == f"{data_pattern}{i}"
             del db[key]
 
-    write_data()
+        db.close()
+
+    write_data(config_file, key_pattern, data_pattern)
     read_data()
 
 
 def test_update_on_operator():
+    """
+    Ensure operator interface works as expected.
+    """
+    config_file = "tests/configurations/integration-azure.ini"
     key_pattern = "test_update_on_operator"
     str_data_pattern = "test_update_on_operator"
     list_data_pattern = [1]
 
     def write_data():
-        db = cshelve.open("tests/configurations/integration-azure.ini")
+        db = cshelve.open(config_file)
 
         for i in range(100):
             db[f"{key_pattern}{i}"] = str_data_pattern
             db[f"{key_pattern}{i}-list"] = list_data_pattern
 
+        db.close()
+
     def update_data():
-        db = cshelve.open("tests/configurations/integration-azure.ini")
+        db = cshelve.open(config_file)
 
         for i in range(100):
-            key = f"{key_pattern}{i}"
-            key_list = f"{key_pattern}{i}-list"
-            assert db[key] == str_data_pattern
-            assert db[key_list] == list_data_pattern
-            db[key] += f"{i}"
-            db[key_list] += [i]
+            db[f"{key_pattern}{i}"] += f"{i}"
+            db[f"{key_pattern}{i}-list"] += [i]
+
+        db.close()
 
     def read_data():
-        db = cshelve.open("tests/configurations/integration-azure.ini")
+        db = cshelve.open(config_file)
 
         for i in range(100):
             key = f"{key_pattern}{i}"
             key_list = f"{key_pattern}{i}-list"
+
+            # Operator `+=` on string does not modify the original string.
             assert db[key] == f"{str_data_pattern}{i}"
+            # Operator `+=` on list does modify the original list.
             assert db[key_list] == list_data_pattern + [i]
+
             del db[key]
             del db[key_list]
+
+        db.close()
 
     write_data()
     update_data()
@@ -80,26 +144,35 @@ def test_update_on_operator():
 
 
 def test_key_not_found():
+    """
+    Ensure KeyError is raised when key is not found.
+    """
     db = cshelve.open("tests/configurations/integration-azure.ini")
 
-    with pytest.raises(KeyError):
+    with pytest.raises(cshelve.KeyNotFoundError):
         db["test_key_not_found"]
 
+    db.close()
 
-def test_delete_object():
+
+def test_raise_delete_missing_object():
+    """
+    Ensure delete an non-existing object raises KeyError.
+    """
     db = cshelve.open("tests/configurations/integration-azure.ini")
 
     key_pattern = "test_delete_object"
-    data_pattern = "test_delete_object"
 
-    db[key_pattern] = data_pattern
-    del db[key_pattern]
+    with pytest.raises(cshelve.KeyNotFoundError):
+        del db[key_pattern]
 
-    with pytest.raises(KeyError):
-        db[key_pattern]
+    db.close()
 
 
 def test_contains():
+    """
+    Ensure __contains__ works as expected.
+    """
     db = cshelve.open("tests/configurations/integration-azure.ini")
 
     key_pattern = "test_contains"
@@ -113,10 +186,16 @@ def test_contains():
 
 
 def test_len():
-    db = cshelve.open("tests/configurations/integration-azure-len.ini")
+    """
+    Ensure __len__ works as expected.
+    """
+    config = "tests/configurations/integration-azure-len.ini"
+    db = cshelve.open(config)
 
     key_pattern = "test_len"
     data_pattern = "test_len"
+
+    del_data(config)
 
     for i in range(100):
         db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
@@ -130,11 +209,13 @@ def test_len():
 
 
 def test_iter():
+    config = "tests/configurations/integration-azure-iter.ini"
     res = set()
-    db = cshelve.open("tests/configurations/integration-azure-iter.ini")
+    db = cshelve.open(config)
 
     key_pattern = "test_iter"
     data_pattern = "test_iter"
+    del_data(config)
 
     for i in range(100):
         key = f"{key_pattern}{i}"
@@ -145,55 +226,4 @@ def test_iter():
     assert keys == res
 
     db.close()
-
-
-def test_writeback():
-    key_pattern = "test_writeback"
-    data_pattern = [1]
-
-    def write_data():
-        db = cshelve.open("tests/configurations/integration-azure.ini")
-
-        for i in range(100):
-            db[f"{key_pattern}{i}"] = data_pattern
-
-        db.close()
-
-    def update_data(writeback):
-        db = cshelve.open(
-            "tests/configurations/integration-azure.ini", writeback=writeback
-        )
-
-        for i in range(100):
-            key = f"{key_pattern}{i}"
-            value = db[key]
-            value.append(i)
-
-        db.close()
-
-    def read_data(contains_index):
-        db = cshelve.open("tests/configurations/integration-azure.ini")
-
-        for i in range(100):
-            key = f"{key_pattern}{i}"
-            if contains_index:
-                assert db[key] == data_pattern + [i]
-            else:
-                assert db[key] == data_pattern
-
-        db.close()
-
-    def del_data():
-        db = cshelve.open("tests/configurations/integration-azure.ini")
-
-        for i in range(100):
-            del db[f"{key_pattern}{i}"]
-
-        db.close()
-
-    write_data()
-    update_data(writeback=False)
-    read_data(contains_index=False)
-    update_data(writeback=True)
-    read_data(contains_index=True)
-    del_data()
+    del_data(config)
