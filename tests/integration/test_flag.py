@@ -87,3 +87,11 @@ def test_clear_db():
     rewrite_db()
     read_data()
     del_data()
+
+
+def test_container_does_not_exists():
+    key_pattern = "test_container_does_not_exists"
+    str_data_pattern = "test_container_does_not_exists"
+
+    with pytest.raises(cshelve.DBDoesnotExistsError):
+        cshelve.open("tests/configurations/flag/integration-azure-w.ini", "w")
