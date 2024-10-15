@@ -108,9 +108,8 @@ The module considers the provided container as dedicated to the application. The
 | `account_url`                    | The URL of your Azure storage account.                                                                                                                       | :x:                |               |
 | `auth_type`                      | The authentication method to use. Currently, only `passwordless` is supported.                                                                               | :x:                |               |
 | `container_name`                 | The name of the container in your Azure storage account.                                                                                                     | :x:                |               |
-| `create_container_if_not_exists` | If set to `True`, the container will be created if it does not already exist. Note: This may impact performance during module initialization.                | :white_check_mark: | `False`       |
 
-Depending on the `open` flag, the permissions required by `cshelve` for blob storage vary. Except if the user asks for the blob creation in the configuration file, permission is needed on the container content, not on the container itself:
+Depending on the `open` flag, the permissions required by `cshelve` for blob storage vary.
 
 | Flag | Description | Permissions Needed |
 |------|-------------|--------------------|
