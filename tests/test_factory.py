@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from cshelve import UnknownProvider
+from cshelve import UnknownProviderError
 from cshelve._factory import factory
 
 
@@ -20,5 +20,5 @@ def test_unknown_backend():
     """
     Ensure that the factory raises an error when an unknown backend is requested.
     """
-    with pytest.raises(UnknownProvider):
+    with pytest.raises(UnknownProviderError):
         factory("aws")

@@ -1,6 +1,6 @@
 [project]
 name = "cshelve"
-version = "0.1.0.dev1"
+version = "0.1.0.dev3"
 description = "Propulsing the shelve module to the cloud"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,6 +13,7 @@ dependencies = [
 dev-dependencies = [
     "pandas>=2.2.3",
     "pre-commit>=4.0.1",
+    "pytest-xdist>=3.6.1",
     "pytest>=8.3.3",
     "ruff>=0.6.9",
 ]

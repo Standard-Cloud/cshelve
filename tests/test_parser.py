@@ -1,3 +1,4 @@
+from pathlib import Path
 from cshelve._parser import load, use_local_shelf
 
 
@@ -9,6 +10,7 @@ def test_use_local_shelf():
 
     for filename in fallback_default_module:
         assert use_local_shelf(filename) is True
+        # assert use_local_shelf(Path(filename)) is True
 
 
 def test_use_cloud_shelf():

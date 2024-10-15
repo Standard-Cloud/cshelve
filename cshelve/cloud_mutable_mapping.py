@@ -4,6 +4,8 @@ from typing import Dict
 
 
 class CloudMutableMapping(MutableMapping):
+    flag = None
+
     @abstractmethod
     def configure(self, config: Dict[str, str]) -> None:
         """

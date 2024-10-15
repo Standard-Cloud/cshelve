@@ -6,7 +6,14 @@ from azure.core.exceptions import ResourceNotFoundError
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobType
 
+from ._flag import can_create, can_write
 from .cloud_mutable_mapping import CloudMutableMapping
+from .exceptions import (
+    CanNotCreateDBError,
+    DBDoesNotExistsError,
+    KeyNotFoundError,
+    key_access,
+)
 
 LRU_CACHE_MAX_SIZE = 2048
 
@@ -22,7 +29,8 @@ class AzureMutableMapping(CloudMutableMapping):
             cache_fct
         )
 
-    def configure(self, config: Dict[str, str]) -> None:
+    def configure(self, flag: str, config: Dict[str, str]) -> None:
+        self.flag = flag
         account_url = config.get("account_url")
         # auth_type = config.get('auth_type')
         self.container_name = config.get("container_name")
@@ -34,21 +42,26 @@ class AzureMutableMapping(CloudMutableMapping):
             self.container_name
         )
 
-        if config.get("create_container_if_not_exists", "False").lower() == "true":
-            self.__create_container_if_not_exists()
+        # Create container if not exists and it is configured or if the flag allow it.
+        if not self.__container_exists():
+            if can_create(flag):
+                self.__create_container_if_not_exists()
+            else:
+                raise DBDoesNotExistsError(
+                    f"Can't create database: {self.container_name}"
+                )
 
+    @key_access(ResourceNotFoundError)
     def __getitem__(self, key: bytes):
         key = key.decode()
         stream = io.BytesIO()
 
         client = self._get_client(key)
 
-        try:
-            client.download_blob().readinto(stream)
-            return stream.getvalue()
-        except ResourceNotFoundError:
-            raise KeyError(f"Key not found: {key}")
+        client.download_blob().readinto(stream)
+        return stream.getvalue()
 
+    @can_write
     def __setitem__(self, key, value):
         key = key.decode()
 
@@ -58,6 +71,8 @@ class AzureMutableMapping(CloudMutableMapping):
             value, blob_type=BlobType.BLOCKBLOB, overwrite=True, length=len(value)
         )
 
+    @can_write
+    @key_access(ResourceNotFoundError)
     def __delitem__(self, key):
         key = key.decode()
 
@@ -79,9 +94,16 @@ class AzureMutableMapping(CloudMutableMapping):
         # 48 bytes from getsizeof
         return self.blob_service_client.get_blob_client(self.container_name, key)
 
+    def __container_exists(self) -> bool:
+        return self.blob_service_client.get_container_client(
+            self.container_name
+        ).exists()
+
+    @can_write
     def __create_container_if_not_exists(self):
         try:
             self.blob_service_client.create_container(self.container_name)
         except Exception as e:
-            # Already exists or no permission.
-            ...
+            raise CanNotCreateDBError(
+                f"Can't create database: {self.container_name}"
+            ) from e

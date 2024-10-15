@@ -1,17 +1,29 @@
 import shelve
 
 from ._factory import factory as _factory
+from ._flag import clear_db
 from ._parser import load as _loader
 from ._parser import use_local_shelf
-from .exceptions import UnknownProvider
+from .exceptions import (
+    CanNotCreateDBError,
+    DBDoesNotExistsError,
+    KeyNotFoundError,
+    ReadOnlyError,
+    UnknownProviderError,
+)
 
 
 class CloudShelf(shelve.Shelf):
-    def __init__(self, filename, protocol, writeback, loader, factory):
+    def __init__(self, filename, flag, protocol, writeback, loader, factory):
+        flag = flag.lower()
         provider, config = loader(filename)
 
         cdict = factory(provider)
-        cdict.configure(config)
+        cdict.configure(flag, config)
+
+        if clear_db(flag):
+            for key in cdict.keys():
+                del cdict[key]
 
         super().__init__(cdict, protocol, writeback)
 
@@ -23,7 +35,15 @@ def open(
         # The user requests a local and not a cloud shelf.
         return shelve.open(filename, flag, protocol, writeback)
 
-    return CloudShelf(filename, protocol, writeback, loader, factory)
+    return CloudShelf(filename, flag, protocol, writeback, loader, factory)
 
 
-__all__ = ["open", "UnknownProvider"]
+__all__ = [
+    "CanNotCreateDBError",
+    "DBDoesNotExistsError",
+    "KeyNotFoundError",
+    "ReadOnlyError",
+    "ResourceNotFoundError",
+    "UnknownProviderError",
+    "open",
+]

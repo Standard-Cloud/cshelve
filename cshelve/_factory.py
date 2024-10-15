@@ -1,7 +1,7 @@
 from typing import Dict
 
 from .cloud_mutable_mapping import CloudMutableMapping
-from .exceptions import UnknownProvider
+from .exceptions import UnknownProviderError
 
 
 def factory(provider: str) -> CloudMutableMapping:
@@ -13,4 +13,4 @@ def factory(provider: str) -> CloudMutableMapping:
 
         return AzureMutableMapping()
 
-    raise UnknownProvider(f"Cloud provider {provider} is not supported.")
+    raise UnknownProviderError(f"Cloud provider {provider} is not supported.")
