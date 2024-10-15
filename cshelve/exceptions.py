@@ -6,7 +6,15 @@ class UnknownProvider(Exception):
     pass
 
 
-class ReadonlyShelfError(Exception):
+class ReadonlyError(Exception):
+    """
+    Raised when an attempt is made to write to a read-only shelf.
+    """
+
+    pass
+
+
+class DBDoesnotExistsError(Exception):
     """
     Raised when an attempt is made to write to a read-only shelf.
     """
