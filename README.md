@@ -110,6 +110,14 @@ The module considers the provided container as dedicated to the application. The
 | `container_name`                 | The name of the container in your Azure storage account.                                                                                                     | :x:                |               |
 | `create_container_if_not_exists` | If set to `True`, the container will be created if it does not already exist. Note: This may impact performance during module initialization.                | :white_check_mark: | `False`       |
 
+Depending on the `open` flag, the permissions required by `cshelve` for blob storage vary. Except if the user asks for the blob creation in the configuration file, permission is needed on the container content, not on the container itself:
+
+| Flag | Description | Permissions Needed |
+|------|-------------|--------------------|
+| `r`  | Open an existing blob storage container for reading only. | [Storage Blob Data Reader](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) |
+| `w`  | Open an existing blob storage container for reading and writing. | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) |
+| `c`  | Open a blob storage container for reading and writing, creating it if it doesn't exist. | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) |
+| `n`  | Purge the blob storage container before using it. | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) |
 
 ## Roadmap
 
