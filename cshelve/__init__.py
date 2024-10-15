@@ -7,11 +7,11 @@ from .exceptions import UnknownProvider
 
 
 class CloudShelf(shelve.Shelf):
-    def __init__(self, filename, protocol, writeback, loader, factory):
+    def __init__(self, filename, flag, protocol, writeback, loader, factory):
         provider, config = loader(filename)
 
         cdict = factory(provider)
-        cdict.configure(config)
+        cdict.configure(flag, config)
 
         super().__init__(cdict, protocol, writeback)
 
@@ -23,7 +23,7 @@ def open(
         # The user requests a local and not a cloud shelf.
         return shelve.open(filename, flag, protocol, writeback)
 
-    return CloudShelf(filename, protocol, writeback, loader, factory)
+    return CloudShelf(filename, flag, protocol, writeback, loader, factory)
 
 
 __all__ = ["open", "UnknownProvider"]

@@ -14,6 +14,7 @@ def test_use_cloud_shelf():
     """
     filename = "test.ini"
     provider = "myprovider"
+    flag = "c"
     config = {
         "provider": provider,
         "auth_type": "passwordless",
@@ -32,7 +33,7 @@ def test_use_cloud_shelf():
 
     loader.assert_called_once_with(filename)
     factory.assert_called_once_with(provider)
-    cdit.configure.assert_called_once_with(config)
+    cdit.configure.assert_called_once_with(flag, config)
 
 
 def test_use_local_shelf():

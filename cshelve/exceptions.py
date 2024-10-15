@@ -4,3 +4,11 @@ class UnknownProvider(Exception):
     """
 
     pass
+
+
+class ReadonlyShelfError(Exception):
+    """
+    Raised when an attempt is made to write to a read-only shelf.
+    """
+
+    pass
