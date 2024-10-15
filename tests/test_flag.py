@@ -10,7 +10,7 @@ def test_read_only():
     mock = Mock()
     mock.flag = "r"
 
-    with pytest.raises(cshelve.ReadonlyError):
+    with pytest.raises(cshelve.ReadOnlyError):
         can_write(lambda x: x)(mock)
 
 
@@ -23,20 +23,13 @@ def test_can_write():
 
 
 def test_can_create():
-    mock = Mock()
-
     for flag in ("c", "n"):
-        mock.flag = flag
-        assert can_create(lambda x: True)(mock) == True
+        assert can_create(flag) == True
 
 
 def test_can_not_create():
-    mock = Mock()
-
     for flag in ("w", "r"):
-        mock.flag = flag
-        with pytest.raises(cshelve.DBDoesnotExistsError):
-            can_create(lambda x: x)(mock)
+        assert can_create(flag) == False
 
 
 def test_do_not_clear_db():

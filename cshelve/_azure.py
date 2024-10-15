@@ -8,6 +8,7 @@ from azure.storage.blob import BlobServiceClient, BlobType
 
 from ._flag import can_create, can_write
 from .cloud_mutable_mapping import CloudMutableMapping
+from .exceptions import CanNotCreateDB, DBDoesNotExistsError
 
 LRU_CACHE_MAX_SIZE = 2048
 
@@ -36,9 +37,14 @@ class AzureMutableMapping(CloudMutableMapping):
             self.container_name
         )
 
-        if config.get("create_container_if_not_exists", "False").lower() == "true":
-            if not self.__container_exists():
+        # Create container if not exists and it is configured or if the flag allow it.
+        if not self.__container_exists():
+            if can_create(flag):
                 self.__create_container_if_not_exists()
+            else:
+                raise DBDoesNotExistsError(
+                    f"Can't create database: {self.container_name}"
+                )
 
     def __getitem__(self, key: bytes):
         key = key.decode()
@@ -89,11 +95,9 @@ class AzureMutableMapping(CloudMutableMapping):
             self.container_name
         ).exists()
 
-    @can_create
     @can_write
     def __create_container_if_not_exists(self):
         try:
             self.blob_service_client.create_container(self.container_name)
         except Exception as e:
-            # Already exists or no permission.
-            ...
+            raise CanNotCreateDB(f"Can't create database: {self.container_name}") from e

@@ -6,17 +6,25 @@ class UnknownProvider(Exception):
     pass
 
 
-class ReadonlyError(Exception):
+class ReadOnlyError(Exception):
     """
-    Raised when an attempt is made to write to a read-only shelf.
+    Raised when an attempt is made to write to a read-only DB.
     """
 
     pass
 
 
-class DBDoesnotExistsError(Exception):
+class DBDoesNotExistsError(Exception):
     """
-    Raised when an attempt is made to write to a read-only shelf.
+    Raised when an the DB does not exist and the flag does not allow creating it.
+    """
+
+    pass
+
+
+class CanNotCreateDB(Exception):
+    """
+    Raised when an attempt is made to create a DB and it fails.
     """
 
     pass

@@ -30,7 +30,7 @@ def test_read_only():
         for i in range(100):
             key = f"{key_pattern}{i}"
 
-            with pytest.raises(cshelve.ReadonlyError):
+            with pytest.raises(cshelve.ReadOnlyError):
                 db[key] = str_data_pattern
 
         db.close()
@@ -90,8 +90,8 @@ def test_clear_db():
 
 
 def test_container_does_not_exists():
-    key_pattern = "test_container_does_not_exists"
-    str_data_pattern = "test_container_does_not_exists"
-
-    with pytest.raises(cshelve.DBDoesnotExistsError):
+    with pytest.raises(cshelve.DBDoesNotExistsError):
         cshelve.open("tests/configurations/flag/integration-azure-w.ini", "w")
+
+    with pytest.raises(cshelve.DBDoesNotExistsError):
+        cshelve.open("tests/configurations/flag/integration-azure-w.ini", "r")

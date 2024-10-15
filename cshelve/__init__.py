@@ -4,11 +4,17 @@ from ._factory import factory as _factory
 from ._flag import clear_db
 from ._parser import load as _loader
 from ._parser import use_local_shelf
-from .exceptions import DBDoesnotExistsError, ReadonlyError, UnknownProvider
+from .exceptions import (
+    CanNotCreateDB,
+    DBDoesNotExistsError,
+    ReadOnlyError,
+    UnknownProvider,
+)
 
 
 class CloudShelf(shelve.Shelf):
     def __init__(self, filename, flag, protocol, writeback, loader, factory):
+        flag = flag.lower()
         provider, config = loader(filename)
 
         cdict = factory(provider)
@@ -31,4 +37,10 @@ def open(
     return CloudShelf(filename, flag, protocol, writeback, loader, factory)
 
 
-__all__ = ["open", "UnknownProvider", "ReadonlyError", "DBDoesnotExistsError"]
+__all__ = [
+    "CanNotCreateDB",
+    "DBDoesNotExistsError",
+    "ReadOnlyError",
+    "UnknownProvider",
+    "open",
+]
