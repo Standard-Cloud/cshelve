@@ -1,3 +1,14 @@
+"""
+Azure Mutable Mapping Module
+
+This module provides an implementation of the CloudMutableMapping interface for Azure Blob Storage.
+It allows for the configuration and interaction with Azure Blob Storage containers, enabling
+CRUD operations on blobs within the specified container.
+
+This module uses an Azure Container to store key/value data in blobs.
+It creates a blob for each key/value pair, where the key is the blob name and the value is the blob content.
+Operations as iteration and length are done using the container API.
+"""
 import functools
 import io
 import os
@@ -17,15 +28,23 @@ from .exceptions import (
     key_access,
 )
 
+# Max size of the LRU cache for the blob clients.
+# Blob clients are cached to avoid creating a new client for each operation.
 LRU_CACHE_MAX_SIZE = 2048
 
 
 class AzureMutableMapping(CloudMutableMapping):
+    """
+    Azure implementation of the MutableMapping interface used by the Shelf module.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.container_name = None
         self.container_client = None
 
+        # Cache the blob clients to avoid creating a new client for each operation.
+        # As the class is not hashable, we can't use the lru_cache directly on the class method and so we wrap it.
         cache_fct = functools.partial(self._get_client_cache)
         self._get_client = functools.lru_cache(maxsize=LRU_CACHE_MAX_SIZE, typed=False)(
             cache_fct
