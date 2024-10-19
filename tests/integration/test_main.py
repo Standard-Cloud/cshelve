@@ -9,28 +9,6 @@ def test_write_and_read():
     """
     Ensure we can read and write data to the DB.
     """
-    db = cshelve.open("tests/configurations/azure-integration/standard.ini")
-
-    key_pattern = "test_write_and_read"
-    data_pattern = "test_write_and_read"
-
-    for i in range(100):
-        key = f"{key_pattern}{i}"
-
-        # Write data to the DB.
-        db[key] = f"{data_pattern}{i}"
-        # Data must be present in the DB.
-        assert db[key] == f"{data_pattern}{i}"
-        # Delete the data from the DB.
-        del db[key]
-
-    db.close()
-
-
-def test_write_and_read():
-    """
-    Ensure we can read and write data to the DB.
-    """
     with cshelve.open("tests/configurations/azure-integration/standard.ini") as db:
 
         key_pattern = "test_write_and_read"
