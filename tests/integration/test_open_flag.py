@@ -6,7 +6,7 @@ from helpers import write_data, del_data
 
 
 def test_read_only():
-    config_file = "tests/configurations/integration-azure-flag.ini"
+    config_file = "tests/configurations/azure-integration/flag.ini"
     key_pattern = "test_read_only"
     data_pattern = "test_read_only"
 
@@ -29,7 +29,7 @@ def test_read_only():
 
 
 def test_clear_db():
-    config_file = "tests/configurations/integration-azure-flag-n.ini"
+    config_file = "tests/configurations/azure-integration/flag-n.ini"
     key_pattern = "test_clear_db"
     data_pattern = "test_clear_db"
 
@@ -61,10 +61,12 @@ def test_clear_db():
 def test_container_does_not_exists():
     with pytest.raises(cshelve.DBDoesNotExistsError):
         cshelve.open(
-            "tests/configurations/integration-azure-container-does-not-exists.ini", "w"
+            "tests/configurations/azure-integration/error-handling/container-does-not-exists.ini",
+            "w",
         )
 
     with pytest.raises(cshelve.DBDoesNotExistsError):
         cshelve.open(
-            "tests/configurations/integration-azure-container-does-not-exists.ini", "r"
+            "tests/configurations/azure-integration/error-handling/container-does-not-exists.ini",
+            "r",
         )

@@ -8,7 +8,7 @@ def test_large():
     """
     Update a relative large DataFrame in the DB to verify it is possible.
     """
-    db = cshelve.open("tests/configurations/integration-azure.ini")
+    db = cshelve.open("tests/configurations/azure-integration/standard.ini")
 
     key_pattern = "test_large"
 
