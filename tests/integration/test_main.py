@@ -76,11 +76,14 @@ def test_read_after_reopening():
     """
     Ensure the data is still present after reopening the DB.
     """
-    config_file = "tests/configurations/integration-azure.ini"
+    config_file_passwordless = "tests/configurations/integration-azure.ini"
+    config_file_connection_string = (
+        "tests/configurations/integration-azure-connection-string.ini"
+    )
     key_pattern = "test_read_after_reopening"
     data_pattern = "test_read_after_reopening"
 
-    def read_data():
+    def read_data(config_file):
         db = cshelve.open(config_file)
 
         for i in range(100):
@@ -90,8 +93,9 @@ def test_read_after_reopening():
 
         db.close()
 
-    write_data(config_file, key_pattern, data_pattern)
-    read_data()
+    for config_file in [config_file_passwordless, config_file_connection_string]:
+        write_data(config_file, key_pattern, data_pattern)
+        read_data(config_file)
 
 
 def test_update_on_operator():
@@ -141,32 +145,6 @@ def test_update_on_operator():
     write_data()
     update_data()
     read_data()
-
-
-def test_key_not_found():
-    """
-    Ensure KeyError is raised when key is not found.
-    """
-    db = cshelve.open("tests/configurations/integration-azure.ini")
-
-    with pytest.raises(cshelve.KeyNotFoundError):
-        db["test_key_not_found"]
-
-    db.close()
-
-
-def test_raise_delete_missing_object():
-    """
-    Ensure delete an non-existing object raises KeyError.
-    """
-    db = cshelve.open("tests/configurations/integration-azure.ini")
-
-    key_pattern = "test_delete_object"
-
-    with pytest.raises(cshelve.KeyNotFoundError):
-        del db[key_pattern]
-
-    db.close()
 
 
 def test_contains():

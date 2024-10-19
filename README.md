@@ -118,6 +118,15 @@ Depending on the `open` flag, the permissions required by `cshelve` for blob sto
 | `c`  | Open a blob storage container for reading and writing, creating it if it doesn't exist. | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) |
 | `n`  | Purge the blob storage container before using it. | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) |
 
+
+Authentication type supported:
+
+| Auth Type         | Description                                                                                     | Advantage                                                                 | Disadvantage                          | Example Configuration |
+|-------------------|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|---------------------------------------|-----------------------|
+| Connection String | Uses a connection string for authentication. Credentials are provided directly in the string.   | Fast startup as no additional credential retrieval is needed.             | Credentials need to be securely managed and provided. | [Example](tests/configurations/integration-azure-connection-string.ini) |
+| Passwordless      | Uses passwordless authentication methods such as Managed Identity.                     | Recommended for better security and easier credential management.         | May impact startup time due to the need to retrieve authentication credentials. | [Example](./tests/configurations/integration-azure.ini) |
+
+
 ## Roadmap
 
 - **AWS S3 Support**: Integration for AWS S3 storage is planned in upcoming versions.
