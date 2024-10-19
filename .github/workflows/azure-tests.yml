@@ -1,17 +1,29 @@
-name: Run Pytest
+name: Run Azure integration tests
 on: [push, pull_request]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-  test:
+  azure-test:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
+    environment: azure
 
     steps:
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
     - name: Checkout code
       uses: actions/checkout@v2
 
@@ -27,4 +39,4 @@ jobs:
       run: uv sync --all-extras --dev
 
     - name: Run tests
-      run: uv run pytest tests/unit
+      run: uv run pytest tests/integration
