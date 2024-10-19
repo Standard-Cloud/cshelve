@@ -54,14 +54,11 @@ def test_read_after_reopening():
     """
     Ensure the data is still present after reopening the DB.
     """
-    config_file_passwordless = "tests/configurations/azure-integration/standard.ini"
-    config_file_connection_string = (
-        "tests/configurations/azure-integration/connection-string.ini"
-    )
+    config_file = "tests/configurations/azure-integration/standard.ini"
     key_pattern = "test_read_after_reopening"
     data_pattern = "test_read_after_reopening"
 
-    def read_data(config_file):
+    def read_data():
         db = cshelve.open(config_file)
 
         for i in range(100):
@@ -71,9 +68,36 @@ def test_read_after_reopening():
 
         db.close()
 
-    for config_file in [config_file_passwordless, config_file_connection_string]:
-        write_data(config_file, key_pattern, data_pattern)
-        read_data(config_file)
+    write_data(config_file, key_pattern, data_pattern)
+    read_data()
+
+
+@pytest.mark.parametrize(
+    "config_file",
+    [
+        "tests/configurations/azure-integration/standard.ini",
+        "tests/configurations/azure-integration/connection-string.ini",
+    ],
+)
+def test_authentication(config_file):
+    """
+    Test authentication with password and connection string.
+    """
+    with cshelve.open(config_file) as db:
+        key_pattern = "test_authentication"
+        data_pattern = "test_authentication"
+
+        for i in range(100):
+            key = f"{key_pattern}{i}"
+
+            # Write data to the DB.
+            db[key] = f"{data_pattern}{i}"
+            # Data must be present in the DB.
+            assert db[key] == f"{data_pattern}{i}"
+            # Delete the data from the DB.
+            del db[key]
+
+    db.close()
 
 
 def test_update_on_operator():
