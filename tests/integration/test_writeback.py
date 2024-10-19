@@ -2,7 +2,7 @@ import cshelve
 
 
 def test_writeback():
-    config_file = "tests/configurations/integration-azure.ini"
+    config_file = "tests/configurations/azure-integration/standard.ini"
     key_pattern = "test_writeback"
     data_pattern = [1]
 

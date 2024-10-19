@@ -65,7 +65,7 @@ run_test() {
 DB=/tmp/asterix-and-obelix.db
 run_test $DB
 
-DB=./azure.ini
+DB=./azure-passwordless.ini
 run_test $DB
 
 echo "All tests passed."

@@ -9,7 +9,7 @@ def test_write_and_read():
     """
     Ensure we can read and write data to the DB.
     """
-    db = cshelve.open("tests/configurations/integration-azure.ini")
+    db = cshelve.open("tests/configurations/azure-integration/standard.ini")
 
     key_pattern = "test_write_and_read"
     data_pattern = "test_write_and_read"
@@ -31,7 +31,7 @@ def test_write_and_read():
     """
     Ensure we can read and write data to the DB.
     """
-    with cshelve.open("tests/configurations/integration-azure.ini") as db:
+    with cshelve.open("tests/configurations/azure-integration/standard.ini") as db:
 
         key_pattern = "test_write_and_read"
         data_pattern = "test_write_and_read"
@@ -53,7 +53,7 @@ def test_del():
     """
     Ensure we can delete data from the DB.
     """
-    config_file = "tests/configurations/integration-azure-del.ini"
+    config_file = "tests/configurations/azure-integration/del.ini"
     key_pattern = "test_del"
     data_pattern = "test_del"
 
@@ -76,9 +76,9 @@ def test_read_after_reopening():
     """
     Ensure the data is still present after reopening the DB.
     """
-    config_file_passwordless = "tests/configurations/integration-azure.ini"
+    config_file_passwordless = "tests/configurations/azure-integration/standard.ini"
     config_file_connection_string = (
-        "tests/configurations/integration-azure-connection-string.ini"
+        "tests/configurations/azure-integration/connection-string.ini"
     )
     key_pattern = "test_read_after_reopening"
     data_pattern = "test_read_after_reopening"
@@ -102,7 +102,7 @@ def test_update_on_operator():
     """
     Ensure operator interface works as expected.
     """
-    config_file = "tests/configurations/integration-azure.ini"
+    config_file = "tests/configurations/azure-integration/standard.ini"
     key_pattern = "test_update_on_operator"
     str_data_pattern = "test_update_on_operator"
     list_data_pattern = [1]
@@ -151,7 +151,7 @@ def test_contains():
     """
     Ensure __contains__ works as expected.
     """
-    db = cshelve.open("tests/configurations/integration-azure.ini")
+    db = cshelve.open("tests/configurations/azure-integration/standard.ini")
 
     key_pattern = "test_contains"
     data_pattern = "test_contains"
@@ -167,7 +167,7 @@ def test_len():
     """
     Ensure __len__ works as expected.
     """
-    config = "tests/configurations/integration-azure-len.ini"
+    config = "tests/configurations/azure-integration/len.ini"
     db = cshelve.open(config)
 
     key_pattern = "test_len"
@@ -187,7 +187,7 @@ def test_len():
 
 
 def test_iter():
-    config = "tests/configurations/integration-azure-iter.ini"
+    config = "tests/configurations/azure-integration/iter.ini"
     res = set()
     db = cshelve.open(config)
 

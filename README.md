@@ -123,8 +123,8 @@ Authentication type supported:
 
 | Auth Type         | Description                                                                                     | Advantage                                                                 | Disadvantage                          | Example Configuration |
 |-------------------|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|---------------------------------------|-----------------------|
-| Connection String | Uses a connection string for authentication. Credentials are provided directly in the string.   | Fast startup as no additional credential retrieval is needed.             | Credentials need to be securely managed and provided. | [Example](tests/configurations/integration-azure-connection-string.ini) |
-| Passwordless      | Uses passwordless authentication methods such as Managed Identity.                     | Recommended for better security and easier credential management.         | May impact startup time due to the need to retrieve authentication credentials. | [Example](./tests/configurations/integration-azure.ini) |
+| Connection String | Uses a connection string for authentication. Credentials are provided directly in the string.   | Fast startup as no additional credential retrieval is needed.             | Credentials need to be securely managed and provided. | [Example](tests/configurations/azure-integration/connection-string.ini) |
+| Passwordless      | Uses passwordless authentication methods such as Managed Identity.                     | Recommended for better security and easier credential management.         | May impact startup time due to the need to retrieve authentication credentials. | [Example](./tests/configurations/azure-integration/standard.ini) |
 
 
 ## Roadmap
