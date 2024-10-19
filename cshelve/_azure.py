@@ -11,7 +11,6 @@ from .cloud_mutable_mapping import CloudMutableMapping
 from .exceptions import (
     CanNotCreateDBError,
     DBDoesNotExistsError,
-    KeyNotFoundError,
     key_access,
 )
 
@@ -88,10 +87,10 @@ class AzureMutableMapping(CloudMutableMapping):
             yield i.encode()
 
     def __len__(self):
-        return len(list(self.container_client.list_blob_names()))
+        return sum(1 for _ in self.container_client.list_blob_names())
 
     def _get_client_cache(self, key):
-        # 48 bytes from getsizeof
+        # Size of this object from getsizeof: 48 bytes
         return self.blob_service_client.get_blob_client(self.container_name, key)
 
     def __container_exists(self) -> bool:
