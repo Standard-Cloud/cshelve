@@ -41,6 +41,30 @@ class CanNotCreateDBError(Exception):
     pass
 
 
+class AuthError(Exception):
+    """
+    Based class for Auth exception.
+    """
+
+    pass
+
+
+class AuthTypeError(AuthError):
+    """
+    Raised when the auth type is unknown.
+    """
+
+    pass
+
+
+class AuthArgumentError(AuthError):
+    """
+    Raised when the auth type is unknown.
+    """
+
+    pass
+
+
 def key_access(exception: Type[Exception]) -> KeyNotFoundError:
     """
     Create a KeyNotFoundError exception if the key is not found.

@@ -5,6 +5,8 @@ from ._flag import clear_db
 from ._parser import load as _loader
 from ._parser import use_local_shelf
 from .exceptions import (
+    AuthArgumentError,
+    AuthTypeError,
     CanNotCreateDBError,
     DBDoesNotExistsError,
     KeyNotFoundError,
@@ -39,11 +41,13 @@ def open(
 
 
 __all__ = [
+    "AuthArgumentError",
+    "AuthTypeError",
     "CanNotCreateDBError",
     "DBDoesNotExistsError",
     "KeyNotFoundError",
+    "open",
     "ReadOnlyError",
     "ResourceNotFoundError",
     "UnknownProviderError",
-    "open",
 ]

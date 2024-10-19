@@ -1,6 +1,7 @@
 import functools
 import io
-from typing import Dict
+import os
+from typing import Dict, Optional
 
 from azure.core.exceptions import ResourceNotFoundError
 from azure.identity import DefaultAzureCredential
@@ -9,8 +10,10 @@ from azure.storage.blob import BlobServiceClient, BlobType
 from ._flag import can_create, can_write
 from .cloud_mutable_mapping import CloudMutableMapping
 from .exceptions import (
+    AuthTypeError,
     CanNotCreateDBError,
     DBDoesNotExistsError,
+    AuthArgumentError,
     key_access,
 )
 
@@ -31,11 +34,12 @@ class AzureMutableMapping(CloudMutableMapping):
     def configure(self, flag: str, config: Dict[str, str]) -> None:
         self.flag = flag
         account_url = config.get("account_url")
-        # auth_type = config.get('auth_type')
+        auth_type = config.get("auth_type")
+        connection_string = config.get("connection_string_key")
         self.container_name = config.get("container_name")
 
-        self.blob_service_client = BlobServiceClient(
-            account_url, credential=DefaultAzureCredential()
+        self.blob_service_client = self.__create_blob_service(
+            account_url, auth_type, connection_string
         )
         self.container_client = self.blob_service_client.get_container_client(
             self.container_name
@@ -49,6 +53,21 @@ class AzureMutableMapping(CloudMutableMapping):
                 raise DBDoesNotExistsError(
                     f"Can't create database: {self.container_name}"
                 )
+
+    def __create_blob_service(
+        self, account_url: str, auth_type: str, connection_string: Optional[str]
+    ) -> BlobServiceClient:
+        if auth_type == "connection_string":
+            if connection_string is None:
+                raise AuthArgumentError(f"Missing connection_string")
+            if connect_str := os.environ.get(connection_string):
+                return BlobServiceClient.from_connection_string(connect_str)
+            raise AuthArgumentError(
+                f"Missing environment variable: {connection_string}"
+            )
+        elif auth_type == "passwordless":
+            return BlobServiceClient(account_url, credential=DefaultAzureCredential())
+        raise AuthTypeError(f"Invalid auth_type: {auth_type}")
 
     @key_access(ResourceNotFoundError)
     def __getitem__(self, key: bytes):
