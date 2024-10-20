@@ -3,6 +3,8 @@ from typing import Optional
 import cshelve
 
 
+# When the CI is running, tests are executed on multiple platforms and Python versions accessing the same container with the same key.
+# To avoid conflicts, we use a unique key for each platform and Python version.
 unique_key = sys.platform + str(sys.version_info.minor)
 
 

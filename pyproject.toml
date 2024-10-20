@@ -11,7 +11,6 @@ dependencies = [
 
 repository = "https://github.com/Standard-Cloud/cshelve"
 homepage = "https://github.com/Standard-Cloud/cshelve"
-readme = ["README.md", "LICENSE"]
 keywords = ["shelve", "database", "azure-storage-account", "azure"]
 
 [tool.uv]
