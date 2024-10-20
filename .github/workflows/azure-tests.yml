@@ -42,6 +42,6 @@ jobs:
       run: uv sync --all-extras --dev --python ${{ matrix.python-version }}
 
     - name: Run tests
-      run: uv run pytest -n auto tests/integration
+      run: uv run --python ${{ matrix.python-version }} pytest -n auto tests/integration
       env:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
