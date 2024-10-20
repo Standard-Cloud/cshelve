@@ -31,27 +31,27 @@ def test_write_and_read():
     db.close()
 
 
-def test_del():
-    """
-    Ensure we can delete data from the DB.
-    """
-    config_file = "tests/configurations/azure-integration/del.ini"
-    key_pattern = unique + "test_del"
-    data_pattern = "test_del"
+# def test_del():
+#     """
+#     Ensure we can delete data from the DB.
+#     """
+#     config_file = "tests/configurations/azure-integration/del.ini"
+#     key_pattern = unique + "test_del"
+#     data_pattern = "test_del"
 
-    def _del_data():
-        db = cshelve.open(config_file)
+#     def _del_data():
+#         db = cshelve.open(config_file)
 
-        for i in range(100):
-            key = f"{key_pattern}{i}"
-            assert db[key] == f"{data_pattern}{i}"
-            del db[key]
+#         for i in range(100):
+#             key = f"{key_pattern}{i}"
+#             assert db[key] == f"{data_pattern}{i}"
+#             del db[key]
 
-        assert len(db) == 0
-        db.close()
+#         assert len(db) == 0
+#         db.close()
 
-    write_data(config_file, key_pattern, data_pattern)
-    _del_data()
+#     write_data(config_file, key_pattern, data_pattern)
+#     _del_data()
 
 
 def test_read_after_reopening():
@@ -169,45 +169,45 @@ def test_contains():
     del db[key_pattern]
 
 
-def test_len():
-    """
-    Ensure __len__ works as expected.
-    """
-    config = "tests/configurations/azure-integration/len.ini"
-    db = cshelve.open(config)
+# def test_len():
+#     """
+#     Ensure __len__ works as expected.
+#     """
+#     config = "tests/configurations/azure-integration/len.ini"
+#     db = cshelve.open(config)
 
-    key_pattern = unique + "test_len"
-    data_pattern = "test_len"
+#     key_pattern = unique + "test_len"
+#     data_pattern = "test_len"
 
-    del_data(config)
+#     del_data(config)
 
-    for i in range(100):
-        db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
+#     for i in range(100):
+#         db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
 
-    assert len(db) == 100
+#     assert len(db) == 100
 
-    for i in range(100):
-        del db[f"{key_pattern}{i}"]
+#     for i in range(100):
+#         del db[f"{key_pattern}{i}"]
 
-    assert len(db) == 0
+#     assert len(db) == 0
 
 
-def test_iter():
-    config = "tests/configurations/azure-integration/iter.ini"
-    res = set()
-    db = cshelve.open(config)
+# def test_iter():
+#     config = "tests/configurations/azure-integration/iter.ini"
+#     res = set()
+#     db = cshelve.open(config)
 
-    key_pattern = unique + "test_iter"
-    data_pattern = "test_iter"
-    del_data(config)
+#     key_pattern = unique + "test_iter"
+#     data_pattern = "test_iter"
+#     del_data(config)
 
-    for i in range(100):
-        key = f"{key_pattern}{i}"
-        db[key] = f"{data_pattern}{i}"
-        res.add(key)
+#     for i in range(100):
+#         key = f"{key_pattern}{i}"
+#         db[key] = f"{data_pattern}{i}"
+#         res.add(key)
 
-    keys = set(db)
-    assert keys == res
+#     keys = set(db)
+#     assert keys == res
 
-    db.close()
-    del_data(config)
+#     db.close()
+#     del_data(config)

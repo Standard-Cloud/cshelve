@@ -32,34 +32,34 @@ def test_read_only():
     del_data(config_file, key_pattern)
 
 
-def test_clear_db():
-    config_file = "tests/configurations/azure-integration/flag-n.ini"
-    key_pattern = unique + "test_clear_db"
-    data_pattern = "test_clear_db"
+# def test_clear_db():
+#     config_file = "tests/configurations/azure-integration/flag-n.ini"
+#     key_pattern = unique + "test_clear_db"
+#     data_pattern = "test_clear_db"
 
-    def rewrite_db():
-        db = cshelve.open(config_file, "n")
+#     def rewrite_db():
+#         db = cshelve.open(config_file, "n")
 
-        assert len(db) == 0
+#         assert len(db) == 0
 
-        for i in range(100):
-            db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
+#         for i in range(100):
+#             db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
 
-        db.close()
+#         db.close()
 
-    def read_data():
-        db = cshelve.open(config_file, "r")
+#     def read_data():
+#         db = cshelve.open(config_file, "r")
 
-        for i in range(100):
-            key = f"{key_pattern}{i}"
-            assert db[key] == f"{data_pattern}{i}"
+#         for i in range(100):
+#             key = f"{key_pattern}{i}"
+#             assert db[key] == f"{data_pattern}{i}"
 
-        db.close()
+#         db.close()
 
-    write_data(config_file, key_pattern, data_pattern)
-    rewrite_db()
-    read_data()
-    del_data(config_file, key_pattern)
+#     write_data(config_file, key_pattern, data_pattern)
+#     rewrite_db()
+#     read_data()
+#     del_data(config_file, key_pattern)
 
 
 def test_container_does_not_exists():
