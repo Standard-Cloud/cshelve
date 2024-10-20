@@ -14,6 +14,8 @@ This application is a simple database for the Asterix and Obelix comic series. I
     - For passwordless authentication, use the configuration in [azure-passwordless.ini](./azure-passwordless.ini).
     - For connection string authentication, use the configuration in [azure-connection-string.ini](./azure-connection-string.ini) and set up the environment variables as shown in [.env.example](.env.example).
 
+**Note:** Connection string authentication is faster than passwordless authentication at startup. The impact is measurable in the tests.
+
 ## Usage
 
 ### Running the Application
