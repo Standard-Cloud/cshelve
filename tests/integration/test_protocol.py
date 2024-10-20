@@ -2,13 +2,18 @@ import pickle
 
 import cshelve
 
+import sys
+
+
+unique = sys.platform + sys.version
+
 
 def test_protocol():
     """
     Ensure cshelve works correctly with the non default protocol.
     """
     config_file = "tests/configurations/azure-integration/standard.ini"
-    key_pattern = "test_protocol"
+    key_pattern = unique + "test_protocol"
     data_pattern = "test_protocol"
     protocol = pickle.HIGHEST_PROTOCOL
 
@@ -26,7 +31,7 @@ def test_change_protocol():
     Ensure cshelve works correctly with the non default protocol.
     """
     config_file = "tests/configurations/azure-integration/standard.ini"
-    key_pattern = "test_protocol"
+    key_pattern = unique + "test_protocol"
     data_pattern = "test_protocol"
     protocol = pickle.HIGHEST_PROTOCOL
 

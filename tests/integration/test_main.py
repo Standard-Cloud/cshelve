@@ -3,6 +3,10 @@ import pytest
 import cshelve
 
 from helpers import write_data, del_data
+import sys
+
+
+unique = sys.platform + sys.version
 
 
 def test_write_and_read():
@@ -11,7 +15,7 @@ def test_write_and_read():
     """
     with cshelve.open("tests/configurations/azure-integration/standard.ini") as db:
 
-        key_pattern = "test_write_and_read"
+        key_pattern = unique + "test_write_and_read"
         data_pattern = "test_write_and_read"
 
         for i in range(100):
@@ -32,7 +36,7 @@ def test_del():
     Ensure we can delete data from the DB.
     """
     config_file = "tests/configurations/azure-integration/del.ini"
-    key_pattern = "test_del"
+    key_pattern = unique + "test_del"
     data_pattern = "test_del"
 
     def _del_data():
@@ -55,7 +59,7 @@ def test_read_after_reopening():
     Ensure the data is still present after reopening the DB.
     """
     config_file = "tests/configurations/azure-integration/standard.ini"
-    key_pattern = "test_read_after_reopening"
+    key_pattern = unique + "test_read_after_reopening"
     data_pattern = "test_read_after_reopening"
 
     def read_data():
@@ -84,7 +88,7 @@ def test_authentication(config_file):
     Test authentication with password and connection string.
     """
     with cshelve.open(config_file) as db:
-        key_pattern = "test_authentication"
+        key_pattern = unique + "test_authentication"
         data_pattern = "test_authentication"
 
         for i in range(100):
@@ -105,7 +109,7 @@ def test_update_on_operator():
     Ensure operator interface works as expected.
     """
     config_file = "tests/configurations/azure-integration/standard.ini"
-    key_pattern = "test_update_on_operator"
+    key_pattern = unique + "test_update_on_operator"
     str_data_pattern = "test_update_on_operator"
     list_data_pattern = [1]
 
@@ -155,7 +159,7 @@ def test_contains():
     """
     db = cshelve.open("tests/configurations/azure-integration/standard.ini")
 
-    key_pattern = "test_contains"
+    key_pattern = unique + "test_contains"
     data_pattern = "test_contains"
 
     db[key_pattern] = data_pattern
@@ -172,7 +176,7 @@ def test_len():
     config = "tests/configurations/azure-integration/len.ini"
     db = cshelve.open(config)
 
-    key_pattern = "test_len"
+    key_pattern = unique + "test_len"
     data_pattern = "test_len"
 
     del_data(config)
@@ -193,7 +197,7 @@ def test_iter():
     res = set()
     db = cshelve.open(config)
 
-    key_pattern = "test_iter"
+    key_pattern = unique + "test_iter"
     data_pattern = "test_iter"
     del_data(config)
 

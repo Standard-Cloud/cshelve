@@ -3,11 +3,15 @@ import pytest
 import cshelve
 
 from helpers import write_data, del_data
+import sys
+
+
+unique = sys.platform + sys.version
 
 
 def test_read_only():
     config_file = "tests/configurations/azure-integration/flag.ini"
-    key_pattern = "test_read_only"
+    key_pattern = unique + "test_read_only"
     data_pattern = "test_read_only"
 
     def cant_update():
@@ -30,7 +34,7 @@ def test_read_only():
 
 def test_clear_db():
     config_file = "tests/configurations/azure-integration/flag-n.ini"
-    key_pattern = "test_clear_db"
+    key_pattern = unique + "test_clear_db"
     data_pattern = "test_clear_db"
 
     def rewrite_db():

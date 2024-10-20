@@ -1,9 +1,14 @@
 import cshelve
 
+import sys
+
+
+unique = sys.platform + sys.version
+
 
 def test_writeback():
     config_file = "tests/configurations/azure-integration/standard.ini"
-    key_pattern = "test_writeback"
+    key_pattern = unique + "test_writeback"
     data_pattern = [1]
 
     def _write_data():
