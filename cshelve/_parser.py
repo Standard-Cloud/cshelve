@@ -1,7 +1,18 @@
+"""
+This module is responsible for parsing the configuration file.
+It reads the configuration file and returns the provider and its configuration as a dictionary.
+It also provides a function to determine if a local shelf should be used based on the file extension.
+
+At this level, the only necessary configuration is the provider name.
+Other configurations are loaded into a dictionary and passed to the provider for further configuration.
+"""
 import configparser
 from typing import Dict, Tuple
 
+
+# Default ini section containing the provider and its configuration.
 DEFAULT_CONFIG_STORE = "default"
+# Key containing the provider name.
 PROVIDER_KEY = "provider"
 
 

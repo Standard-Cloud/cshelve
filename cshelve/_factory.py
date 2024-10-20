@@ -1,5 +1,6 @@
-from typing import Dict
-
+"""
+Factory module to return the backend module to be used.
+"""
 from .cloud_mutable_mapping import CloudMutableMapping
 from .exceptions import UnknownProviderError
 
