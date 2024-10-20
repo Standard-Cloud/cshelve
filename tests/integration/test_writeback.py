@@ -1,7 +1,7 @@
 import cshelve
 
 import sys
-from .helpers import unique_key
+from helpers import unique_key
 
 
 def test_writeback():

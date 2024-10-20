@@ -2,9 +2,8 @@ import numpy as np
 import pandas as pd
 
 import cshelve
-import sys
 
-unique = sys.platform + str(sys.version_info.minor)
+from helpers import unique_key
 
 
 def test_large():
@@ -13,7 +12,7 @@ def test_large():
     """
     db = cshelve.open("tests/configurations/azure-integration/standard.ini")
 
-    key_pattern = unique + "test_large"
+    key_pattern = unique_key + "test_large"
 
     # 167.46 MiB
     df = pd.DataFrame(
