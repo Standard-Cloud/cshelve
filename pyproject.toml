@@ -9,6 +9,11 @@ dependencies = [
     "azure-storage-blob>=12.23.1",
 ]
 
+repository = "https://github.com/Standard-Cloud/cshelve"
+homepage = "https://github.com/Standard-Cloud/cshelve"
+readme = ["README.md", "LICENSE"]
+keywords = ["shelve", "database", "azure-storage-account", "azure"]
+
 [tool.uv]
 dev-dependencies = [
     "pandas>=1.4",
