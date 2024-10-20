@@ -1,5 +1,5 @@
 name: Run Azure integration tests
-on: [push, pull_request]
+on: [pull_request]
 
 permissions:
   id-token: write
