@@ -2,11 +2,8 @@ import pytest
 
 import cshelve
 
-from helpers import write_data, del_data
+from helpers import write_data, unique_key
 import sys
-
-
-unique = sys.platform + str(sys.version_info.minor)
 
 
 def test_write_and_read():
@@ -15,7 +12,7 @@ def test_write_and_read():
     """
     with cshelve.open("tests/configurations/azure-integration/standard.ini") as db:
 
-        key_pattern = unique + "test_write_and_read"
+        key_pattern = unique_key + "test_write_and_read"
         data_pattern = "test_write_and_read"
 
         for i in range(100):
@@ -31,35 +28,12 @@ def test_write_and_read():
     db.close()
 
 
-# def test_del():
-#     """
-#     Ensure we can delete data from the DB.
-#     """
-#     config_file = "tests/configurations/azure-integration/del.ini"
-#     key_pattern = unique + "test_del"
-#     data_pattern = "test_del"
-
-#     def _del_data():
-#         db = cshelve.open(config_file)
-
-#         for i in range(100):
-#             key = f"{key_pattern}{i}"
-#             assert db[key] == f"{data_pattern}{i}"
-#             del db[key]
-
-#         assert len(db) == 0
-#         db.close()
-
-#     write_data(config_file, key_pattern, data_pattern)
-#     _del_data()
-
-
 def test_read_after_reopening():
     """
     Ensure the data is still present after reopening the DB.
     """
     config_file = "tests/configurations/azure-integration/standard.ini"
-    key_pattern = unique + "test_read_after_reopening"
+    key_pattern = unique_key + "test_read_after_reopening"
     data_pattern = "test_read_after_reopening"
 
     def read_data():
@@ -88,7 +62,7 @@ def test_authentication(config_file):
     Test authentication with password and connection string.
     """
     with cshelve.open(config_file) as db:
-        key_pattern = unique + "test_authentication"
+        key_pattern = unique_key + "test_authentication"
         data_pattern = "test_authentication"
 
         for i in range(100):
@@ -109,7 +83,7 @@ def test_update_on_operator():
     Ensure operator interface works as expected.
     """
     config_file = "tests/configurations/azure-integration/standard.ini"
-    key_pattern = unique + "test_update_on_operator"
+    key_pattern = unique_key + "test_update_on_operator"
     str_data_pattern = "test_update_on_operator"
     list_data_pattern = [1]
 
@@ -159,7 +133,7 @@ def test_contains():
     """
     db = cshelve.open("tests/configurations/azure-integration/standard.ini")
 
-    key_pattern = unique + "test_contains"
+    key_pattern = unique_key + "test_contains"
     data_pattern = "test_contains"
 
     db[key_pattern] = data_pattern
@@ -167,47 +141,3 @@ def test_contains():
     assert key_pattern in db
 
     del db[key_pattern]
-
-
-# def test_len():
-#     """
-#     Ensure __len__ works as expected.
-#     """
-#     config = "tests/configurations/azure-integration/len.ini"
-#     db = cshelve.open(config)
-
-#     key_pattern = unique + "test_len"
-#     data_pattern = "test_len"
-
-#     del_data(config)
-
-#     for i in range(100):
-#         db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
-
-#     assert len(db) == 100
-
-#     for i in range(100):
-#         del db[f"{key_pattern}{i}"]
-
-#     assert len(db) == 0
-
-
-# def test_iter():
-#     config = "tests/configurations/azure-integration/iter.ini"
-#     res = set()
-#     db = cshelve.open(config)
-
-#     key_pattern = unique + "test_iter"
-#     data_pattern = "test_iter"
-#     del_data(config)
-
-#     for i in range(100):
-#         key = f"{key_pattern}{i}"
-#         db[key] = f"{data_pattern}{i}"
-#         res.add(key)
-
-#     keys = set(db)
-#     assert keys == res
-
-#     db.close()
-#     del_data(config)

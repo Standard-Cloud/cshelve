@@ -1,5 +1,9 @@
+import sys
 from typing import Optional
 import cshelve
+
+
+unique_key = sys.platform + str(sys.version_info.minor)
 
 
 def write_data(db_config: str, key_pattern: str, data_pattern: str):
