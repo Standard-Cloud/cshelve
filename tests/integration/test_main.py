@@ -45,7 +45,7 @@ def test_del():
         for i in range(100):
             key = f"{key_pattern}{i}"
             assert db[key] == f"{data_pattern}{i}"
-            del db[f"{key_pattern}{i}"]
+            del db[key]
 
         assert len(db) == 0
         db.close()
