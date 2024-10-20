@@ -2,14 +2,14 @@
 This application is a simple database for the Asterix and Obelix comic series. It allows you to add new users to the database and dump the current users in the database.
 
 How to use:
-    python main.py <database-file> dump|save|clear
+    python main.py <database-configuration> dump|save|clear
 """
 import sys
 
 import cshelve
 
 
-# Open the database file.
+# Open the database configuration.
 with cshelve.open(sys.argv[1], writeback=True) as db:
     # Create the 'users' key if it doesn't exist.
     if "users" not in db:

@@ -1,3 +1,6 @@
+"""
+The factory ensures that the correct backend is loaded based on the provider.
+"""
 from unittest.mock import patch
 
 import pytest
@@ -11,7 +14,7 @@ def test_known_backend(azure_mock):
     """
     Test factory loading the Azure backend.
     """
-    azure = factory("azure")
+    factory("azure")
 
     azure_mock.assert_called_once()
 

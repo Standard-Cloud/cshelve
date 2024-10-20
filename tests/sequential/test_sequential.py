@@ -1,10 +1,14 @@
-import pytest
-
+"""
+Following tests verify behavior at a global level on the database and must tested in a sequential way.
+"""
 import cshelve
 from tests.integration.helpers import del_data, write_data
 
 
 def test_clear_db():
+    """
+    Ensure the database is cleared when using the 'n' flag.
+    """
     config_file = "tests/configurations/azure-integration/flag-n.ini"
     key_pattern = "test_clear_db"
     data_pattern = "test_clear_db"
@@ -36,7 +40,7 @@ def test_clear_db():
 
 def test_del():
     """
-    Ensure we can delete data from the DB.
+    Ensure we can delete a record from the DB.
     """
     config_file = "tests/configurations/azure-integration/del.ini"
     key_pattern = "test_del"
@@ -81,6 +85,9 @@ def test_len():
 
 
 def test_iter():
+    """
+    Ensure the __iter__ method works as expected.
+    """
     config = "tests/configurations/azure-integration/iter.ini"
     res = set()
     db = cshelve.open(config)

@@ -1,11 +1,14 @@
+"""
+Depending on the filename, either the native shelve module or the cloud shelve module is used.
+The cloud shelve module is used when the filename has a specific extension, and we must ensure that the correct module is used.
+"""
 import pickle
 import shelve
 import tempfile
 from unittest.mock import Mock
 
-import pytest
-
 import cshelve
+from cshelve._parser import load, use_local_shelf
 
 
 def test_use_cloud_shelf():
@@ -37,32 +40,6 @@ def test_use_cloud_shelf():
     cdit.configure.assert_called_once_with(flag, config)
 
 
-def test_use_protocol():
-    """
-    Provide the protocol argument and check if it is passed to the shelve module.
-    """
-    filename = "test.ini"
-    provider = "myprovider"
-    protocol = pickle.HIGHEST_PROTOCOL
-    config = {
-        "provider": provider,
-        "auth_type": "passwordless",
-        "container_name": "mycontainer",
-    }
-
-    cdit = Mock()
-    factory = Mock()
-    loader = Mock()
-
-    factory.return_value = cdit
-    loader.return_value = provider, config
-
-    # Replace the default parser with the mock parser.
-    db = cshelve.open(filename, protocol=protocol, loader=loader, factory=factory)
-
-    assert db._protocol == protocol
-
-
 def test_use_local_shelf():
     """
     Based on the filename, the default shelve module must be used.
@@ -76,3 +53,36 @@ def test_use_local_shelf():
             fp.close()
             default = cshelve.open(fp.name)
             assert isinstance(default, shelve.DbfilenameShelf)
+
+
+def test_use_local_shelf():
+    """
+    If the filename is not finishing by '.ini', the default shelve module must be used.
+    """
+    fallback_default_module = ["test.sqlite3", "test.db", "test.dat"]
+
+    for filename in fallback_default_module:
+        assert use_local_shelf(filename) is True
+        # assert use_local_shelf(Path(filename)) is True
+
+
+def test_use_cloud_shelf():
+    """
+    If the filename is finishing by '.ini', the cloud shelve module must be used.
+    """
+    cloud_module = ["test.ini", "cloud.ini", "test.cloud.ini"]
+
+    for filename in cloud_module:
+        assert use_local_shelf(filename) is False
+
+
+def test_azure_configuration():
+    """
+    Load the Azure configuration file and return it as a dictionary.
+    """
+    provider, config = load("tests/configurations/azure.ini")
+
+    assert provider == "azure"
+    assert config["auth_type"] == "passwordless"
+    assert config["account_url"] == "https://myaccount.blob.core.windows.net"
+    assert config["container_name"] == "mycontainer"

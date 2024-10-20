@@ -1,3 +1,7 @@
+"""
+Integration tests for the protocol parameter.
+The `Shelf` object mainly manages this functionality, but we must ensure `cshelve` can handle it.
+"""
 import pickle
 
 import cshelve

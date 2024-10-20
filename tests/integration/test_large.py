@@ -1,3 +1,6 @@
+"""
+Ensure the library can handle large data.
+"""
 import numpy as np
 import pandas as pd
 
