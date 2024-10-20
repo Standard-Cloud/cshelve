@@ -6,7 +6,7 @@ from helpers import write_data, del_data
 import sys
 
 
-unique = sys.platform + sys.version
+unique = sys.platform + str(sys.version_info.minor)
 
 
 def test_read_only():

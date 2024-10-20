@@ -3,7 +3,7 @@ import cshelve
 import sys
 
 
-unique = sys.platform + sys.version
+unique = sys.platform + str(sys.version_info.minor)
 
 
 def test_writeback():
