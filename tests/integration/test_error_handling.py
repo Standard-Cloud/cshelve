@@ -1,3 +1,6 @@
+"""
+Verify error handling in the library.
+"""
 import pytest
 
 import cshelve

@@ -1,9 +1,19 @@
+"""
+This module contains the integration tests for the writeback functionality.
+The `Shelf` object manages this feature but the `cshelve` module must provide all the necessary tools.
+"""
 import cshelve
+
+import sys
+from helpers import unique_key
 
 
 def test_writeback():
+    """
+    Ensure the writeback functionality works as expected.
+    """
     config_file = "tests/configurations/azure-integration/standard.ini"
-    key_pattern = "test_writeback"
+    key_pattern = unique_key + "test_writeback"
     data_pattern = [1]
 
     def _write_data():
