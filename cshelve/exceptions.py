@@ -1,3 +1,8 @@
+"""
+This module contains the exceptions raised by the cshelve package.
+`dbm` exceptions are based on the sub implementations and are not following a standard.
+Consequently, we are creating custom exceptions to handle the errors.
+"""
 from typing import Type
 
 
