@@ -62,15 +62,15 @@ class AzureMutableMapping(CloudMutableMapping):
         # The authentication type to use.
         # Can be either 'connection_string' or 'passwordless'.
         auth_type = config.get("auth_type")
-        # The connection string key to use with the connection string authentication type.
-        connection_string = config.get("connection_string_key")
+        # The environment variable key that contains the connection string.
+        environment_key = config.get("environment_key")
         # The name of the container to use.
         # It can be created if it does not exist depending on the flag parameter.
         self.container_name = config.get("container_name")
 
         # Create the BlobServiceClient and ContainerClient objects.
         self.blob_service_client = self.__create_blob_service(
-            account_url, auth_type, connection_string
+            account_url, auth_type, environment_key
         )
         self.container_client = self.blob_service_client.get_container_client(
             self.container_name
@@ -86,16 +86,14 @@ class AzureMutableMapping(CloudMutableMapping):
                 )
 
     def __create_blob_service(
-        self, account_url: str, auth_type: str, connection_string: Optional[str]
+        self, account_url: str, auth_type: str, environment_key: Optional[str]
     ) -> BlobServiceClient:
         if auth_type == "connection_string":
-            if connection_string is None:
-                raise AuthArgumentError(f"Missing connection_string")
-            if connect_str := os.environ.get(connection_string):
+            if environment_key is None:
+                raise AuthArgumentError(f"Missing environment_key parameter")
+            if connect_str := os.environ.get(environment_key):
                 return BlobServiceClient.from_connection_string(connect_str)
-            raise AuthArgumentError(
-                f"Missing environment variable: {connection_string}"
-            )
+            raise AuthArgumentError(f"Missing environment variable: {environment_key}")
         elif auth_type == "passwordless":
             return BlobServiceClient(account_url, credential=DefaultAzureCredential())
         raise AuthTypeError(f"Invalid auth_type: {auth_type}")
