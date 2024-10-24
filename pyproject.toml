@@ -1,6 +1,6 @@
 [project]
 name = "cshelve"
-version = "0.1.0.dev5"
+version = "v0.1.0"
 description = "Propulsing the shelve module to the cloud"
 readme = "README.md"
 requires-python = ">=3.9"
