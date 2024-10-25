@@ -81,4 +81,5 @@ jobs:
         python -m venv venv
         source venv/bin/activate
         pip install ./dist/*.whl
+        pip freeze
         python3 main.py production.results.ini
