@@ -83,9 +83,4 @@ with cshelve.open(database_name) as db:
     for backend, res in db.items():
         for fct_name, fct_res in res.items():
             for res in fct_res:
-                print(
-                    backend,
-                    fct_name,
-                    res["datetime"].strftime("%Y-%m-%d"),
-                    res["exec_time"],
-                )
+                print(backend, fct_name, res)

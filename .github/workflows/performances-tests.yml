@@ -78,8 +78,7 @@ jobs:
     - name: Run performances tests
       working-directory: performances
       run: |
-        # python -m venv venv
-        # source venv/bin/activate
-        python3 -m pip install cshelve #install ./dist/*.whl
-        python3 -m pip freeze
-        python3 main.py production.results.ini
+        python -v
+        python -m pip install ./dist/*.whl
+        python -m pip freeze
+        python main.py production.results.ini
