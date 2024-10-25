@@ -17,8 +17,14 @@ python main.py <database_name> [<os_type> <python_major_version> <commit_hash>]
 
 ### Example
 
+For testing:
 ```sh
-python main.py performance_results.db Linux 3.8 abc123
+python main.py staging.results.ini Linux 3.8 abc123
+```
+
+For production (running in the CI):
+```sh
+python main.py production.results.ini Linux 3.8 abc123
 ```
 
 ## Tests

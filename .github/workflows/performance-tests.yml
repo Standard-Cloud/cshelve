@@ -79,8 +79,8 @@ jobs:
       run: ls
 
     - name: Install the package
-      run: pip install cshelve.whl
+      run: pip install ./cshelve.whl
 
     - name: Run performance tests
       working-directory: performance
-      run: python main.py results.ini
+      run: python main.py production.results.ini
