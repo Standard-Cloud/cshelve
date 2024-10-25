@@ -81,6 +81,6 @@ jobs:
     - name: Install the package
       run: pip install ./dist/*.whl
 
-    - name: Run performance tests
-      working-directory: performance
+    - name: Run performances tests
+      working-directory: performances
       run: python main.py production.results.ini
