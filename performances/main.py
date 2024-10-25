@@ -14,7 +14,7 @@ database_name = sys.argv[1]
 # Retrieve the OS type, the Python version and the commit hash.
 # Those information allows to track performance on different platforms.
 # If not provided an default version is used to allow test.
-if sys.argc > 2:
+if len(sys.argv) > 2:
     OS_TYPE = sys.argv[2]
     PYTHON_MAJOR_VERSION = sys.argv[3]
     COMMIT_HASH = sys.argv[4]
@@ -82,5 +82,10 @@ with cshelve.open(database_name) as db:
     # Simpli display the results.
     for backend, res in db.items():
         for fct_name, fct_res in res.items():
-            for k, v in fct_res.items():
-                print(backend, fct_name, k.strftime("%Y-%m-%d"), v)
+            for res in fct_res:
+                print(
+                    backend,
+                    fct_name,
+                    res["datetime"].strftime("%Y-%m-%d"),
+                    res["exec_time"],
+                )
