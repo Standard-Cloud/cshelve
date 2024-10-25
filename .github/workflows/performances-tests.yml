@@ -80,6 +80,6 @@ jobs:
       run: |
         # python -m venv venv
         # source venv/bin/activate
-        python3 -m pip install ./dist/*.whl
+        python3 -m pip  cshelve #install ./dist/*.whl
         python3 -m pip freeze
         python3 main.py production.results.ini
