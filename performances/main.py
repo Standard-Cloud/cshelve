@@ -6,7 +6,12 @@ import datetime
 from tests import performance_tests
 
 
-BACKENDS = ["local", "test-azure.ini"]
+BACKENDS = [
+    # Run test locally.
+    "local",
+    # Run test using Azure Blob Storage.
+    "test-azure.ini",
+]
 
 # The database containing the result of the tests.
 database_name = sys.argv[1]
@@ -73,13 +78,16 @@ def save(db, backend_name, fct_name, exec_time):
 with cshelve.open(database_name) as db:
     # Run the tests for each backend and save the results in the result DB.
     for backend in BACKENDS:
-        for name, code in performance_tests.items():
+        for name, fct in performance_tests.items():
+            print(name)
             # Execute the test providing the backend to test.
-            res_test_perf = code(backend)
+            res_test_perf = fct(backend)
             exec_time = timeit.timeit(res_test_perf, number=10)
+            print(exec_time)
             save(db, backend, name, exec_time)
 
     # Simpli display the results.
+    print("Results:")
     for backend, res in db.items():
         for fct_name, fct_res in res.items():
             for res in fct_res:
