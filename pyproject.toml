@@ -1,6 +1,6 @@
 [project]
 name = "cshelve"
-version = "0.1.1.dev0"
+version = "0.1.1"
 description = "Propulsing the shelve module to the cloud"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -8,10 +8,10 @@ dependencies = [
     "azure-identity>=1.19.0",
     "azure-storage-blob>=12.23.1",
 ]
-keywords = ["shelve", "database", "azure-storage-account", "azure"]
+keywords = ["shelve", "database", "azure-storage-account", "azure", "cloud"]
 
 [tool.setuptools]
-py-modules = ["cshelve"]
+packages = ["cshelve"]
 
 [project.urls]
 repository = "https://github.com/Standard-Cloud/cshelve"

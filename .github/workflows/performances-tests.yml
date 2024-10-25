@@ -78,7 +78,6 @@ jobs:
     - name: Run performances tests
       working-directory: performances
       run: |
-        python -v
-        python -m pip install ./dist/cshelve-0.1.1.dev0-py3-none-any.whl
-        python -m pip freeze
+        pip install ./dist/cshelve*.whl
+        pip freeze
         python main.py production.results.ini
