@@ -12,7 +12,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubutnu-latest]
+        os: [ubuntu-latest]
         python-version: ["3.9"]
 
     runs-on: ${{ matrix.os }}
