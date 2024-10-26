@@ -81,3 +81,5 @@ jobs:
         pip install ./dist/cshelve*.whl
         pip freeze
         python main.py production.results.ini
+      env:
+        AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}

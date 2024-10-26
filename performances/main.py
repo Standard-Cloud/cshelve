@@ -79,11 +79,15 @@ with cshelve.open(database_name) as db:
     # Run the tests for each backend and save the results in the result DB.
     for backend in BACKENDS:
         for name, fct in performance_tests.items():
-            print(name)
+            print(
+                f"Running test {name} for backend {backend} on {OS_TYPE} with Python {PYTHON_MAJOR_VERSION}."
+            )
+            # Purge the DB used by tests.
+            cshelve.open(backend, "n").close()
             # Execute the test providing the backend to test.
             res_test_perf = fct(backend)
             exec_time = timeit.timeit(res_test_perf, number=10)
-            print(exec_time)
+            # Save the result in the DB.
             save(db, backend, name, exec_time)
 
     # Simpli display the results.

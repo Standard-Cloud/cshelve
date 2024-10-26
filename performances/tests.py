@@ -2,7 +2,7 @@ def write_same_key(db_filename: str):
     return f"""
 import cshelve
 
-db = cshelve.open('{db_filename}', 'n')
+db = cshelve.open('{db_filename}')
 
 for i in range(100):
     db['element'] = i
@@ -15,7 +15,7 @@ def delete_same_key(db_filename: str):
     return f"""
 import cshelve
 
-db = cshelve.open('{db_filename}', 'n')
+db = cshelve.open('{db_filename}')
 
 for i in range(100):
     db['element'] = i
@@ -29,9 +29,9 @@ def write_several_keys(db_filename: str):
     return f"""
 import cshelve
 
-db = cshelve.open('{db_filename}', 'n')
+db = cshelve.open('{db_filename}')
 
-for i in range(100000):
+for i in range(100):
     db['element' + str(i)] = i
 
 db.close()
@@ -42,9 +42,9 @@ def delete_several_keys(db_filename: str):
     return f"""
 import cshelve
 
-db = cshelve.open('{db_filename}', 'n')
+db = cshelve.open('{db_filename}')
 
-for i in range(100000):
+for i in range(100):
     k = 'element' + str(i)
     db[k] = i
     del db[k]
@@ -57,9 +57,9 @@ def read_same_key(db_filename: str):
     return f"""
 import cshelve
 
-db = cshelve.open('{db_filename}', 'n')
+db = cshelve.open('{db_filename}')
 
-for i in range(100000):
+for i in range(100):
     db['element'] = 0
     r = db[f'element']
 
@@ -71,9 +71,9 @@ def read_several_keys(db_filename: str):
     return f"""
 import cshelve
 
-db = cshelve.open('{db_filename}', 'n')
+db = cshelve.open('{db_filename}')
 
-for i in range(100000):
+for i in range(100):
     k = 'element' + str(i)
     db[k] = i
     r = db[k]
@@ -86,12 +86,12 @@ def iterate_several_keys(db_filename: str):
     return f"""
 import cshelve
 
-db = cshelve.open('{db_filename}', 'n')
+db = cshelve.open('{db_filename}')
 
-for i in range(100000):
+for i in range(100):
     k = 'element' + str(i)
 
-for i in range(100000):
+for i in range(100):
     for i in db:
         ...
 
@@ -103,12 +103,12 @@ def len_several_keys(db_filename: str):
     return f"""
 import cshelve
 
-db = cshelve.open('{db_filename}', 'n')
+db = cshelve.open('{db_filename}')
 
-for i in range(100000):
+for i in range(100):
     k = 'element' + str(i)
 
-for i in range(100000):
+for i in range(100):
     _ = len(db)
 
 db.close()
