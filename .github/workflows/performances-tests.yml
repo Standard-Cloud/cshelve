@@ -51,7 +51,7 @@ jobs:
       max-parallel: 1
 
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 40
     environment: azure
 
     steps:
@@ -79,6 +79,6 @@ jobs:
       working-directory: performances
       run: |
         pip install ./dist/cshelve*.whl
-        python main.py production.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
+        python main.py staging.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
       env:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}

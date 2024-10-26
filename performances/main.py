@@ -79,7 +79,8 @@ def save(db, backend_name, fct_name, exec_time):
 def run_test(db, backend):
     for name, fct in performance_tests.items():
         print(
-            f"Running test {name} for backend {backend} on {OS_TYPE} with Python {PYTHON_MAJOR_VERSION}."
+            f"Running test {name} for backend {backend} on {OS_TYPE} with Python {PYTHON_MAJOR_VERSION}.",
+            flush=True,
         )
         # Purge the DB used by tests.
         cshelve.open(backend, "n").close()
