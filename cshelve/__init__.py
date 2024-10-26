@@ -45,8 +45,11 @@ class CloudShelf(shelve.Shelf):
 
         # If the flag parameter indicates, clear the database.
         if clear_db(flag):
+            # Retrieve all the keys and delete them.
+            # Retrieving keys is quick, but the deletion synchronously is slow so we use threads to speed up the process.
             with ThreadPoolExecutor() as executor:
-                executor.map(cdict.__delitem__, cdict.keys())
+                for _ in executor.map(cdict.__delitem__, cdict.keys()):
+                    pass
 
         # Let the standard shelve.Shelf class handle the rest.
         super().__init__(cdict, protocol, writeback)

@@ -2,6 +2,7 @@ import sys
 import timeit
 import cshelve
 import datetime
+from concurrent.futures import ThreadPoolExecutor
 
 from tests import performance_tests
 
@@ -75,20 +76,26 @@ def save(db, backend_name, fct_name, exec_time):
     db[backend_name] = backend_perfs
 
 
+def run_test(db, backend):
+    for name, fct in performance_tests.items():
+        print(
+            f"Running test {name} for backend {backend} on {OS_TYPE} with Python {PYTHON_MAJOR_VERSION}."
+        )
+        # Purge the DB used by tests.
+        cshelve.open(backend, "n").close()
+        # # Execute the test providing the backend to test.
+        # res_test_perf = fct(backend)
+        # exec_time = timeit.timeit(res_test_perf, number=10)
+        # # Save the result in the DB.
+        # save(db, backend, name, exec_time)
+
+
 with cshelve.open(database_name) as db:
     # Run the tests for each backend and save the results in the result DB.
-    for backend in BACKENDS:
-        for name, fct in performance_tests.items():
-            print(
-                f"Running test {name} for backend {backend} on {OS_TYPE} with Python {PYTHON_MAJOR_VERSION}."
-            )
-            # Purge the DB used by tests.
-            cshelve.open(backend, "n").close()
-            # Execute the test providing the backend to test.
-            res_test_perf = fct(backend)
-            exec_time = timeit.timeit(res_test_perf, number=10)
-            # Save the result in the DB.
-            save(db, backend, name, exec_time)
+    # Because backend are independent, we can run them in parallel.
+    # It may have an impact on the network, but currently the number of backend is limited.
+    with ThreadPoolExecutor(max_workers=len(BACKENDS)) as executor:
+        list(executor.map(lambda backend: run_test(db, backend), BACKENDS))
 
     # Simpli display the results.
     print("Results:")

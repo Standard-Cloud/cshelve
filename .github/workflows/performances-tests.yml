@@ -79,7 +79,6 @@ jobs:
       working-directory: performances
       run: |
         pip install ./dist/cshelve*.whl
-        pip freeze
-        python main.py production.results.ini
+        python main.py production.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
       env:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
