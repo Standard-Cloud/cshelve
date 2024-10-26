@@ -83,11 +83,11 @@ def run_test(db, backend):
         )
         # Purge the DB used by tests.
         cshelve.open(backend, "n").close()
-        # # Execute the test providing the backend to test.
-        # res_test_perf = fct(backend)
-        # exec_time = timeit.timeit(res_test_perf, number=10)
-        # # Save the result in the DB.
-        # save(db, backend, name, exec_time)
+        # Execute the test providing the backend to test.
+        res_test_perf = fct(backend)
+        exec_time = timeit.timeit(res_test_perf, number=10)
+        # Save the result in the DB.
+        save(db, backend, name, exec_time)
 
 
 with cshelve.open(database_name) as db:
