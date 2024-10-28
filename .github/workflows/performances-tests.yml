@@ -81,7 +81,7 @@ jobs:
     - name: Run performances tests
       working-directory: performances
       run: |
-        pip install ./dist/$WHEEL
+        pip install ./dist/${{ env.WHEEL }}
         python main.py staging.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
       env:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
