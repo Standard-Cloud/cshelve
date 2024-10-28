@@ -8,6 +8,9 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  WHEEL: cshelve-0.1.1-py3-none-any.whl
+
 jobs:
   build:
     strategy:
@@ -78,7 +81,7 @@ jobs:
     - name: Run performances tests
       working-directory: performances
       run: |
-        pip install ./dist/cshelve*.whl
+        pip install ./dist/$WHEEL
         python main.py staging.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
       env:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
