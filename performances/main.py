@@ -73,8 +73,7 @@ def save(db, backend_name, fct_name, exec_time):
 
 
 def run_test(db, backend):
-    # Test are saved in the DB using the following key:
-    res_key = f"{backend}--{OS_TYPE}--{PYTHON_MAJOR_VERSION}"
+    res_key = get_key(backend)
 
     for name, fct in performance_tests.items():
         print(
@@ -90,6 +89,10 @@ def run_test(db, backend):
         save(db, res_key, name, exec_time)
 
 
+def get_key(backend):
+    return f"{backend}--{OS_TYPE}--{PYTHON_MAJOR_VERSION}"
+
+
 with cshelve.open(database_name) as db:
     # Run the tests for each backend and save the results in the result DB.
     # Because backend are independent, we can run them in parallel.
@@ -99,7 +102,10 @@ with cshelve.open(database_name) as db:
 
     # Simpli display the results.
     print("Results:")
-    for backend, res in db.items():
+    backend_names = [get_key(b) for b in BACKENDS]
+    for backend_name, res in db.items():
+        if backend_name not in backend_names:
+            continue
         for fct_name, res in res.items():
             if len(res) > 1:
                 previous = res[-2]["exec_time"] if len(res) > 1 else 0
@@ -110,9 +116,9 @@ with cshelve.open(database_name) as db:
                     else f"worst (+{current - previous:.2f})"
                 )
                 print(
-                    f"Backend: {backend}, Function: {fct_name}, diff performance are {perf_result}"
+                    f"Backend: {backend_name}, Function: {fct_name}, diff performance are {perf_result}"
                 )
             else:
                 print(
-                    f"No previous performance to compare with for backend {backend}, Function {fct_name}."
+                    f"No previous performance to compare with for backend {backend_name}, Function {fct_name}."
                 )
