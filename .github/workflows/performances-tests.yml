@@ -98,7 +98,7 @@ jobs:
         # Start dependencies.
         azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
         # Run the tests.
-        python main.py staging.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
+        python main.py production.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
       env:
         # Local connection string for Azurite.
         AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
