@@ -94,8 +94,8 @@ with cshelve.open(database_name) as db:
     # Run the tests for each backend and save the results in the result DB.
     # Because backend are independent, we can run them in parallel.
     # It may have an impact on the network, but currently the number of backend is limited.
-    # with ThreadPoolExecutor(max_workers=len(BACKENDS)) as executor:
-    #     list(executor.map(lambda backend: run_test(db, backend), BACKENDS))
+    with ThreadPoolExecutor(max_workers=len(BACKENDS)) as executor:
+        list(executor.map(lambda backend: run_test(db, backend), BACKENDS))
 
     # Simpli display the results.
     print("Results:")
