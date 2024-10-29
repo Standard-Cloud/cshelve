@@ -96,7 +96,7 @@ jobs:
       working-directory: performances
       run: |
         # Start dependencies.
-        azurite --silent --location c:\azurite --debug c:\azurite\debug.log
+        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
         # Run the tests.
         python main.py staging.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
       env:
