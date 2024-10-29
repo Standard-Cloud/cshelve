@@ -12,6 +12,7 @@ env:
   WHEEL: cshelve-0.1.1-py3-none-any.whl
 
 jobs:
+  # Build the current version of the project and re use the wheel in the performances tests.
   build:
     strategy:
       matrix:
@@ -44,6 +45,7 @@ jobs:
         if-no-files-found: error
         overwrite: false
 
+  # Run the performance tests.
   performance-tests:
     needs: build
 
@@ -51,7 +53,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-      max-parallel: 1
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
@@ -68,7 +69,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Download the package.
+    - name: Download the wheel.
       uses: actions/download-artifact@v4
       with:
         name: cshelve-${{ github.sha }}
@@ -78,10 +79,18 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Run performances tests
+    - name: Install package.
       working-directory: performances
       run: |
         pip install ./dist/${{ env.WHEEL }}
+
+    - name: Run performances tests
+      working-directory: performances
+      run: |
+        # Start dependencies.
+        docker compose up -d
+        # Run the tests.
         python main.py staging.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
       env:
-        AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        # Local connection string for Azurite.
+        AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"

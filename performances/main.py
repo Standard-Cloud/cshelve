@@ -41,8 +41,6 @@ def save(db, backend_name, fct_name, exec_time):
                 {
                   'exec_time': <exec_time>,
                   'datetime': <datetime>,
-                  'os': '<os_type>',
-                  'python_major_version': '<python_major_version>',
                   'commit_hash': '<commit_hash>'
                 }
                 ...
@@ -66,8 +64,6 @@ def save(db, backend_name, fct_name, exec_time):
         {
             "exec_time": exec_time,
             "datetime": datetime.datetime.now(),
-            "os": OS_TYPE,
-            "python_major_version": PYTHON_MAJOR_VERSION,
             "commit_hash": COMMIT_HASH,
         }
     )
@@ -77,6 +73,9 @@ def save(db, backend_name, fct_name, exec_time):
 
 
 def run_test(db, backend):
+    # Test are saved in the DB using the following key:
+    res_key = f"{backend}--{OS_TYPE}--{PYTHON_MAJOR_VERSION}"
+
     for name, fct in performance_tests.items():
         print(
             f"Running test {name} for backend {backend} on {OS_TYPE} with Python {PYTHON_MAJOR_VERSION}.",
@@ -88,19 +87,32 @@ def run_test(db, backend):
         res_test_perf = fct(backend)
         exec_time = timeit.timeit(res_test_perf, number=10)
         # Save the result in the DB.
-        save(db, backend, name, exec_time)
+        save(db, res_key, name, exec_time)
 
 
 with cshelve.open(database_name) as db:
     # Run the tests for each backend and save the results in the result DB.
     # Because backend are independent, we can run them in parallel.
     # It may have an impact on the network, but currently the number of backend is limited.
-    with ThreadPoolExecutor(max_workers=len(BACKENDS)) as executor:
-        list(executor.map(lambda backend: run_test(db, backend), BACKENDS))
+    # with ThreadPoolExecutor(max_workers=len(BACKENDS)) as executor:
+    #     list(executor.map(lambda backend: run_test(db, backend), BACKENDS))
 
     # Simpli display the results.
     print("Results:")
     for backend, res in db.items():
-        for fct_name, fct_res in res.items():
-            for res in fct_res:
-                print(backend, fct_name, res)
+        for fct_name, res in res.items():
+            if len(res) > 1:
+                previous = res[-2]["exec_time"] if len(res) > 1 else 0
+                current = res[-1]["exec_time"]
+                perf_result = (
+                    f"better: -({previous - current:.2f})"
+                    if current < previous
+                    else f"worst (+{current - previous:.2f})"
+                )
+                print(
+                    f"Backend: {backend}, Function: {fct_name}, diff performance are {perf_result}"
+                )
+            else:
+                print(
+                    f"No previous performance to compare with for backend {backend}, Function {fct_name}."
+                )

@@ -6,6 +6,13 @@ This project is designed to measure the performance of various database operatio
 
 ## Usage
 
+To run correctly, tests need the Azure Storage emulator [Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio%2Cblob-storage). It is configured in the `docker-compose.yml` file for easy usage and can run in the background with the command:
+
+```sh
+docker compose up -d
+```
+
+Then, performance tests can be run with the command:
 ```sh
 python main.py <database_name> [<os_type> <python_major_version> <commit_hash>]
 ```
@@ -19,11 +26,13 @@ python main.py <database_name> [<os_type> <python_major_version> <commit_hash>]
 
 For testing:
 ```sh
+docker compose up -d
 python main.py staging.results.ini Linux 3.8 abc123
 ```
 
 For production (running in the CI):
 ```sh
+docker compose up -d
 python main.py production.results.ini Linux 3.8 abc123
 ```
 
