@@ -66,14 +66,16 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    - name: Install Azureit.
+      run: |
+        npm install -g azurite
+
     - name: Checkout code
       uses: actions/checkout@v4
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
 
     - name: Download the wheel.
       uses: actions/download-artifact@v4
@@ -94,7 +96,7 @@ jobs:
       working-directory: performances
       run: |
         # Start dependencies.
-        docker compose up -d
+        azurite --silent --location c:\azurite --debug c:\azurite\debug.log
         # Run the tests.
         python main.py staging.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
       env:
