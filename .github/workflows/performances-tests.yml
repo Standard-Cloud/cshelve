@@ -1,8 +1,8 @@
 name: Run performance tests
 on:
   push:
-    # branches:
-    #   - main
+    branches:
+      - main
 
 permissions:
   id-token: write
@@ -45,10 +45,11 @@ jobs:
         if-no-files-found: error
         overwrite: false
 
-  # Run the performance tests.
+
   performance-tests:
     needs: build
 
+    # Tests are run on all supported OS and Python versions to ensure quality.
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -59,6 +60,7 @@ jobs:
     environment: azure
 
     steps:
+    # An Azure storage account is used to keep results.
     - name: 'Az CLI login'
       uses: azure/login@v1
       with:
@@ -66,11 +68,12 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+    # Nodejs is used to install Azurite.
     - uses: actions/setup-node@v4
       with:
         node-version: 18
 
-    - name: Install Azureit.
+    - name: Install Azureit to emulate Azure Storage Account locally.
       run: |
         npm install -g azurite
 
@@ -95,9 +98,9 @@ jobs:
     - name: Run performances tests
       working-directory: performances
       run: |
-        # Start dependencies.
+        # Start Azureit.
         azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
-        # Run the tests.
+        # Run performance tests.
         python main.py production.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
       env:
         # Local connection string for Azurite.
