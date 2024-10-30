@@ -14,7 +14,7 @@ def test_known_backend(azure_mock):
     """
     Test factory loading the Azure backend.
     """
-    factory("azure")
+    factory("azure-blob")
 
     azure_mock.assert_called_once()
 

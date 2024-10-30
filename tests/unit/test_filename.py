@@ -82,7 +82,7 @@ def test_azure_configuration():
     """
     provider, config = load("tests/configurations/azure.ini")
 
-    assert provider == "azure"
+    assert provider == "azure-blob"
     assert config["auth_type"] == "passwordless"
     assert config["account_url"] == "https://myaccount.blob.core.windows.net"
     assert config["container_name"] == "mycontainer"

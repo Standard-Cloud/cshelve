@@ -9,7 +9,7 @@ def factory(provider: str) -> CloudMutableMapping:
     """
     Return the backend module to be used.
     """
-    if provider == "azure":
+    if provider == "azure-blob":
         from ._azure import AzureMutableMapping
 
         return AzureMutableMapping()

@@ -55,12 +55,12 @@ d.close()                     # Close the database
 
 To configure remote cloud storage, you need to provide an INI file containing your cloud provider's configuration. The file should have a `.ini` extension.
 
-#### Example Azure Configuration
+#### Example Azure Blob Configuration
 
 ```bash
-$ cat azure.ini
+$ cat azure-blob.ini
 [default]
-provider        = azure
+provider        = azure-blob
 account_url     = https://myaccount.blob.core.windows.net
 auth_type       = passwordless
 container_name  = mycontainer
@@ -71,7 +71,7 @@ Once the INI file is ready, you can interact with remote storage the same way as
 ```python
 import cshelve
 
-d = cshelve.open('azure.ini')  # Open using the remote storage configuration
+d = cshelve.open('azure-blob.ini')  # Open using the remote storage configuration
 
 key = 'key'
 data = 'data'
@@ -98,7 +98,7 @@ More configuration examples for other cloud providers can be found [here](./test
 
 ### Cloud Providers configuration
 
-#### Azure
+#### Azure Blob
 
 The Azure provider uses [Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction) as remote storage.
 The module considers the provided container as dedicated to the application. The impact might be significant. For example, if the flag `n` is provided to the `open` function, the entire container will be purged, aligning with the [official interface](https://docs.python.org/3/library/shelve.html#shelve.open).
