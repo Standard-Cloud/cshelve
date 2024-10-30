@@ -7,6 +7,7 @@ Based on the file extension, it will open a local or cloud shelf, but in any cas
 If the file extension is `.ini`, the file is considered a configuration file and handled by `cshelve`; otherwise, it will be handled by the standard `shelve` module.
 """
 
+from concurrent.futures import ThreadPoolExecutor
 import shelve
 
 from ._factory import factory as _factory
@@ -44,8 +45,11 @@ class CloudShelf(shelve.Shelf):
 
         # If the flag parameter indicates, clear the database.
         if clear_db(flag):
-            for key in cdict.keys():
-                del cdict[key]
+            # Retrieve all the keys and delete them.
+            # Retrieving keys is quick, but the deletion synchronously is slow so we use threads to speed up the process.
+            with ThreadPoolExecutor() as executor:
+                for _ in executor.map(cdict.__delitem__, cdict.keys()):
+                    pass
 
         # Let the standard shelve.Shelf class handle the rest.
         super().__init__(cdict, protocol, writeback)

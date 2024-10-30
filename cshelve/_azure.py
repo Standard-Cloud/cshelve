@@ -70,7 +70,7 @@ class AzureMutableMapping(CloudMutableMapping):
 
         # Create the BlobServiceClient and ContainerClient objects.
         self.blob_service_client = self.__create_blob_service(
-            account_url, auth_type, environment_key
+            auth_type, account_url, environment_key
         )
         self.container_client = self.blob_service_client.get_container_client(
             self.container_name
@@ -86,7 +86,7 @@ class AzureMutableMapping(CloudMutableMapping):
                 )
 
     def __create_blob_service(
-        self, account_url: str, auth_type: str, environment_key: Optional[str]
+        self, auth_type: str, account_url: Optional[str], environment_key: Optional[str]
     ) -> BlobServiceClient:
         if auth_type == "connection_string":
             if environment_key is None:
