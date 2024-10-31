@@ -1,11 +1,11 @@
 """
 Factory module to return the backend module to be used.
 """
-from .cloud_mutable_mapping import CloudMutableMapping
+from .cloud_database import CloudDatabase
 from .exceptions import UnknownProviderError
 
 
-def factory(provider: str) -> CloudMutableMapping:
+def factory(provider: str) -> CloudDatabase:
     """
     Return the backend module to be used.
     """

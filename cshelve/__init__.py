@@ -7,11 +7,10 @@ Based on the file extension, it will open a local or cloud shelf, but in any cas
 If the file extension is `.ini`, the file is considered a configuration file and handled by `cshelve`; otherwise, it will be handled by the standard `shelve` module.
 """
 
-from concurrent.futures import ThreadPoolExecutor
 import shelve
 
+import _database
 from ._factory import factory as _factory
-from ._flag import clear_db
 from ._parser import load as _loader
 from ._parser import use_local_shelf
 from .exceptions import (
@@ -23,6 +22,18 @@ from .exceptions import (
     ReadOnlyError,
     UnknownProviderError,
 )
+
+__all__ = [
+    "AuthArgumentError",
+    "AuthTypeError",
+    "CanNotCreateDBError",
+    "DBDoesNotExistsError",
+    "KeyNotFoundError",
+    "open",
+    "ReadOnlyError",
+    "ResourceNotFoundError",
+    "UnknownProviderError",
+]
 
 
 class CloudShelf(shelve.Shelf):
@@ -39,24 +50,26 @@ class CloudShelf(shelve.Shelf):
         # Load the configuration file to retrieve the provider and its configuration.
         provider, config = loader(filename)
 
-        # Based on the provider, create the corresponding object then configure it.
-        cdict = factory(provider)
-        cdict.configure(flag, config)
+        # Based on the provider, create the corresponding object.
+        cloud_database = factory(provider)
+        # Configure the object with the configuration.
+        cloud_database.configure(config)
 
-        # If the flag parameter indicates, clear the database.
-        if clear_db(flag):
-            # Retrieve all the keys and delete them.
-            # Retrieving keys is quick, but the deletion synchronously is slow so we use threads to speed up the process.
-            with ThreadPoolExecutor() as executor:
-                for _ in executor.map(cdict.__delitem__, cdict.keys()):
-                    pass
+        # Perform operations based on the flag and wrap the CloudDatabase in the MutableMapping interface.
+        db = _database.open(flag, cloud_database)
 
         # Let the standard shelve.Shelf class handle the rest.
-        super().__init__(cdict, protocol, writeback)
+        super().__init__(db, protocol, writeback)
 
 
 def open(
-    filename, flag="c", protocol=None, writeback=False, loader=_loader, factory=_factory
+    filename,
+    flag="c",
+    protocol=None,
+    writeback=False,
+    /,
+    loader=_loader,
+    factory=_factory,
 ) -> shelve.Shelf:
     """
     Open a cloud shelf or a local shelf based on the file extension.
@@ -66,16 +79,3 @@ def open(
         return shelve.open(filename, flag, protocol, writeback)
 
     return CloudShelf(filename, flag, protocol, writeback, loader, factory)
-
-
-__all__ = [
-    "AuthArgumentError",
-    "AuthTypeError",
-    "CanNotCreateDBError",
-    "DBDoesNotExistsError",
-    "KeyNotFoundError",
-    "open",
-    "ReadOnlyError",
-    "ResourceNotFoundError",
-    "UnknownProviderError",
-]
