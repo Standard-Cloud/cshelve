@@ -6,6 +6,9 @@ from abc import abstractmethod
 from typing import Dict
 
 
+__all__ = ["CloudDatabase"]
+
+
 class CloudDatabase:
     """
     This class defines the interface for cloud storage backends that support the MutableMapping interface.
@@ -88,6 +91,3 @@ class CloudDatabase:
         Create the cloud storage backend.
         """
         raise NotImplementedError
-
-
-__all__ = ["CloudDatabase"]

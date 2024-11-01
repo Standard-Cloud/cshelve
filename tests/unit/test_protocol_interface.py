@@ -4,8 +4,6 @@ The impact is on the algorithm used by the `Shelf` object and not directly on `c
 Anyway, the library must support it.
 """
 import pickle
-import shelve
-import tempfile
 from unittest.mock import Mock
 
 import cshelve

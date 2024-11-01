@@ -57,9 +57,6 @@ def open(flag: str, db: CloudDatabase):
     """
     Open a cloud database based on the configuration file.
     """
-    if can_create(flag):
-        raise CanNotCreateDBError("Can't create a new database")
-
     # Create container if not exists and it is configured or if the flag allow it.
     if not db.exists():
         if can_create(flag):

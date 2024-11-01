@@ -16,7 +16,6 @@ from azure.core.exceptions import ResourceNotFoundError
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobType
 
-from ._flag import can_create, can_write
 from .cloud_database import CloudDatabase
 from .exceptions import (
     AuthTypeError,
@@ -104,8 +103,6 @@ class AzureMutableMapping(CloudDatabase):
         # No sync operation is required for Azure Blob Storage.
         ...
 
-    # Write permission is required to perform this operation.
-    @can_write
     def set(self, key, value):
         """
         Create or update the blob with the specified key and value on the Azure Blob Storage container.
@@ -124,8 +121,6 @@ class AzureMutableMapping(CloudDatabase):
             value, blob_type=BlobType.BLOCKBLOB, overwrite=True, length=len(value)
         )
 
-    # Write permission is required to perform this operation.
-    @can_write
     # If an `ResourceNotFoundError` is raised by the SDK, it is converted to a `KeyError` to follow the `dbm` behavior based on a custom module error.
     @key_access(ResourceNotFoundError)
     def delete(self, key):

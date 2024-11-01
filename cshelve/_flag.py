@@ -9,7 +9,6 @@ The module must adapt its behavior based on the flag provided by the user and re
 """
 import functools
 
-from ._database import _Database
 from .exceptions import ReadOnlyError
 
 
@@ -34,7 +33,7 @@ def can_write(func) -> bool:
     """
 
     @functools.wraps(func)
-    def can_write(obj: _Database, *args, **kwargs):
+    def can_write(obj, *args, **kwargs):
         if obj.flag == "r":
             raise ReadOnlyError("Reader can't store")
         return func(obj, *args, **kwargs)
