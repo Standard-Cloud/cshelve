@@ -1,7 +1,7 @@
 """
-Azure Mutable Mapping Module
+Azure Blob Storage implementation.
 
-This module provides an implementation of the CloudMutableMapping interface based on Azure Blob Storage.
+This module provides an implementation of the ProviderInterface using Azure Blob Storage for the storage.
 
 This module uses an Azure container to store key/value data in blobs.
 It creates a blob for each key/value pair, where the key is the blob name and the value is the blob content.
@@ -16,12 +16,9 @@ from azure.core.exceptions import ResourceNotFoundError
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobType
 
-from ._flag import can_create, can_write
-from .cloud_mutable_mapping import CloudMutableMapping
+from .provider_interface import ProviderInterface
 from .exceptions import (
     AuthTypeError,
-    CanNotCreateDBError,
-    DBDoesNotExistsError,
     AuthArgumentError,
     key_access,
 )
@@ -31,9 +28,9 @@ from .exceptions import (
 LRU_CACHE_MAX_SIZE = 2048
 
 
-class AzureMutableMapping(CloudMutableMapping):
+class AzureBlobStorage(ProviderInterface):
     """
-    Azure implementation of the MutableMapping interface used by the Shelf module.
+    Implement the database based on the Azure Blob Storage technology.
     """
 
     def __init__(self) -> None:
@@ -48,13 +45,10 @@ class AzureMutableMapping(CloudMutableMapping):
             cache_fct
         )
 
-    def configure(self, flag: str, config: Dict[str, str]) -> None:
+    def configure(self, config: Dict[str, str]) -> None:
         """
         Configure the Azure Blob Storage client based on the configuration file.
         """
-        # The flag parameter is used to verify permissions but is not directly utilized by this class.
-        self.flag = flag
-
         # Retrieve the configuration parameters.
         # The Azure Storage Account URL
         # Ex: https://<account_name>.blob.core.windows.net
@@ -76,31 +70,9 @@ class AzureMutableMapping(CloudMutableMapping):
             self.container_name
         )
 
-        # Create container if not exists and it is configured or if the flag allow it.
-        if not self.__container_exists():
-            if can_create(flag):
-                self.__create_container_if_not_exists()
-            else:
-                raise DBDoesNotExistsError(
-                    f"Can't create database: {self.container_name}"
-                )
-
-    def __create_blob_service(
-        self, auth_type: str, account_url: Optional[str], environment_key: Optional[str]
-    ) -> BlobServiceClient:
-        if auth_type == "connection_string":
-            if environment_key is None:
-                raise AuthArgumentError(f"Missing environment_key parameter")
-            if connect_str := os.environ.get(environment_key):
-                return BlobServiceClient.from_connection_string(connect_str)
-            raise AuthArgumentError(f"Missing environment variable: {environment_key}")
-        elif auth_type == "passwordless":
-            return BlobServiceClient(account_url, credential=DefaultAzureCredential())
-        raise AuthTypeError(f"Invalid auth_type: {auth_type}")
-
     # If an `ResourceNotFoundError` is raised by the SDK, it is converted to a `KeyError` to follow the `dbm` behavior based on a custom module error.
     @key_access(ResourceNotFoundError)
-    def __getitem__(self, key: bytes) -> bytes:
+    def get(self, key: bytes) -> bytes:
         """
         Retrieve the value of the specified key on the Azure Blob Storage container.
         """
@@ -117,9 +89,21 @@ class AzureMutableMapping(CloudMutableMapping):
         client.download_blob().readinto(stream)
         return stream.getvalue()
 
-    # Write permission is required to perform this operation.
-    @can_write
-    def __setitem__(self, key, value):
+    def close(self) -> None:
+        """
+        Close the Azure Blob Storage client.
+        """
+        self.container_client.close()
+        self.blob_service_client.close()
+
+    def sync(self) -> None:
+        """
+        Sync the Azure Blob Storage client.
+        """
+        # No sync operation is required for Azure Blob Storage.
+        ...
+
+    def set(self, key, value):
         """
         Create or update the blob with the specified key and value on the Azure Blob Storage container.
         """
@@ -137,11 +121,9 @@ class AzureMutableMapping(CloudMutableMapping):
             value, blob_type=BlobType.BLOCKBLOB, overwrite=True, length=len(value)
         )
 
-    # Write permission is required to perform this operation.
-    @can_write
     # If an `ResourceNotFoundError` is raised by the SDK, it is converted to a `KeyError` to follow the `dbm` behavior based on a custom module error.
     @key_access(ResourceNotFoundError)
-    def __delitem__(self, key):
+    def delete(self, key):
         # Azure Blob Storage must be string and not bytes.
         key = key.decode()
 
@@ -152,14 +134,14 @@ class AzureMutableMapping(CloudMutableMapping):
         # The retry pattern and error handling is done by the Azure SDK.
         client.delete_blob()
 
-    def __contains__(self, key) -> bool:
+    def contains(self, key) -> bool:
         """
         Return whether the specified key exists on the Azure Blob Storage container.
         """
         # Azure Blob Storage must be string and not bytes.
         return self._get_client(key.decode()).exists()
 
-    def __iter__(self) -> Iterator[bytes]:
+    def iter(self) -> Iterator[bytes]:
         """
         Return an iterator over the keys in the Azure Blob Storage container.
         """
@@ -168,13 +150,30 @@ class AzureMutableMapping(CloudMutableMapping):
             # To respect the Shelf interface, we encode the string to bytes.
             yield i.encode()
 
-    def __len__(self):
+    def len(self):
         """
         Return the number of objects stored in the database.
         """
         # The Azure SDK does not provide a method to get the number of blobs in a container.
         # We iterate over the blobs and count them.
         return sum(1 for _ in self.container_client.list_blob_names())
+
+    def exists(self) -> bool:
+        """
+        Check if the container exists on the Azure Blob Storage account.
+        """
+        return self.blob_service_client.get_container_client(
+            self.container_name
+        ).exists()
+
+    def create(self):
+        """
+        Create the container.
+        The container must not exist before calling this method.
+        """
+        self.container_client = self.blob_service_client.create_container(
+            self.container_name
+        )
 
     def _get_client_cache(self, key):
         """
@@ -183,23 +182,15 @@ class AzureMutableMapping(CloudMutableMapping):
         """
         return self.blob_service_client.get_blob_client(self.container_name, key)
 
-    def __container_exists(self) -> bool:
-        """
-        Check if the container exists on the Azure Blob Storage account.
-        """
-        return self.blob_service_client.get_container_client(
-            self.container_name
-        ).exists()
-
-    @can_write
-    def __create_container_if_not_exists(self):
-        """
-        Create the container.
-        The container must not exist before calling this method.
-        """
-        try:
-            self.blob_service_client.create_container(self.container_name)
-        except Exception as e:
-            raise CanNotCreateDBError(
-                f"Can't create database: {self.container_name}"
-            ) from e
+    def __create_blob_service(
+        self, auth_type: str, account_url: Optional[str], environment_key: Optional[str]
+    ) -> BlobServiceClient:
+        if auth_type == "connection_string":
+            if environment_key is None:
+                raise AuthArgumentError(f"Missing environment_key parameter")
+            if connect_str := os.environ.get(environment_key):
+                return BlobServiceClient.from_connection_string(connect_str)
+            raise AuthArgumentError(f"Missing environment variable: {environment_key}")
+        elif auth_type == "passwordless":
+            return BlobServiceClient(account_url, credential=DefaultAzureCredential())
+        raise AuthTypeError(f"Invalid auth_type: {auth_type}")

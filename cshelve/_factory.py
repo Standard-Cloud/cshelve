@@ -1,17 +1,17 @@
 """
-Factory module to return the backend module to be used.
+Factory module to return the correct module to be used.
 """
-from .cloud_mutable_mapping import CloudMutableMapping
+from .provider_interface import ProviderInterface
 from .exceptions import UnknownProviderError
 
 
-def factory(provider: str) -> CloudMutableMapping:
+def factory(provider: str) -> ProviderInterface:
     """
-    Return the backend module to be used.
+    Return the correct module to be used.
     """
     if provider == "azure-blob":
-        from ._azure import AzureMutableMapping
+        from ._azure import AzureBlobStorage
 
-        return AzureMutableMapping()
+        return AzureBlobStorage()
 
-    raise UnknownProviderError(f"Cloud provider {provider} is not supported.")
+    raise UnknownProviderError(f"Provider Interface '{provider}' is not supported.")

@@ -9,15 +9,7 @@ The module must adapt its behavior based on the flag provided by the user and re
 """
 import functools
 
-from .cloud_mutable_mapping import CloudMutableMapping
 from .exceptions import ReadOnlyError
-
-
-def clear_db(flag: str) -> bool:
-    """
-    Returns True if the user requests to clear the database.
-    """
-    return flag == "n"
 
 
 def can_create(flag: str) -> bool:
@@ -34,9 +26,16 @@ def can_write(func) -> bool:
     """
 
     @functools.wraps(func)
-    def can_write(obj: CloudMutableMapping, *args, **kwargs):
+    def can_write(obj, *args, **kwargs):
         if obj.flag == "r":
             raise ReadOnlyError("Reader can't store")
         return func(obj, *args, **kwargs)
 
     return can_write
+
+
+def clear_db(flag: str) -> bool:
+    """
+    Returns True if the user requests to clear the database.
+    """
+    return flag == "n"
