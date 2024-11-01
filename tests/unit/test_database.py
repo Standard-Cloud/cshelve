@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 from cshelve._database import _Database
-from cshelve.exceptions import CanNotCreateDBError, DBDoesNotExistsError
+from cshelve.exceptions import CanNotCreateDBError, DBDoesNotExistsError, ReadOnlyError
 
 
 def test_setitem():
@@ -214,3 +214,20 @@ def test_do_not_clear_database():
         db._init()
 
         provider_db.iter.assert_not_called()
+
+
+def test_read_only():
+    """
+    Ensure the database is not cleared if the flag doesn't allow it.
+    """
+    provider_db = Mock()
+    flag = "r"
+    key, value = b"key", b"value"
+
+    db = _Database(provider_db, flag)
+
+    with pytest.raises(ReadOnlyError) as _:
+        db[key] = value
+
+    with pytest.raises(ReadOnlyError) as _:
+        del db[key]
