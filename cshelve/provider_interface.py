@@ -3,7 +3,7 @@ This Interface defines the interface for storage backends supporting the `Mutabl
 This class is used by the `Shelf` class to interact with the cloud storage backend.
 """
 from abc import abstractmethod
-from typing import Dict
+from typing import Dict, Iterator
 
 
 __all__ = ["ProviderInterface"]
@@ -65,7 +65,7 @@ class ProviderInterface:
         raise NotImplementedError
 
     @abstractmethod
-    def iter(self) -> bytes:
+    def iter(self) -> Iterator[bytes]:
         """
         Return an iterator over the keys.
         """

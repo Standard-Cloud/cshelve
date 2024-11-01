@@ -52,7 +52,7 @@ class _Database(MutableMapping):
         """
         Iterate over the keys in the database.
         """
-        return iter(self.db.iter())
+        yield from self.db.iter()
 
     def __len__(self) -> int:
         """
@@ -86,11 +86,11 @@ class _Database(MutableMapping):
                     raise CanNotCreateDBError("Can't create database.") from e
             else:
                 raise DBDoesNotExistsError("Database does not exist.")
-
-        # If the flag parameter indicates, clear the database.
-        if clear_db(self.flag):
-            # Retrieve all the keys and delete them.
-            # Retrieving keys is quick, but deletion synchronously is slow, so we use threads to speed up the process.
-            with ThreadPoolExecutor() as executor:
-                for _ in executor.map(self.db.delete, self.db.iter()):
-                    pass
+        else:
+            # If the database exists, but the flag parameter indicates that it should be cleared, clear it.
+            if clear_db(self.flag):
+                # Retrieve all the keys and delete them.
+                # Retrieving keys is quick, but deletion synchronously is slow, so we use threads to speed up the process.
+                with ThreadPoolExecutor() as executor:
+                    for _ in executor.map(self.db.delete, self.db.iter()):
+                        pass
