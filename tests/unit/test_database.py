@@ -135,14 +135,18 @@ def test_create_database_if_not_exists():
     Ensure the database is created if it doesn't exist.
     """
     provider_db = Mock()
-    flag = "c"
+    flags = "c", "n"
 
-    provider_db.exists.return_value = False
-    db = _Database(provider_db, flag)
-    db._init()
+    for flag in flags:
+        provider_db.exists.reset_mock()
+        provider_db.create.reset_mock()
+        provider_db.exists.return_value = False
 
-    provider_db.exists.assert_called_once()
-    provider_db.create.assert_called_once()
+        db = _Database(provider_db, flag)
+        db._init()
+
+        provider_db.exists.assert_called_once()
+        provider_db.create.assert_called_once()
 
 
 def test_cant_create_database_if_not_exists_and_not_allowed():
@@ -150,13 +154,17 @@ def test_cant_create_database_if_not_exists_and_not_allowed():
     Ensure exception is raised if the database doesn't exist and the flag doesn't allow it.
     """
     provider_db = Mock()
-    flag = "r"
+    flags = "r", "w"
 
-    provider_db.exists.return_value = False
-    db = _Database(provider_db, flag)
+    for flag in flags:
+        provider_db.exists.reset_mock()
+        provider_db.create.reset_mock()
+        provider_db.exists.return_value = False
 
-    with pytest.raises(DBDoesNotExistsError) as _:
-        db._init()
+        db = _Database(provider_db, flag)
+
+        with pytest.raises(DBDoesNotExistsError) as _:
+            db._init()
 
 
 def test_error_database_creation():
@@ -194,11 +202,15 @@ def test_do_not_clear_database():
     Ensure the database is not cleared if the flag doesn't allow it.
     """
     provider_db = Mock()
-    flag = "r"
+    flags = "r", "w", "c"
 
-    provider_db.exists.return_value = True
-    provider_db.iter.return_value = iter([])
-    db = _Database(provider_db, flag)
-    db._init()
+    for flag in flags:
+        provider_db.exists.reset_mock()
+        provider_db.create.reset_mock()
+        provider_db.exists.return_value = True
+        provider_db.iter.return_value = iter([])
 
-    provider_db.iter.assert_not_called()
+        db = _Database(provider_db, flag)
+        db._init()
+
+        provider_db.iter.assert_not_called()
