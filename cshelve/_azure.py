@@ -1,7 +1,7 @@
 """
-Azure Mutable Mapping Module
+Azure Blob Storage implementation.
 
-This module provides an implementation of the _CloudDatabase interface based on Azure Blob Storage.
+This module provides an implementation of the ProviderInterface using Azure Blob Storage for the storage.
 
 This module uses an Azure container to store key/value data in blobs.
 It creates a blob for each key/value pair, where the key is the blob name and the value is the blob content.
@@ -16,7 +16,7 @@ from azure.core.exceptions import ResourceNotFoundError
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobType
 
-from .cloud_database import CloudDatabase
+from .provider_interface import ProviderInterface
 from .exceptions import (
     AuthTypeError,
     AuthArgumentError,
@@ -28,9 +28,9 @@ from .exceptions import (
 LRU_CACHE_MAX_SIZE = 2048
 
 
-class AzureMutableMapping(CloudDatabase):
+class AzureBlobStorage(ProviderInterface):
     """
-    Azure implementation of the MutableMapping interface used by the Shelf module.
+    Implement the database based on the Azure Blob Storage technology.
     """
 
     def __init__(self) -> None:
@@ -175,6 +175,13 @@ class AzureMutableMapping(CloudDatabase):
             self.container_name
         )
 
+    def _get_client_cache(self, key):
+        """
+        Cache the blob clients to avoid creating a new client for each operation.
+        Size of this object from getsizeof: 48 bytes
+        """
+        return self.blob_service_client.get_blob_client(self.container_name, key)
+
     def __create_blob_service(
         self, auth_type: str, account_url: Optional[str], environment_key: Optional[str]
     ) -> BlobServiceClient:
@@ -187,10 +194,3 @@ class AzureMutableMapping(CloudDatabase):
         elif auth_type == "passwordless":
             return BlobServiceClient(account_url, credential=DefaultAzureCredential())
         raise AuthTypeError(f"Invalid auth_type: {auth_type}")
-
-    def _get_client_cache(self, key):
-        """
-        Cache the blob clients to avoid creating a new client for each operation.
-        Size of this object from getsizeof: 48 bytes
-        """
-        return self.blob_service_client.get_blob_client(self.container_name, key)

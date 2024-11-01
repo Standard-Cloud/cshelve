@@ -12,13 +12,6 @@ import functools
 from .exceptions import ReadOnlyError
 
 
-def clear_db(flag: str) -> bool:
-    """
-    Returns True if the user requests to clear the database.
-    """
-    return flag == "n"
-
-
 def can_create(flag: str) -> bool:
     """
     Returns True if a new database can be created.
@@ -39,3 +32,10 @@ def can_write(func) -> bool:
         return func(obj, *args, **kwargs)
 
     return can_write
+
+
+def clear_db(flag: str) -> bool:
+    """
+    Returns True if the user requests to clear the database.
+    """
+    return flag == "n"

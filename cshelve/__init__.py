@@ -9,7 +9,7 @@ If the file extension is `.ini`, the file is considered a configuration file and
 
 import shelve
 
-from ._database import init as _init_database
+from ._database import _Database
 from ._factory import factory as _factory
 from ._parser import load as _loader
 from ._parser import use_local_shelf
@@ -40,26 +40,24 @@ class CloudShelf(shelve.Shelf):
     """
     A cloud shelf is a shelf that is stored in the cloud. It is a subclass of `shelve.Shelf` and is used to store data in the cloud.
 
-    It main purpose is to load the configuration file, create a factory object, and configure the factory object based on the configuration file.
+    The underlying storage provider is provided by the factory based on the provider name then abstract by the _Database facade.
     """
 
     def __init__(self, filename, flag, protocol, writeback, loader, factory):
-        # Ensure the flag format.
-        flag = flag.lower()
-
         # Load the configuration file to retrieve the provider and its configuration.
         provider, config = loader(filename)
 
-        # Based on the provider, create the corresponding object.
-        cloud_database = factory(provider)
-        # Configure the object with the configuration.
-        cloud_database.configure(config)
+        # Let the factory create the provider interface object based on the provider name then configure it.
+        provider_interface = factory(provider)
+        provider_interface.configure(config)
 
-        # Perform operations based on the flag and wrap the CloudDatabase in the MutableMapping interface.
-        db = _init_database(cloud_database, flag)
+        # The CloudDatabase object is the class that interacts with the cloud storage backend.
+        # This class doesn't perform or respect the shelve.Shelf logic and interface so we need to wrap it.
+        database = _Database(provider_interface, flag)
+        database._init()
 
         # Let the standard shelve.Shelf class handle the rest.
-        super().__init__(db, protocol, writeback)
+        super().__init__(database, protocol, writeback)
 
 
 def open(
@@ -78,4 +76,4 @@ def open(
         # The user requests a local and not a cloud shelf.
         return shelve.open(filename, flag, protocol, writeback)
 
-    return CloudShelf(filename, flag, protocol, writeback, loader, factory)
+    return CloudShelf(filename, flag.lower(), protocol, writeback, loader, factory)

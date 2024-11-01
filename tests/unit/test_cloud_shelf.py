@@ -29,6 +29,7 @@ def test_factory_usage():
     with CloudShelf(
         filename, flag, protocol, writeback, loader=loader, factory=factory
     ) as cs:
+        cloud_database.exists.assert_called_once()
         factory.assert_called_once_with(provider)
         # The mock returned by the factory must be the MuttableMapping object used by the shelve.Shelf object.
         assert isinstance(cs.dict.db, Mock)

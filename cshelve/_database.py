@@ -1,7 +1,12 @@
+"""
+MutableMapping interface for the database.
+
+The term _Database is used to follow the naming convention of the Python Shelve module, even though it is not mandatory.
+"""
 from collections.abc import MutableMapping
 from concurrent.futures import ThreadPoolExecutor
 
-from .cloud_database import CloudDatabase
+from .provider_interface import ProviderInterface
 from ._flag import can_create, can_write, clear_db
 from .exceptions import (
     CanNotCreateDBError,
@@ -10,69 +15,82 @@ from .exceptions import (
 )
 
 
-__all__ = ["_Database", "init"]
+__all__ = ["_Database"]
 
 
 class _Database(MutableMapping):
     """
-    Wrapper around the cloud database to provide a MutableMapping interface.
+    Wrapper around the ProviderInterface to provide a MutableMapping interface with the Shelf business logic.
     """
 
-    def __init__(self, db: CloudDatabase, flag: str) -> None:
+    def __init__(self, db: ProviderInterface, flag: str) -> None:
         super().__init__()
         self.db = db
         self.flag = flag
 
     def __getitem__(self, key: bytes) -> bytes:
+        """
+        Retrieve the value associated with the key from the database.
+        """
         return self.db.get(key)
 
     @can_write
     def __setitem__(self, key: bytes, value: bytes) -> None:
+        """
+        Set the value associated with the key in the database.
+        """
         self.db.set(key, value)
 
     @can_write
     def __delitem__(self, key: bytes) -> None:
+        """
+        Delete the key from the database.
+        """
         self.db.delete(key)
 
     def __iter__(self):
+        """
+        Iterate over the keys in the database.
+        """
         return iter(self.db.iter())
 
     def __len__(self) -> int:
+        """
+        Return the number of elements in the database.
+        """
         return self.db.len()
 
     def close(self) -> None:
         """
-        Close the cloud database.
+        Close the database.
         """
         self.db.close()
 
     def sync(self) -> None:
         """
-        Sync the cloud database.
+        Sync the database.
         """
         self.db.sync()
 
+    def _init(self):
+        """
+        Initialize the database by:
+        - Creating the database if it doesn't exist and the flag allows it.
+        - Clearing the database if the flag allows it.
+        """
+        if not self.db.exists():
+            if can_create(self.flag):
+                try:
+                    self.db.create()
+                except Exception as e:
+                    raise CanNotCreateDBError("Can't create database.") from e
+            else:
+                raise DBDoesNotExistsError("Database does not exist.")
 
-def init(db: CloudDatabase, flag: str) -> _Database:
-    """
-    Open a cloud database based on the configuration file.
-    """
-    # Create container if not exists and it is configured or if the flag allow it.
-    if not db.exists():
-        if can_create(flag):
-            try:
-                db.create()
-            except Exception as e:
-                raise CanNotCreateDBError(f"Can't create database.") from e
-        else:
-            raise DBDoesNotExistsError(f"Can't create database.")
-
-    # If the flag parameter indicates, clear the database.
-    if clear_db(flag):
-        # Retrieve all the keys and delete them.
-        # Retrieving keys is quick, but the deletion synchronously is slow so we use threads to speed up the process.
-        with ThreadPoolExecutor() as executor:
-            for _ in executor.map(db.delete, db.iter()):
-                pass
-
-    return _Database(db, flag)
+        # If the flag parameter indicates, clear the database.
+        if clear_db(self.flag):
+            # Retrieve all the keys and delete them.
+            # Retrieving keys is quick, but deletion synchronously is slow, so we use threads to speed up the process.
+            with ThreadPoolExecutor() as executor:
+                for _ in executor.map(self.db.delete, self.db.iter()):
+                    pass
