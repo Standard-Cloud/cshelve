@@ -207,6 +207,7 @@ def test_do_not_clear_database():
     for flag in flags:
         provider_db.exists.reset_mock()
         provider_db.create.reset_mock()
+
         provider_db.exists.return_value = True
         provider_db.iter.return_value = iter([])
 
