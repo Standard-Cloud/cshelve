@@ -10,7 +10,7 @@ from .exceptions import (
 )
 
 
-__all__ = ["_Database"]
+__all__ = ["_Database", "init"]
 
 
 class _Database(MutableMapping):
@@ -53,7 +53,7 @@ class _Database(MutableMapping):
         self.db.sync()
 
 
-def open(flag: str, db: CloudDatabase):
+def init(db: CloudDatabase, flag: str) -> _Database:
     """
     Open a cloud database based on the configuration file.
     """

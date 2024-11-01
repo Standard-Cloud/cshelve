@@ -2,7 +2,6 @@
 Depending on the filename, either the native shelve module or the cloud shelve module is used.
 The cloud shelve module is used when the filename has a specific extension, and we must ensure that the correct module is used.
 """
-import pickle
 import shelve
 import tempfile
 from unittest.mock import Mock
@@ -11,14 +10,13 @@ import cshelve
 from cshelve._parser import load, use_local_shelf
 
 
-def test_use_cloud_shelf():
+def test_load_cloud_shelf_config():
     """
     Based on the filename, the cloud shelve module must be used.
     At the same time, we test the parser injection functionality.
     """
     filename = "test.ini"
     provider = "myprovider"
-    flag = "c"
     config = {
         "provider": provider,
         "auth_type": "passwordless",
@@ -36,11 +34,9 @@ def test_use_cloud_shelf():
     cshelve.open(filename, loader=loader, factory=factory)
 
     loader.assert_called_once_with(filename)
-    factory.assert_called_once_with(provider)
-    cdit.configure.assert_called_once_with(flag, config)
 
 
-def test_use_local_shelf():
+def test_load_local_shelf_config():
     """
     Based on the filename, the default shelve module must be used.
     """

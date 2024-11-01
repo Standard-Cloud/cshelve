@@ -9,7 +9,7 @@ If the file extension is `.ini`, the file is considered a configuration file and
 
 import shelve
 
-from ._database import open as _open_database
+from ._database import init as _init_database
 from ._factory import factory as _factory
 from ._parser import load as _loader
 from ._parser import use_local_shelf
@@ -56,7 +56,7 @@ class CloudShelf(shelve.Shelf):
         cloud_database.configure(config)
 
         # Perform operations based on the flag and wrap the CloudDatabase in the MutableMapping interface.
-        db = _open_database(flag, cloud_database)
+        db = _init_database(cloud_database, flag)
 
         # Let the standard shelve.Shelf class handle the rest.
         super().__init__(db, protocol, writeback)
