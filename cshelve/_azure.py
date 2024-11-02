@@ -184,6 +184,8 @@ class AzureBlobStorage(ProviderInterface):
     def __create_blob_service(
         self, auth_type: str, account_url: Optional[str], environment_key: Optional[str]
     ):
+        # BlobServiceClient and DefaultAzureCredential are imported here to avoid importing them in the module scope.
+        # This also simplify the mocking of the Azure SDK in the tests even if it remove the typing information.
         from azure.storage.blob import BlobServiceClient
 
         if auth_type == "connection_string":
