@@ -2,8 +2,8 @@
 
 ## [0.2.1] - 2024-11-02
 ### Improvement
-- Interface with cloud provider modules.
-- Unit test on the azure-blob provider.
+- Interfaced with cloud provider modules.
+- Added unit tests for the azure-blob provider.
 
 ## [0.2.0] - 2024-10-30
 ### Added
