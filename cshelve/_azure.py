@@ -13,8 +13,7 @@ import os
 from typing import Dict, Iterator, Optional
 
 from azure.core.exceptions import ResourceNotFoundError
-from azure.identity import DefaultAzureCredential
-from azure.storage.blob import BlobServiceClient, BlobType
+from azure.storage.blob import BlobType
 
 from .provider_interface import ProviderInterface
 from .exceptions import (
@@ -103,7 +102,7 @@ class AzureBlobStorage(ProviderInterface):
         # No sync operation is required for Azure Blob Storage.
         ...
 
-    def set(self, key, value):
+    def set(self, key: bytes, value: bytes):
         """
         Create or update the blob with the specified key and value on the Azure Blob Storage container.
         """
@@ -123,7 +122,7 @@ class AzureBlobStorage(ProviderInterface):
 
     # If an `ResourceNotFoundError` is raised by the SDK, it is converted to a `KeyError` to follow the `dbm` behavior based on a custom module error.
     @key_access(ResourceNotFoundError)
-    def delete(self, key):
+    def delete(self, key: bytes):
         # Azure Blob Storage must be string and not bytes.
         key = key.decode()
 
@@ -134,7 +133,7 @@ class AzureBlobStorage(ProviderInterface):
         # The retry pattern and error handling is done by the Azure SDK.
         client.delete_blob()
 
-    def contains(self, key) -> bool:
+    def contains(self, key: bytes) -> bool:
         """
         Return whether the specified key exists on the Azure Blob Storage container.
         """
@@ -175,7 +174,7 @@ class AzureBlobStorage(ProviderInterface):
             self.container_name
         )
 
-    def _get_client_cache(self, key):
+    def _get_client_cache(self, key: bytes):
         """
         Cache the blob clients to avoid creating a new client for each operation.
         Size of this object from getsizeof: 48 bytes
@@ -184,7 +183,9 @@ class AzureBlobStorage(ProviderInterface):
 
     def __create_blob_service(
         self, auth_type: str, account_url: Optional[str], environment_key: Optional[str]
-    ) -> BlobServiceClient:
+    ):
+        from azure.storage.blob import BlobServiceClient
+
         if auth_type == "connection_string":
             if environment_key is None:
                 raise AuthArgumentError(f"Missing environment_key parameter")
@@ -192,5 +193,7 @@ class AzureBlobStorage(ProviderInterface):
                 return BlobServiceClient.from_connection_string(connect_str)
             raise AuthArgumentError(f"Missing environment variable: {environment_key}")
         elif auth_type == "passwordless":
+            from azure.identity import DefaultAzureCredential
+
             return BlobServiceClient(account_url, credential=DefaultAzureCredential())
         raise AuthTypeError(f"Invalid auth_type: {auth_type}")
