@@ -6,10 +6,10 @@ from unittest.mock import patch
 import pytest
 
 from cshelve import UnknownProviderError
-from cshelve._factory import factory
+from cshelve.providers._factory import factory
 
 
-@patch("cshelve._azure_blob_storage.AzureBlobStorage")
+@patch("cshelve.providers._azure_blob_storage.AzureBlobStorage")
 def test_known_backend(azure_mock):
     """
     Test factory loading the Azure backend.

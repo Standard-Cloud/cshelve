@@ -15,8 +15,8 @@ from typing import Dict, Iterator, Optional
 from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob import BlobType
 
-from .provider_interface import ProviderInterface
-from .exceptions import (
+from ..provider_interface import ProviderInterface
+from ..exceptions import (
     AuthTypeError,
     AuthArgumentError,
     key_access,

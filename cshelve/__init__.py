@@ -10,7 +10,7 @@ If the file extension is `.ini`, the file is considered a configuration file and
 import shelve
 
 from ._database import _Database
-from ._factory import factory as _factory
+from .providers._factory import factory as _factory
 from ._parser import load as _loader
 from ._parser import use_local_shelf
 from .exceptions import (

@@ -2,7 +2,7 @@ from unittest.mock import patch, Mock
 import pytest
 from azure.storage.blob import BlobType
 
-from cshelve._factory import factory
+from cshelve.providers._factory import factory
 from azure.core.exceptions import ResourceNotFoundError
 from cshelve import AuthArgumentError, AuthTypeError, KeyNotFoundError
 
