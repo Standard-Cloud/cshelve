@@ -10,7 +10,7 @@ def factory(provider: str) -> ProviderInterface:
     Return the correct module to be used.
     """
     if provider == "azure-blob":
-        from ._azure import AzureBlobStorage
+        from ._azure_blob_storage import AzureBlobStorage
 
         return AzureBlobStorage()
 
