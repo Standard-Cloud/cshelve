@@ -277,7 +277,7 @@ def test_delete(BlobServiceClient, DefaultAzureCredential):
 @patch("azure.storage.blob.BlobServiceClient")
 def test_iter(BlobServiceClient, DefaultAzureCredential):
     """
-    Ensure the list of key is correctly returned from the Azure Blob Storage.
+    Ensure the list of key is correctly returned from the Azure Blob Storage during iteration.
     """
     container_name = "container"
     config = {
@@ -396,7 +396,7 @@ def test_exists(BlobServiceClient, DefaultAzureCredential):
 @patch("azure.storage.blob.BlobServiceClient")
 def test_create(BlobServiceClient, DefaultAzureCredential):
     """
-    Ensure the create method is correctly called from the Azure Blob Storage.
+    Ensure the create method on a container is correctly called from the Azure Blob Storage.
     """
     container_name = "container"
     config = {
