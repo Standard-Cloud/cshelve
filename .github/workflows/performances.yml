@@ -1,4 +1,7 @@
-name: Run performance tests
+# For each push on the main branch, the performance tests are run on all supported OS and Python versions.
+# An Azure storage account simulator is used to limit the network impact on the tests.
+# The results are stored in the Azure storage account.
+name: Run performance benchmarks
 on:
   push:
     branches:

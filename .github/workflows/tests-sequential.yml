@@ -1,0 +1,48 @@
+# Some tests need to be run sequentially, for example, when they are working with the number of items.
+# In this case, the tests are run on all supported OS and Python versions to ensure quality one by one.
+# The time taken to run the tests is too significant to run in pull requests, so they are run only on the main branch.
+
+name: Run sequentials tests
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  azure-test-sequential:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+      max-parallel: 1
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    environment: azure
+
+    steps:
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+
+    - name: Install the project
+      run: uv sync --all-extras --dev --python ${{ matrix.python-version }}
+
+    - name: Run tests
+      run: uv run --python ${{ matrix.python-version }} pytest -n auto tests/sequential
