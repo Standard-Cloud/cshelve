@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 env:
-  WHEEL: cshelve-0.2.2.dev0-py3-none-any.whl
+  WHEEL: cshelve-0.2.2-py3-none-any.whl
 
 jobs:
   # Build the current version of the project and re use the wheel in the performances tests.
