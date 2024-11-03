@@ -1,9 +1,10 @@
 # Changelog
 
-## [0.2.2] -
+## [0.2.2] - 2024-11-03
 ### Added
-- Authentication method:
+- Authentication methods for the azure-blob provider:
     - Anonymous read-only access on public blob storage.
+    - Using Access key.
 
 ## [0.2.1] - 2024-11-02
 ### Improvement
