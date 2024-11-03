@@ -186,6 +186,7 @@ class AzureBlobStorage(ProviderInterface):
     ):
         # BlobServiceClient and DefaultAzureCredential are imported here to avoid importing them in the module scope.
         # This also simplify the mocking of the Azure SDK in the tests even if it remove the typing information.
+        # https://learn.microsoft.com/en-us/python/api/overview/azure/storage-blob-readme?view=azure-python#types-of-credentials
         from azure.storage.blob import BlobServiceClient
 
         if auth_type == "connection_string":
@@ -198,4 +199,6 @@ class AzureBlobStorage(ProviderInterface):
             from azure.identity import DefaultAzureCredential
 
             return BlobServiceClient(account_url, credential=DefaultAzureCredential())
+        elif auth_type == "anonymous":
+            return BlobServiceClient(account_url)
         raise AuthTypeError(f"Invalid auth_type: {auth_type}")
