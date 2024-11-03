@@ -191,7 +191,7 @@ class AzureBlobStorage(ProviderInterface):
         from azure.identity import DefaultAzureCredential
 
         # Create the BlobServiceClient based on the authentication type.
-        # An lambda is used to avoid calling the method if the auth_type is not valid.
+        # A lambda is used to avoid calling the method if the auth_type is not valid.
         supported_auth = {
             "access_key": lambda: BlobServiceClient(
                 account_url, credential=self.__get_credentials(environment_key)
@@ -205,8 +205,8 @@ class AzureBlobStorage(ProviderInterface):
             ),
         }
 
-        if auth_type in supported_auth:
-            return supported_auth[auth_type]()
+        if auth_method := supported_auth.get(auth_type):
+            return auth_method()
 
         raise AuthTypeError(
             f"Invalid auth_type: {auth_type}. Supported values are: {', '.join(supported_auth.keys())}"
