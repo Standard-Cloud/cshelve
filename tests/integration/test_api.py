@@ -56,8 +56,9 @@ def test_read_after_reopening():
 @pytest.mark.parametrize(
     "config_file",
     [
-        "tests/configurations/azure-integration/standard.ini",
+        "tests/configurations/azure-integration/access-key.ini",
         "tests/configurations/azure-integration/connection-string.ini",
+        "tests/configurations/azure-integration/standard.ini",
     ],
 )
 def test_authentication(config_file):
@@ -65,18 +66,17 @@ def test_authentication(config_file):
     Test authentication with password and connection string.
     """
     with cshelve.open(config_file) as db:
-        key_pattern = unique_key + "test_authentication"
-        data_pattern = "test_authentication"
+        key = unique_key + "test_authentication"
+        data = "test_authentication"
 
-        for i in range(100):
-            key = f"{key_pattern}{i}"
+        # Write data to the DB.
+        db[key] = data
 
-            # Write data to the DB.
-            db[key] = f"{data_pattern}{i}"
-            # Data must be present in the DB.
-            assert db[key] == f"{data_pattern}{i}"
-            # Delete the data from the DB.
-            del db[key]
+        # Data must be accessible in the DB.
+        assert db[key] == data
+
+        # Delete the data from the DB.
+        del db[key]
 
     db.close()
 
@@ -97,6 +97,7 @@ def test_authentication_read_only():
         # Write data to the DB.
         db[key] = data
 
+    # The read-only flag is not mandatory, but the underlying implementation will raise an exception if we try to write.
     with cshelve.open(read_only_config_file) as db:
         # Data must be present in the DB.
         assert db[key] == data

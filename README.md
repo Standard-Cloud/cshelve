@@ -123,9 +123,10 @@ Authentication type supported:
 
 | Auth Type         | Description                                                                                     | Advantage                                                                 | Disadvantage                          | Example Configuration |
 |-------------------|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|---------------------------------------|-----------------------|
-| Connection String | Uses a connection string for authentication. Credentials are provided directly in the string. | Fast startup as no additional credential retrieval is needed. | Credentials need to be securely managed and provided. | [Example](tests/configurations/azure-integration/connection-string.ini) |
-| Passwordless      | Uses passwordless authentication methods such as Managed Identity. | Recommended for better security and easier credential management. | May impact startup time due to the need to retrieve authentication credentials. | [Example](./tests/configurations/azure-integration/standard.ini) |
+| Access Key       | Uses an Access Key or a Shared Access Signature for authentication. | Fast startup as no additional credential retrieval is needed. | Credentials need to be securely managed and provided. | [Example](./tests/configurations/azure-integration/access-key.ini) |
 | Anonymous         | No authentication for anonymous access on public blob storage. | No configuration or credentials needed. | Read-only access. | [Example](./tests/configurations/azure-integration/anonymous.ini) |
+| Connection String | Uses a connection string for authentication. Credentials are provided directly in the string. | Fast startup as no additional credential retrieval is needed. | Credentials need to be securely managed and provided. | [Example](./tests/configurations/azure-integration/connection-string.ini) |
+| Passwordless      | Uses passwordless authentication methods such as Managed Identity. | Recommended for better security and easier credential management. | May impact startup time due to the need to retrieve authentication credentials. | [Example](./tests/configurations/azure-integration/standard.ini) |
 
 
 ## Contributing

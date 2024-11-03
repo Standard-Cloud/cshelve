@@ -188,17 +188,38 @@ class AzureBlobStorage(ProviderInterface):
         # This also simplify the mocking of the Azure SDK in the tests even if it remove the typing information.
         # https://learn.microsoft.com/en-us/python/api/overview/azure/storage-blob-readme?view=azure-python#types-of-credentials
         from azure.storage.blob import BlobServiceClient
+        from azure.identity import DefaultAzureCredential
 
-        if auth_type == "connection_string":
-            if environment_key is None:
-                raise AuthArgumentError(f"Missing environment_key parameter")
-            if connect_str := os.environ.get(environment_key):
-                return BlobServiceClient.from_connection_string(connect_str)
-            raise AuthArgumentError(f"Missing environment variable: {environment_key}")
-        elif auth_type == "passwordless":
-            from azure.identity import DefaultAzureCredential
+        # Create the BlobServiceClient based on the authentication type.
+        # A lambda is used to avoid calling the method if the auth_type is not valid.
+        supported_auth = {
+            "access_key": lambda: BlobServiceClient(
+                account_url, credential=self.__get_credentials(environment_key)
+            ),
+            "anonymous": lambda: BlobServiceClient(account_url),
+            "connection_string": lambda: BlobServiceClient.from_connection_string(
+                self.__get_credentials(environment_key)
+            ),
+            "passwordless": lambda: BlobServiceClient(
+                account_url, credential=DefaultAzureCredential()
+            ),
+        }
 
-            return BlobServiceClient(account_url, credential=DefaultAzureCredential())
-        elif auth_type == "anonymous":
-            return BlobServiceClient(account_url)
-        raise AuthTypeError(f"Invalid auth_type: {auth_type}")
+        if auth_method := supported_auth.get(auth_type):
+            return auth_method()
+
+        raise AuthTypeError(
+            f"Invalid auth_type: {auth_type}. Supported values are: {', '.join(supported_auth.keys())}"
+        )
+
+    def __get_credentials(self, environment_key: str) -> str:
+        """
+        Retrieve the credentials from the environment variable or raise the corresponding error.
+        """
+        if environment_key is None:
+            raise AuthArgumentError(f"Missing environment_key parameter")
+
+        if credential := os.environ.get(environment_key):
+            return credential
+
+        raise AuthArgumentError(f"Missing environment variable: {environment_key}")

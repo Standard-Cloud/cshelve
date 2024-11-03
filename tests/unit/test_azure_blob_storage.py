@@ -68,14 +68,61 @@ def test_connection_string(BlobServiceClient):
     BlobServiceClient.from_connection_string.assert_called_once_with(connection_string)
 
 
-def test_missing_connection_string_value():
+@patch("azure.storage.blob.BlobServiceClient")
+def test_account_key(BlobServiceClient):
     """
-    Test the Azure Blob Storage client with the connection string authentication without providing the
+    Test the Azure Blob Storage client with an account key authentication.
+    """
+    config = {
+        "account_url": "https://account.blob.core.windows.net",
+        "auth_type": "access_key",
+        "environment_key": "ENV_VAR",
+        "container_name": "container",
+    }
+    access_key = "my_access_key"
+
+    with patch.dict("os.environ", {"ENV_VAR": access_key}):
+        provider = factory("azure-blob")
+        provider.configure(config)
+
+    BlobServiceClient.assert_called_once_with(
+        config["account_url"],
+        credential=access_key,
+    )
+
+
+@pytest.mark.parametrize(
+    "auth_type",
+    ["access_key", "connection_string"],
+)
+def test_missing_env_var(auth_type):
+    """
+    Test the Azure Blob Storage client with the connection string authentication without the env variable
+    key in the configuration.
+    """
+    config = {
+        "account_url": "https://account.blob.core.windows.net",
+        "auth_type": auth_type,
+        "container_name": "container",
+    }
+
+    with pytest.raises(AuthArgumentError):
+        provider = factory("azure-blob")
+        provider.configure(config)
+
+
+@pytest.mark.parametrize(
+    "auth_type",
+    ["access_key", "connection_string"],
+)
+def test_missing_env_var_value(auth_type):
+    """
+    Test the Azure Blob Storage client with the connection string/account key authentication without providing the
     connection string in the environment variable.
     """
     config = {
         "account_url": "https://account.blob.core.windows.net",
-        "auth_type": "connection_string",
+        "auth_type": auth_type,
         "environment_key": "ENV_VAR",
         "container_name": "container",
     }
@@ -95,22 +142,6 @@ def test_wrong_auth_type():
     }
 
     with pytest.raises(AuthTypeError):
-        provider = factory("azure-blob")
-        provider.configure(config)
-
-
-def test_missing_connection_string_env_var():
-    """
-    Test the Azure Blob Storage client with the connection string authentication without the env variable
-    key in the configuration.
-    """
-    config = {
-        "account_url": "https://account.blob.core.windows.net",
-        "auth_type": "connection_string",
-        "container_name": "container",
-    }
-
-    with pytest.raises(AuthArgumentError):
         provider = factory("azure-blob")
         provider.configure(config)
 
