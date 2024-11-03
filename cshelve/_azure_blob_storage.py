@@ -189,11 +189,13 @@ class AzureBlobStorage(ProviderInterface):
         # https://learn.microsoft.com/en-us/python/api/overview/azure/storage-blob-readme?view=azure-python#types-of-credentials
         from azure.storage.blob import BlobServiceClient
 
-        if auth_type == "connection_string":
+        if auth_type == "connection_string" or auth_type == "access_key":
             if environment_key is None:
                 raise AuthArgumentError(f"Missing environment_key parameter")
-            if connect_str := os.environ.get(environment_key):
-                return BlobServiceClient.from_connection_string(connect_str)
+            if credential := os.environ.get(environment_key):
+                if auth_type == "access_key":
+                    return BlobServiceClient(account_url, credential=credential)
+                return BlobServiceClient.from_connection_string(credential)
             raise AuthArgumentError(f"Missing environment variable: {environment_key}")
         elif auth_type == "passwordless":
             from azure.identity import DefaultAzureCredential
