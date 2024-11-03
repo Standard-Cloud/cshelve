@@ -106,7 +106,7 @@ The module considers the provided container as dedicated to the application. The
 | Option                           | Description                                                                                                                                                  | Required           | Default Value |
 |----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|---------------|
 | `account_url`                    | The URL of your Azure storage account.                                                                                                                       | :x:                |               |
-| `auth_type`                      | The authentication method to use: `passwordless` or `connection_string`.                                                                               | :white_check_mark:                |               |
+| `auth_type`                      | The authentication method to use: `passwordless`, `connection_string` or `anonymous`.                                                                               | :white_check_mark:                |               |
 | `container_name`                 | The name of the container in your Azure storage account.                                                                                                     | :white_check_mark:                |               |
 
 Depending on the `open` flag, the permissions required by `cshelve` for blob storage vary.
@@ -123,20 +123,14 @@ Authentication type supported:
 
 | Auth Type         | Description                                                                                     | Advantage                                                                 | Disadvantage                          | Example Configuration |
 |-------------------|-------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|---------------------------------------|-----------------------|
-| Connection String | Uses a connection string for authentication. Credentials are provided directly in the string.   | Fast startup as no additional credential retrieval is needed.             | Credentials need to be securely managed and provided. | [Example](tests/configurations/azure-integration/connection-string.ini) |
-| Passwordless      | Uses passwordless authentication methods such as Managed Identity.                     | Recommended for better security and easier credential management.         | May impact startup time due to the need to retrieve authentication credentials. | [Example](./tests/configurations/azure-integration/standard.ini) |
+| Connection String | Uses a connection string for authentication. Credentials are provided directly in the string. | Fast startup as no additional credential retrieval is needed. | Credentials need to be securely managed and provided. | [Example](tests/configurations/azure-integration/connection-string.ini) |
+| Passwordless      | Uses passwordless authentication methods such as Managed Identity. | Recommended for better security and easier credential management. | May impact startup time due to the need to retrieve authentication credentials. | [Example](./tests/configurations/azure-integration/standard.ini) |
+| Anonymous         | No authentication for anonymous access on public blob storage. | No configuration or credentials needed. | Read-only access. | [Example](./tests/configurations/azure-integration/anonymous.ini) |
 
-
-## Roadmap
-
-- **AWS S3 Support**: Integration for AWS S3 storage is planned in upcoming versions.
-- **Google Cloud Storage Support**: Support for Google Cloud Storage is also on the roadmap.
-
-Stay tuned for updates!
 
 ## Contributing
 
-We welcome contributions from the community! If you'd like to contribute, please read our [contributing guidelines](CONTRIBUTING.md) for more details on how to get started.
+We welcome contributions from the community! Have a look at our [issues](https://github.com/Standard-Cloud/cshelve/issues).
 
 ## License
 

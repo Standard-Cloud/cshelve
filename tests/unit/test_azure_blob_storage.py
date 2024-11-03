@@ -32,6 +32,23 @@ def test_passwordless(BlobServiceClient, DefaultAzureCredential):
 
 
 @patch("azure.storage.blob.BlobServiceClient")
+def test_anonymous_public_read_access(BlobServiceClient):
+    """
+    Ensure the capability of accessing an Azure Blob Storage client with the anonymous public read access authentication.
+    """
+    config = {
+        "account_url": "https://account.blob.core.windows.net",
+        "auth_type": "anonymous",
+        "container_name": "container",
+    }
+
+    provider = factory("azure-blob")
+    provider.configure(config)
+
+    BlobServiceClient.assert_called_once_with(config["account_url"])
+
+
+@patch("azure.storage.blob.BlobServiceClient")
 def test_connection_string(BlobServiceClient):
     """
     Test the Azure Blob Storage client with the connection string authentication.

@@ -81,6 +81,33 @@ def test_authentication(config_file):
     db.close()
 
 
+def test_authentication_read_only():
+    """
+    Test the read-only authentication.
+    """
+    can_write_config_file = (
+        "tests/configurations/azure-integration/writeable-anonymous.ini"
+    )
+    read_only_config_file = "tests/configurations/azure-integration/anonymous.ini"
+
+    key = unique_key + "test_authentication_read_only"
+    data = "test_authentication_read_only"
+
+    with cshelve.open(can_write_config_file) as db:
+        # Write data to the DB.
+        db[key] = data
+
+    with cshelve.open(read_only_config_file) as db:
+        # Data must be present in the DB.
+        assert db[key] == data
+
+    with cshelve.open(can_write_config_file) as db:
+        # Delete the data from the DB.
+        del db[key]
+
+    db.close()
+
+
 def test_update_on_operator():
     """
     Ensure operator interface works as expected.
