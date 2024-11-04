@@ -1,10 +1,11 @@
 [project]
 name = "cshelve"
-version = "0.2.2"
+version = "0.2.3.dev0"
 description = "Propulsing the shelve module to the cloud"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
+    "azure-data-tables>=12.5.0",
     "azure-identity>=1.19.0",
     "azure-storage-blob>=12.23.1",
 ]
