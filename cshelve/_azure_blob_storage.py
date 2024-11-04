@@ -53,7 +53,6 @@ class AzureBlobStorage(ProviderInterface):
         # Ex: https://<account_name>.blob.core.windows.net
         account_url = config.get("account_url")
         # The authentication type to use.
-        # Can be either 'connection_string' or 'passwordless'.
         auth_type = config.get("auth_type")
         # The environment variable key that contains the connection string.
         environment_key = config.get("environment_key")

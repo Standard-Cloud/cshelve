@@ -13,5 +13,9 @@ def factory(provider: str) -> ProviderInterface:
         from ._azure_blob_storage import AzureBlobStorage
 
         return AzureBlobStorage()
+    if provider == "azure-table":
+        from ._azure_table import AzureTable
+
+        return AzureTable()
 
     raise UnknownProviderError(f"Provider Interface '{provider}' is not supported.")
