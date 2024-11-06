@@ -73,11 +73,7 @@ def test_read_after_reopening(config_file: str):
         "tests/configurations/azure-blob/standard.ini",
     ],
 )
-def test_authentication(
-    config_file: Literal["tests/configurations/azure-blob/access-key.ini"]
-    | LiteralString
-    | Literal["tests/configurations/azure-blob/standard.ini"],
-):
+def test_authentication(config_file):
     """
     Test authentication with password and connection string.
     """
