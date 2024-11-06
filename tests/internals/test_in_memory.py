@@ -28,13 +28,13 @@ def test_do_not_persist():
 
     provider.set(key, value)
     # Ensure the element is persisted.
-    assert len(provider) == 1
+    assert provider.len() == 1
 
     # Re open the database to ensure the element is gone.
     provider = factory("in-memory")
     provider.configure({})
 
-    assert len(provider) == 0
+    assert provider.len() == 0
 
 
 def test_get_and_set_persist():
@@ -49,13 +49,13 @@ def test_get_and_set_persist():
 
     provider.set(key, value)
     # Ensure the element is persisted.
-    assert len(provider) == 1
+    assert provider.len() == 1
 
     # Re open the database to ensure the element is still there.
     provider = factory("in-memory")
     provider.configure(config)
 
-    assert len(provider) == 1
+    assert provider.len() == 1
 
 
 def test_get_key_error():
@@ -136,7 +136,7 @@ def test_len():
     for k in list_blob_names:
         provider.set(k, b"value")
 
-    assert 2 == len(provider)
+    assert 2 == provider.len()
 
 
 def test_exists():

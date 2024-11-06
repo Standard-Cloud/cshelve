@@ -1,6 +1,7 @@
 """
 Ensure the standard behavior of the API works as expected in real scenarios.
 """
+from typing import Literal
 import pytest
 
 import cshelve
@@ -18,7 +19,7 @@ CONFIG_FILES = [
     "config_file",
     CONFIG_FILES,
 )
-def test_write_and_read(config_file):
+def test_write_and_read(config_file: str):
     """
     Ensure we can read and write data to the DB.
     """
@@ -43,7 +44,7 @@ def test_write_and_read(config_file):
     "config_file",
     CONFIG_FILES,
 )
-def test_read_after_reopening(config_file):
+def test_read_after_reopening(config_file: str):
     """
     Ensure the data is still present after reopening the DB.
     """
@@ -72,7 +73,11 @@ def test_read_after_reopening(config_file):
         "tests/configurations/azure-blob/standard.ini",
     ],
 )
-def test_authentication(config_file):
+def test_authentication(
+    config_file: Literal["tests/configurations/azure-blob/access-key.ini"]
+    | LiteralString
+    | Literal["tests/configurations/azure-blob/standard.ini"],
+):
     """
     Test authentication with password and connection string.
     """
@@ -122,7 +127,7 @@ def test_authentication_read_only():
     "config_file",
     CONFIG_FILES,
 )
-def test_update_on_operator(config_file):
+def test_update_on_operator(config_file: str):
     """
     Ensure operator interface works as expected.
     """
@@ -174,7 +179,7 @@ def test_update_on_operator(config_file):
     "config_file",
     CONFIG_FILES,
 )
-def test_contains(config_file):
+def test_contains(config_file: str):
     """
     Ensure __contains__ works as expected.
     """
@@ -194,11 +199,11 @@ def test_contains(config_file):
 @pytest.mark.parametrize(
     "config_file",
     [
-        # "tests/configurations/azure-blob/flag-n.ini",
+        "tests/configurations/azure-blob/flag-n.ini",
         "tests/configurations/in-memory/flag-n.ini",
     ],
 )
-def test_clear_db(config_file):
+def test_clear_db(config_file: Literal["tests/configurations/in-memory/flag-n.ini"]):
     """
     Ensure the database is cleared when using the 'n' flag.
     """
@@ -238,7 +243,10 @@ def test_clear_db(config_file):
         "tests/configurations/in-memory/del.ini",
     ],
 )
-def test_del(config_file):
+def test_del(
+    config_file: Literal["tests/configurations/azure-blob/del.ini"]
+    | Literal["tests/configurations/in-memory/del.ini"],
+):
     """
     Ensure we can delete a record from the DB.
     """
@@ -268,7 +276,10 @@ def test_del(config_file):
         "tests/configurations/in-memory/len.ini",
     ],
 )
-def test_len(config_file):
+def test_len(
+    config_file: Literal["tests/configurations/azure-blob/len.ini"]
+    | Literal["tests/configurations/in-memory/len.ini"],
+):
     """
     Ensure __len__ works as expected.
     """
@@ -298,7 +309,10 @@ def test_len(config_file):
         "tests/configurations/in-memory/iter.ini",
     ],
 )
-def test_iter(config_file):
+def test_iter(
+    config_file: Literal["tests/configurations/azure-blob/iter.ini"]
+    | Literal["tests/configurations/in-memory/iter.ini"],
+):
     """
     Ensure the __iter__ method works as expected.
     """
