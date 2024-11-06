@@ -1,7 +1,6 @@
 """
 Ensure the standard behavior of the API works as expected in real scenarios.
 """
-from typing import Literal
 import pytest
 
 import cshelve
@@ -199,7 +198,7 @@ def test_contains(config_file: str):
         "tests/configurations/in-memory/flag-n.ini",
     ],
 )
-def test_clear_db(config_file: Literal["tests/configurations/in-memory/flag-n.ini"]):
+def test_clear_db(config_file):
     """
     Ensure the database is cleared when using the 'n' flag.
     """
@@ -239,10 +238,7 @@ def test_clear_db(config_file: Literal["tests/configurations/in-memory/flag-n.in
         "tests/configurations/in-memory/del.ini",
     ],
 )
-def test_del(
-    config_file: Literal["tests/configurations/azure-blob/del.ini"]
-    | Literal["tests/configurations/in-memory/del.ini"],
-):
+def test_del(config_file):
     """
     Ensure we can delete a record from the DB.
     """
@@ -272,10 +268,7 @@ def test_del(
         "tests/configurations/in-memory/len.ini",
     ],
 )
-def test_len(
-    config_file: Literal["tests/configurations/azure-blob/len.ini"]
-    | Literal["tests/configurations/in-memory/len.ini"],
-):
+def test_len(config_file):
     """
     Ensure __len__ works as expected.
     """
@@ -305,10 +298,7 @@ def test_len(
         "tests/configurations/in-memory/iter.ini",
     ],
 )
-def test_iter(
-    config_file: Literal["tests/configurations/azure-blob/iter.ini"]
-    | Literal["tests/configurations/in-memory/iter.ini"],
-):
+def test_iter(config_file):
     """
     Ensure the __iter__ method works as expected.
     """
