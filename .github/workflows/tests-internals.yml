@@ -1,4 +1,4 @@
-name: Run Pytest
+name: Run Pytest on internals tests
 on: [push, pull_request]
 
 jobs:
@@ -27,4 +27,4 @@ jobs:
       run: uv sync --all-extras --dev
 
     - name: Run tests
-      run: uv run pytest tests/unit
+      run: uv run pytest tests/internals

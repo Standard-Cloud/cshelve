@@ -7,15 +7,20 @@ import pytest
 import cshelve
 
 from helpers import write_data, del_data, unique_key
-import sys
 
 
-def test_read_only():
+@pytest.mark.parametrize(
+    "config_file",
+    [
+        "tests/configurations/azure-blob/flag.ini",
+        "tests/configurations/in-memory/persisted.ini",
+    ],
+)
+def test_read_only(config_file):
     """
     A read-only database should not allow writing and must raise an exception if we try to do so.
     The exception is raised by the implementation of the `dbm` module and not by `shelve` itself, so a custom exception is raised.
     """
-    config_file = "tests/configurations/azure-integration/flag.ini"
     key_pattern = unique_key + "test_read_only"
     data_pattern = "test_read_only"
 
@@ -44,12 +49,12 @@ def test_container_does_not_exists():
     """
     with pytest.raises(cshelve.DBDoesNotExistsError):
         cshelve.open(
-            "tests/configurations/azure-integration/error-handling/container-does-not-exists.ini",
+            "tests/configurations/azure-blob/error-handling/container-does-not-exists.ini",
             "w",
         )
 
     with pytest.raises(cshelve.DBDoesNotExistsError):
         cshelve.open(
-            "tests/configurations/azure-integration/error-handling/container-does-not-exists.ini",
+            "tests/configurations/azure-blob/error-handling/container-does-not-exists.ini",
             "r",
         )

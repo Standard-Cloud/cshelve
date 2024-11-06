@@ -1,6 +1,6 @@
 # Following tests are using Azure services to ensure the quality of the project.
 
-name: Run Azure integration tests
+name: End to end tests
 on: [pull_request]
 
 permissions:
@@ -39,7 +39,7 @@ jobs:
       run: uv sync --all-extras --dev --python ${{ matrix.python-version }}
 
     - name: Run tests
-      run: uv run --python ${{ matrix.python-version }} pytest -n auto tests/integration
+      run: uv run --python ${{ matrix.python-version }} pytest -n auto -m "not sequential" tests/end-to-end
       env:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
         AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}

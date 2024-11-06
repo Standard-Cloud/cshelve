@@ -51,6 +51,52 @@ d['xx'] = temp                # Store it back to persist changes
 d.close()                     # Close the database
 ```
 
+### Debug Storage
+
+For testing purposes, it is possible to use an in-memory provider that can:
+- Persist the data during all the program execution.
+- Remove the data object is deleted.
+
+Here is a configuration example:
+```bash
+$ cat in-memory.ini
+[default]
+provider    = in-memory
+# If set, open twice the same database during the program execution will lead to open twice the same database.
+persist-key = standard
+```
+
+A common use case for this provider is to simplify mocking.
+
+Example:
+```bash
+$ cat persist.ini
+[default]
+provider    = in-memory
+# If set, open twice the same database during the program execution will lead to open twice the same database.
+persist-key = my-db
+
+$ cat do-not-persist.ini
+[default]
+provider = in-memory
+```
+
+```python
+import cshelve
+
+with cshelve.open('persist.ini') as db:
+    db["Asterix"] = "Gaulois"
+
+with cshelve.open('persist.ini') as db:
+    assert db["Asterix"] == "Gaulois"
+
+with cshelve.open('do-not-persist.ini') as db:
+    db["Obelix"] = "Gaulois"
+
+with cshelve.open('do-not-persist.ini') as db:
+    assert "Obelix" not in db
+```
+
 ### Remote Storage (e.g., Azure)
 
 To configure remote cloud storage, you need to provide an INI file containing your cloud provider's configuration. The file should have a `.ini` extension.
@@ -96,9 +142,22 @@ d.close()                      # Close the connection to the remote store
 
 More configuration examples for other cloud providers can be found [here](./tests/configurations/).
 
-### Cloud Providers configuration
+### Providers configuration
+
+#### In Memory
+
+Provider: `in-memory`
+
+The In Memory provider uses an in-memory data structure to simulate storage. This is useful for testing and development purposes.
+
+| Option         | Description                                                                 | Required | Default Value |
+|----------------|-----------------------------------------------------------------------------|----------|---------------|
+| `persist-key`  | If set, its value will be conserved and reuse during the program execution. | :x:      | None          |
+
 
 #### Azure Blob
+
+Provider: `azure-blob`
 
 The Azure provider uses [Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction) as remote storage.
 The module considers the provided container as dedicated to the application. The impact might be significant. For example, if the flag `n` is provided to the `open` function, the entire container will be purged, aligning with the [official interface](https://docs.python.org/3/library/shelve.html#shelve.open).
@@ -106,7 +165,7 @@ The module considers the provided container as dedicated to the application. The
 | Option                           | Description                                                                                                                                                  | Required           | Default Value |
 |----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|---------------|
 | `account_url`                    | The URL of your Azure storage account.                                                                                                                       | :x:                |               |
-| `auth_type`                      | The authentication method to use: `passwordless`, `connection_string` or `anonymous`.                                                                               | :white_check_mark:                |               |
+| `auth_type`                      | The authentication method to use: `access_key`, `passwordless`, `connection_string` or `anonymous`.                                                                               | :white_check_mark:                |               |
 | `container_name`                 | The name of the container in your Azure storage account.                                                                                                     | :white_check_mark:                |               |
 
 Depending on the `open` flag, the permissions required by `cshelve` for blob storage vary.
