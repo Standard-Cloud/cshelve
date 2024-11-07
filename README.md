@@ -150,9 +150,10 @@ Provider: `in-memory`
 
 The In Memory provider uses an in-memory data structure to simulate storage. This is useful for testing and development purposes.
 
-| Option         | Description                                                                 | Required | Default Value |
-|----------------|-----------------------------------------------------------------------------|----------|---------------|
-| `persist-key`  | If set, its value will be conserved and reuse during the program execution. | :x:      | None          |
+| Option         | Description                                                                  | Required | Default Value |
+|----------------|------------------------------------------------------------------------------|----------|---------------|
+| `persist-key`  | If set, its value will be conserved and reused during the program execution. | :x:      | None          |
+| `exists`       | If True, the database exists; otherwise, it will be created.                 | :x:      | False         |
 
 
 #### Azure Blob

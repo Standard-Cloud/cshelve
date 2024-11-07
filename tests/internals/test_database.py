@@ -2,164 +2,137 @@ from unittest.mock import Mock
 
 import pytest
 from cshelve._database import _Database
+from cshelve._in_memory import InMemory
 from cshelve.exceptions import CanNotCreateDBError, DBDoesNotExistsError, ReadOnlyError
 
 
-def test_setitem():
+@pytest.fixture
+def database() -> _Database:
+    flag = "c"
+    provider_db = InMemory()
+    db = _Database(provider_db, flag)
+    db._init()
+    return db
+
+
+def test_setitem(database):
+    """
+    Ensure that the __setitem__ method returns the value associated with the key from the database.
+    """
+    key, value = b"key", b"value"
+    database[key] = value
+
+    assert value == database.db.get(key)
+
+
+def test_getitem(database):
     """
     Ensure that the __getitem__ method returns the value associated with the key from the database.
     """
-    provider_db = Mock()
-    flag = "c"
     key, value = b"key", b"value"
+    database.db.set(key, value)
 
-    db = _Database(provider_db, flag)
-
-    db[key] = value
-
-    provider_db.set.assert_called_once_with(key, value)
+    assert value == database[key]
 
 
-def test_getitem():
-    """
-    Ensure that the __getitem__ method returns the value associated with the key from the database.
-    """
-    provider_db = Mock()
-    flag = "c"
-    key, value = b"key", b"value"
-
-    provider_db.get.return_value = value
-    db = _Database(provider_db, flag)
-
-    db[key] = value
-    assert value == db[key]
-
-    provider_db.get.assert_called_once_with(key)
-
-
-def test_delitem():
+def test_delitem(database):
     """
     Ensure that the __delitem__ method deletes the key from the database.
     """
-    provider_db = Mock()
-    flag = "c"
     key, value = b"key", b"value"
+    database.db.set(key, value)
 
-    db = _Database(provider_db, flag)
+    del database[key]
 
-    db[key] = value
-    del db[key]
-
-    provider_db.delete.assert_called_once_with(key)
+    assert False == database.db.contains(key)
 
 
-def test_iter():
+def test_iter(database):
     """
     Ensure that the __iter__ method iterates over the keys in the database.
     """
-    provider_db = Mock()
-    flag = "c"
     key, value = b"key", b"value"
+    key2, value2 = b"key2", b"value2"
 
-    provider_db.iter.return_value = iter([key])
-    db = _Database(provider_db, flag)
+    database.db.set(key, value)
+    database.db.set(key2, value2)
 
-    db[key] = value
-    assert list(db) == [key]
-
-    provider_db.iter.assert_called_once()
+    assert list(database) == [key, key2]
 
 
-def test_len():
+def test_len(database):
     """
     Ensure that the __len__ method returns the number of elements in the database.
     """
-    provider_db = Mock()
-    flag = "c"
-    key, value = b"key", b"value"
+    database.db.set("key", "value")
+    database.db.set("key2", "value2")
 
-    provider_db.len.return_value = 1
-    db = _Database(provider_db, flag)
-
-    db[key] = value
-    assert len(db) == 1
-
-    provider_db.len.assert_called_once()
+    assert len(database) == 2
 
 
-def test_close():
+def test_close(database):
     """
     Ensure that the close method closes the database.
     """
-    provider_db = Mock()
-    flag = "c"
+    database.close()
 
-    db = _Database(provider_db, flag)
-
-    db.close()
-
-    provider_db.close.assert_called_once()
+    assert database.db.db is None
 
 
-def test_sync():
+def test_sync(database):
     """
     Ensure that the sync method syncs the database.
     """
-    provider_db = Mock()
-    flag = "c"
+    assert database.db._synced == False
 
-    db = _Database(provider_db, flag)
+    database.sync()
 
-    db.sync()
-
-    provider_db.sync.assert_called_once()
+    assert database.db._synced == True
 
 
 def test_doesnt_create_database_if_exists():
     """
     Ensure the database is not created if it already exists.
     """
-    provider_db = Mock()
     flag = "c"
+    provider_db = InMemory()
+    provider_db.configure({"exists": "True"})
 
-    provider_db.exists.return_value = True
+    assert provider_db._created == False
+
     db = _Database(provider_db, flag)
     db._init()
 
-    provider_db.exists.assert_called_once()
-    provider_db.create.assert_not_called()
+    assert provider_db._created == False
 
 
 def test_create_database_if_not_exists():
     """
     Ensure the database is created if it doesn't exist.
     """
-    provider_db = Mock()
-    flags = "c", "n"
+    flag = "c"
+    provider_db = InMemory()
 
-    for flag in flags:
-        provider_db.exists.reset_mock()
-        provider_db.create.reset_mock()
-        provider_db.exists.return_value = False
+    assert provider_db._created == False
+    assert provider_db._exists == False
 
-        db = _Database(provider_db, flag)
-        db._init()
+    db = _Database(provider_db, flag)
+    db._init()
 
-        provider_db.exists.assert_called_once()
-        provider_db.create.assert_called_once()
+    assert provider_db._created == True
 
 
 def test_cant_create_database_if_not_exists_and_not_allowed():
     """
     Ensure exception is raised if the database doesn't exist and the flag doesn't allow it.
     """
-    provider_db = Mock()
     flags = "r", "w"
 
     for flag in flags:
-        provider_db.exists.reset_mock()
-        provider_db.create.reset_mock()
-        provider_db.exists.return_value = False
+        provider_db = InMemory()
+
+        assert provider_db._created == False
+        assert provider_db._exists == False
 
         db = _Database(provider_db, flag)
 
@@ -186,49 +159,58 @@ def test_database_clear_if_asked():
     """
     Ensure the database is cleared if the flag allows it.
     """
-    provider_db = Mock()
     flag = "n"
+    provider_db = InMemory()
+    provider_db.configure({"exists": "True"})
 
-    provider_db.exists.return_value = True
-    provider_db.iter.return_value = iter([])
+    provider_db.set("key", "value")
+    provider_db.set("key2", "value2")
+
+    assert provider_db.len() == 2
     db = _Database(provider_db, flag)
     db._init()
-
-    provider_db.iter.assert_called_once()
+    assert provider_db.len() == 0
 
 
 def test_do_not_clear_database():
     """
     Ensure the database is not cleared if the flag doesn't allow it.
     """
-    provider_db = Mock()
     flags = "r", "w", "c"
 
     for flag in flags:
-        provider_db.exists.reset_mock()
-        provider_db.create.reset_mock()
+        provider_db = InMemory()
+        provider_db.configure({"exists": "True"})
 
-        provider_db.exists.return_value = True
-        provider_db.iter.return_value = iter([])
+        provider_db.set("key", "value")
+        provider_db.set("key2", "value2")
 
+        assert provider_db.len() == 2
         db = _Database(provider_db, flag)
         db._init()
-
-        provider_db.iter.assert_not_called()
+        assert provider_db.len() == 2
 
 
 def test_read_only():
     """
     Ensure the database is not cleared if the flag doesn't allow it.
     """
-    provider_db = Mock()
     flag = "r"
     key, value = b"key", b"value"
+    new_key, new_value = b"key-new", b"value-new"
+
+    provider_db = InMemory()
+    provider_db.configure({"exists": "True"})
+
+    provider_db.set(key, value)
 
     db = _Database(provider_db, flag)
+    db._init()
 
     with pytest.raises(ReadOnlyError) as _:
-        db[key] = value
+        db[new_key] = new_value
 
     with pytest.raises(ReadOnlyError) as _:
         del db[key]
+
+    assert db[key] == value

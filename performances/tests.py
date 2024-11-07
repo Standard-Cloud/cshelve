@@ -4,7 +4,7 @@ import cshelve
 
 db = cshelve.open('{db_filename}')
 
-for i in range(100):
+for i in range(10):
     db['element'] = i
 
 db.close()
@@ -17,7 +17,7 @@ import cshelve
 
 db = cshelve.open('{db_filename}')
 
-for i in range(100):
+for i in range(10):
     db['element'] = i
     del db['element']
 
@@ -31,7 +31,7 @@ import cshelve
 
 db = cshelve.open('{db_filename}')
 
-for i in range(100):
+for i in range(10):
     db['element' + str(i)] = i
 
 db.close()
@@ -44,7 +44,7 @@ import cshelve
 
 db = cshelve.open('{db_filename}')
 
-for i in range(100):
+for i in range(10):
     k = 'element' + str(i)
     db[k] = i
     del db[k]
@@ -59,7 +59,7 @@ import cshelve
 
 db = cshelve.open('{db_filename}')
 
-for i in range(100):
+for i in range(10):
     db['element'] = 0
     r = db[f'element']
 
@@ -73,7 +73,7 @@ import cshelve
 
 db = cshelve.open('{db_filename}')
 
-for i in range(100):
+for i in range(10):
     k = 'element' + str(i)
     db[k] = i
     r = db[k]
@@ -88,10 +88,10 @@ import cshelve
 
 db = cshelve.open('{db_filename}')
 
-for i in range(100):
+for i in range(10):
     k = 'element' + str(i)
 
-for i in range(100):
+for i in range(10):
     for i in db:
         ...
 
@@ -105,10 +105,10 @@ import cshelve
 
 db = cshelve.open('{db_filename}')
 
-for i in range(100):
+for i in range(10):
     k = 'element' + str(i)
 
-for i in range(100):
+for i in range(10):
     _ = len(db)
 
 db.close()

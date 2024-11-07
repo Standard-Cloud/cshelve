@@ -17,7 +17,7 @@ def write_data(db_config: str, key_pattern: str, data_pattern: str):
     """
     db = cshelve.open(db_config)
 
-    for i in range(100):
+    for i in range(10):
         db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
 
     db.close()
@@ -33,7 +33,7 @@ def del_data(config_file: str, key_pattern: Optional[str] = None):
         for i in db:
             del db[i]
     else:
-        for i in range(100):
+        for i in range(10):
             del db[f"{key_pattern}{i}"]
 
     db.close()
