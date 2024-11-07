@@ -2,7 +2,6 @@
 In-memory storage implementation. Mainly for testing purposes.
 """
 from typing import Dict, Iterator
-from distutils.util import strtobool
 
 from .provider_interface import ProviderInterface
 from .exceptions import key_access
@@ -36,7 +35,7 @@ class InMemory(ProviderInterface):
         # This is useful when you open/close multiple times the same database (with the same 'persist-key' value).
         self.persist_key = config.get("persist-key")
         # Simulate whether the database exists or must be created.
-        self._exists = strtobool(config.get("exists", "False"))
+        self._exists = config.get("exists", "false").lower() == "true"
 
         # If defined, retrieve the previous database value.
         if self.persist_key:
