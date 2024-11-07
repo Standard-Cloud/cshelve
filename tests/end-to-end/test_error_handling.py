@@ -7,12 +7,21 @@ import cshelve
 
 from helpers import write_data, del_data
 
+CONFIG_FILES = [
+    "tests/configurations/azure-blob/standard.ini",
+    "tests/configurations/in-memory/persisted.ini",
+]
 
-def test_key_not_found():
+
+@pytest.mark.parametrize(
+    "config_file",
+    CONFIG_FILES,
+)
+def test_key_not_found(config_file):
     """
     Ensure KeyError is raised when key is not found.
     """
-    db = cshelve.open("tests/configurations/azure-integration/standard.ini")
+    db = cshelve.open(config_file)
 
     with pytest.raises(cshelve.KeyNotFoundError):
         db["test_key_not_found"]
@@ -20,11 +29,15 @@ def test_key_not_found():
     db.close()
 
 
-def test_raise_delete_missing_object():
+@pytest.mark.parametrize(
+    "config_file",
+    CONFIG_FILES,
+)
+def test_raise_delete_missing_object(config_file):
     """
     Ensure delete an non-existing object raises KeyError.
     """
-    db = cshelve.open("tests/configurations/azure-integration/standard.ini")
+    db = cshelve.open(config_file)
 
     key_pattern = "test_delete_object"
 
@@ -40,7 +53,7 @@ def test_unknown_auth_type():
     """
     with pytest.raises(cshelve.AuthTypeError):
         cshelve.open(
-            "tests/configurations/azure-integration/error-handling/unknown-auth-type.ini"
+            "tests/configurations/azure-blob/error-handling/unknown-auth-type.ini"
         )
 
 
@@ -50,7 +63,7 @@ def test_no_connection_string_key_auth_type():
     """
     with pytest.raises(cshelve.AuthArgumentError):
         cshelve.open(
-            "tests/configurations/azure-integration/error-handling/connection-string-without-connection-string.ini"
+            "tests/configurations/azure-blob/error-handling/connection-string-without-connection-string.ini"
         )
 
 
@@ -60,5 +73,5 @@ def test_no_connection_string_in_env():
     """
     with pytest.raises(cshelve.AuthArgumentError):
         cshelve.open(
-            "tests/configurations/azure-integration/error-handling/connection-string-without-env-var.ini"
+            "tests/configurations/azure-blob/error-handling/connection-string-without-env-var.ini"
         )

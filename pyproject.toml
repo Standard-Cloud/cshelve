@@ -33,3 +33,6 @@ bird-feeder = { path = "./cshelve" }
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+markers = [
+    "sequential: marks tests that can only run in sequential (deselect with '-m \"not sequential\"')",
+]

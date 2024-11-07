@@ -13,5 +13,9 @@ def factory(provider: str) -> ProviderInterface:
         from ._azure_blob_storage import AzureBlobStorage
 
         return AzureBlobStorage()
+    elif provider == "in-memory":
+        from ._in_memory import InMemory
+
+        return InMemory()
 
     raise UnknownProviderError(f"Provider Interface '{provider}' is not supported.")

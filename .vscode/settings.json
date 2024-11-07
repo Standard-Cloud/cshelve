@@ -2,7 +2,9 @@
     "python.testing.pytestArgs": [
         "-n",
         "auto",
-        "tests"
+        "-m",
+        "not sequential",
+        "tests",
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true
