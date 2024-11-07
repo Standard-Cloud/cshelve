@@ -35,7 +35,7 @@ class InMemory(ProviderInterface):
         # If the persist-key configuration is set, the database will be persisted in memory and reused.
         # This is useful when you open/close multiple times the same database (with the same 'persist-key' value).
         self.persist_key = config.get("persist-key")
-        # Simulate the database exists.
+        # Simulate whether the database exists or must be created.
         self._exists = strtobool(config.get("exists", "False"))
 
         # If defined, retrieve the previous database value.
@@ -90,7 +90,6 @@ class InMemory(ProviderInterface):
         Args:
             key (bytes): The key to delete.
         """
-        print(f"Deleting key: {key}")
         del self.db[key]
 
     def contains(self, key: bytes) -> bool:
