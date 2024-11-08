@@ -1,0 +1,26 @@
+Enter 'end' to finish our adventure.
+Enter the name of the character: A true Gaulois par Toutatis!
+Enter the name of the character: I don't know impedimenta, where is he/she from? Thanks for this new friend!
+Enter the name of the character: I don't know geriatrix, where is he/she from? Thanks for this new friend!
+Enter the name of the character: I don't know numérobis, where is he/she from? Thanks for this new friend!
+Enter the name of the character: A true Gaulois par Toutatis!
+Enter the name of the character: I don't know caius bonus, where is he/she from? Thanks for this new friend!
+Enter the name of the character: Here are friend(s) from Egyptien:
+- Numérobis
+Here are friend(s) from Gaule:
+- Adrénaline
+- Amérix
+- Astérix
+- Bonemine
+- Boufiltre
+Here are friend(s) from Gaulois:
+- Impedimenta
+- Geriatrix
+Here are friend(s) from Romain:
+- Caius bonus
+Here are friend(s) from Rome:
+- Anglaigus
+- Caius obtus
+- Montladsus
+- Latraviata
+- Jules césar

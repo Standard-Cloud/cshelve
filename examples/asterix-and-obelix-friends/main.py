@@ -33,17 +33,21 @@ ROMANS_KEY = "rome"
 NEW_FRIENDS_KEY = "new_friends"
 
 # Open the database based on the program parameter.
-db = cshelve.open(sys.argv[1])
+db = cshelve.open(sys.argv[1], "n")
 
 # Load the Gaulois.
 if GAULOIS_KEY not in db:
     with open("./gaulois.txt", "r") as fd:
-        db[GAULOIS_KEY] = [p.lower() for p in fd.read().split("\n")]
+        # Lowercase the names to simplify the comparison.
+        # Remove empty strings.
+        db[GAULOIS_KEY] = [p.lower() for p in fd.read().split("\n") if p]
 
 # Load the Romans.
 if ROMANS_KEY not in db:
     with open("./romans.txt", "r") as fd:
-        db[ROMANS_KEY] = [p.lower() for p in fd.read().split("\n")]
+        # Lowercase the names to simplify the comparison.
+        # Remove empty strings.
+        db[ROMANS_KEY] = [p.lower() for p in fd.read().split("\n") if p]
 
 # Add the default key to simplify dictionary parsing.
 if NEW_FRIENDS_KEY not in db:
@@ -54,6 +58,9 @@ print("Enter 'end' to finish our adventure.")
 while True:
     # Remove potential '\n' and unnecessary spaces.
     personnage = input("Enter the name of the character: ").strip().lower()
+
+    if not personnage:
+        continue
 
     # If the character is a Gaulois, print a custom message.
     if personnage in db[GAULOIS_KEY]:

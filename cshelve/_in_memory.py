@@ -22,7 +22,7 @@ class InMemory(ProviderInterface):
         self.db = {}
         self.persist_key = None
 
-        # Following variable are purely for testing purposes.
+        # Following variables are for testing purposes.
         self._created = False
         self._exists = False
         self._synced = False
