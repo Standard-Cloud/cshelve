@@ -282,7 +282,7 @@ def test_len(config_file):
     for i in range(10):
         db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
 
-    assert len(db) == 100
+    assert len(db) == 10
 
     for i in range(10):
         del db[f"{key_pattern}{i}"]
