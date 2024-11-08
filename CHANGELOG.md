@@ -2,6 +2,14 @@
 
 ## [0.2.2] - 2024-11-03
 ### Added
+- In-memory provider
+
+### Improvement
+- Tests refactored.
+- Use in-memory provider for unit tests.
+
+## [0.2.2] - 2024-11-03
+### Added
 - Authentication methods for the azure-blob provider:
     - Anonymous read-only access on public blob storage.
     - Using Access key.

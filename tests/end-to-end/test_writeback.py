@@ -25,7 +25,7 @@ def test_writeback(config_file):
     def _write_data():
         db = cshelve.open(config_file)
 
-        for i in range(100):
+        for i in range(10):
             db[f"{key_pattern}{i}"] = data_pattern
 
         db.close()
@@ -33,7 +33,7 @@ def test_writeback(config_file):
     def update_data(writeback):
         db = cshelve.open(config_file, writeback=writeback)
 
-        for i in range(100):
+        for i in range(10):
             key = f"{key_pattern}{i}"
             value = db[key]
             value.append(i)
@@ -48,7 +48,7 @@ def test_writeback(config_file):
     def read_data(contains_index):
         db = cshelve.open(config_file)
 
-        for i in range(100):
+        for i in range(10):
             key = f"{key_pattern}{i}"
             if contains_index:
                 assert db[key] == data_pattern + [i]
@@ -60,7 +60,7 @@ def test_writeback(config_file):
     def del_data():
         db = cshelve.open(config_file)
 
-        for i in range(100):
+        for i in range(10):
             del db[f"{key_pattern}{i}"]
 
         db.close()

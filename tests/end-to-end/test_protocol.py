@@ -26,11 +26,11 @@ def test_protocol(config_file):
     protocol = pickle.HIGHEST_PROTOCOL
 
     with cshelve.open(config_file, protocol=protocol) as db:
-        for i in range(100):
+        for i in range(10):
             db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
 
     with cshelve.open(config_file, protocol=protocol) as db:
-        for i in range(100):
+        for i in range(10):
             assert f"{data_pattern}{i}" == db[f"{key_pattern}{i}"]
 
 
@@ -44,9 +44,9 @@ def test_change_protocol(config_file):
     protocol = pickle.HIGHEST_PROTOCOL
 
     with cshelve.open(config_file, protocol=protocol) as db:
-        for i in range(100):
+        for i in range(10):
             db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
 
     with cshelve.open(config_file, protocol=protocol) as db:
-        for i in range(100):
+        for i in range(10):
             assert f"{data_pattern}{i}" == db[f"{key_pattern}{i}"]

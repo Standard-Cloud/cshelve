@@ -22,6 +22,11 @@ class InMemory(ProviderInterface):
         self.db = {}
         self.persist_key = None
 
+        # Following variable are purely for testing purposes.
+        self._created = False
+        self._exists = False
+        self._synced = False
+
     def configure(self, config: Dict[str, str]) -> None:
         """
         Configure the InMemory client based on the configuration dictionary.
@@ -29,6 +34,8 @@ class InMemory(ProviderInterface):
         # If the persist-key configuration is set, the database will be persisted in memory and reused.
         # This is useful when you open/close multiple times the same database (with the same 'persist-key' value).
         self.persist_key = config.get("persist-key")
+        # Simulate whether the database exists or must be created.
+        self._exists = config.get("exists", "false").lower() == "true"
 
         # If defined, retrieve the previous database value.
         if self.persist_key:
@@ -62,7 +69,7 @@ class InMemory(ProviderInterface):
         """
         Sync the database. This is a no-op for the in-memory implementation.
         """
-        pass
+        self._synced = True
 
     def set(self, key: bytes, value: bytes) -> None:
         """
@@ -118,15 +125,16 @@ class InMemory(ProviderInterface):
 
     def exists(self) -> bool:
         """
-        Check if the database exists. Always returns True for in-memory implementation.
+        Check if the database exists.
 
         Returns:
             bool: True
         """
-        return True
+        return self._exists
 
     def create(self) -> None:
         """
         Create the database. This is a no-op for the in-memory implementation.
         """
-        pass
+        self._created = True
+        self._exists = True

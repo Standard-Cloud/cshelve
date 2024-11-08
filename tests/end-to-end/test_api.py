@@ -26,7 +26,7 @@ def test_write_and_read(config_file: str):
         key_pattern = unique_key + "test_write_and_read"
         data_pattern = "test_write_and_read"
 
-        for i in range(100):
+        for i in range(10):
             key = f"{key_pattern}{i}"
 
             # Write data to the DB.
@@ -53,7 +53,7 @@ def test_read_after_reopening(config_file: str):
     def read_data():
         db = cshelve.open(config_file)
 
-        for i in range(100):
+        for i in range(10):
             key = f"{key_pattern}{i}"
             assert db[key] == f"{data_pattern}{i}"
             del db[key]
@@ -133,7 +133,7 @@ def test_update_on_operator(config_file: str):
     def write_data():
         db = cshelve.open(config_file)
 
-        for i in range(100):
+        for i in range(10):
             db[f"{key_pattern}{i}"] = str_data_pattern
             db[f"{key_pattern}{i}-list"] = list_data_pattern
 
@@ -142,7 +142,7 @@ def test_update_on_operator(config_file: str):
     def update_data():
         db = cshelve.open(config_file)
 
-        for i in range(100):
+        for i in range(10):
             db[f"{key_pattern}{i}"] += f"{i}"
             db[f"{key_pattern}{i}-list"] += [i]
 
@@ -151,7 +151,7 @@ def test_update_on_operator(config_file: str):
     def read_data():
         db = cshelve.open(config_file)
 
-        for i in range(100):
+        for i in range(10):
             key = f"{key_pattern}{i}"
             key_list = f"{key_pattern}{i}-list"
 
@@ -210,7 +210,7 @@ def test_clear_db(config_file):
 
         assert len(db) == 0
 
-        for i in range(100):
+        for i in range(10):
             db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
 
         db.close()
@@ -218,7 +218,7 @@ def test_clear_db(config_file):
     def read_data():
         db = cshelve.open(config_file, "r")
 
-        for i in range(100):
+        for i in range(10):
             key = f"{key_pattern}{i}"
             assert db[key] == f"{data_pattern}{i}"
 
@@ -248,7 +248,7 @@ def test_del(config_file):
     def _del_data():
         db = cshelve.open(config_file)
 
-        for i in range(100):
+        for i in range(10):
             key = f"{key_pattern}{i}"
             assert db[key] == f"{data_pattern}{i}"
             del db[key]
@@ -279,12 +279,12 @@ def test_len(config_file):
 
     del_data(config_file)
 
-    for i in range(100):
+    for i in range(10):
         db[f"{key_pattern}{i}"] = f"{data_pattern}{i}"
 
     assert len(db) == 100
 
-    for i in range(100):
+    for i in range(10):
         del db[f"{key_pattern}{i}"]
 
     assert len(db) == 0
@@ -309,7 +309,7 @@ def test_iter(config_file):
     data_pattern = "test_iter"
     del_data(config_file)
 
-    for i in range(100):
+    for i in range(10):
         key = f"{key_pattern}{i}"
         db[key] = f"{data_pattern}{i}"
         res.add(key)

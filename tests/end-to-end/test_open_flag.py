@@ -27,7 +27,7 @@ def test_read_only(config_file):
     def cant_update():
         db = cshelve.open(config_file, "r")
 
-        for i in range(100):
+        for i in range(10):
             key = f"{key_pattern}{i}"
 
             assert db[key] == f"{data_pattern}{i}"

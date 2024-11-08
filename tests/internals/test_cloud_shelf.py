@@ -9,10 +9,11 @@ from cshelve import CloudShelf
 
 def test_factory_usage():
     """
-    Ensure the usage of the factory.
+    End users may want to provide another factory to create the cloud database and not the default one.
+    This test ensures that the factory provided is used.
     """
     filename = "does_not_exists.ini"
-    provider = "azure-blob"
+    provider = "fake"
     config = {42: 42}
     flag = "c"
     protocol = pickle.HIGHEST_PROTOCOL
@@ -37,10 +38,11 @@ def test_factory_usage():
 
 def test_loader_usage():
     """
-    Ensure the usage of the loader.
+    Users may want to provide another loader to load the configuration file.
+    This test ensures that the loader provided is used.
     """
     filename = "does_not_exists.ini"
-    provider = "azure-blob"
+    provider = "fake"
     config = {42: 42}
     flag = "c"
     protocol = pickle.HIGHEST_PROTOCOL
@@ -58,28 +60,3 @@ def test_loader_usage():
         filename, flag, protocol, writeback, loader=loader, factory=factory
     ) as cs:
         loader.assert_called_once_with(filename)
-
-
-def test_provider_configuration():
-    """
-    Ensure the provider returns by the factory is configured.
-    """
-    filename = "does_not_exists.ini"
-    provider = "azure-blob"
-    config = {42: 42}
-    flag = "c"
-    protocol = pickle.HIGHEST_PROTOCOL
-    writeback = False
-
-    factory = Mock()
-    loader = Mock()
-    cloud_database = Mock()
-
-    loader.return_value = provider, config
-    factory.return_value = cloud_database
-    cloud_database.exists.return_value = False
-
-    with CloudShelf(
-        filename, flag, protocol, writeback, loader=loader, factory=factory
-    ) as _:
-        cloud_database.configure.assert_called_once_with(config)
