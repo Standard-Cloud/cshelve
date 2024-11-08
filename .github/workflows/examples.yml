@@ -56,7 +56,7 @@ jobs:
         # Examples do not run on Windows.
         os: [ubuntu-latest, macos-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-        max-parallel: 1
+      max-parallel: 1
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
