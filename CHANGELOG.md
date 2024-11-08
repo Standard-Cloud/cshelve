@@ -7,6 +7,7 @@
 ### Improvement
 - Tests refactored.
 - Use in-memory provider for unit tests.
+- Run examples in the CI pipeline.
 
 ## [0.2.2] - 2024-11-03
 ### Added
