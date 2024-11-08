@@ -1,0 +1,94 @@
+# Run examples in the CI to ensure that the project is working as expected.
+name: Run examples
+on:
+  push:
+    # branches:
+    #   - main
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  WHEEL: cshelve-0.2.2-py3-none-any.whl
+
+jobs:
+  # Build the current version of the project and re use the wheel in the performances tests.
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.9"]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    environment: azure
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+
+    - name: Install the project
+      run: uv build
+
+    - name: Upload the package
+      uses: actions/upload-artifact@v4
+      with:
+        name: cshelve-${{ github.sha }}
+        path: dist/*.whl
+        retention-days: 10
+        if-no-files-found: error
+        overwrite: false
+
+
+  performance-tests:
+    needs: build
+
+    # Tests are run on all supported OS and Python versions to ensure quality.
+    strategy:
+      matrix:
+        # Examples do not run on Windows.
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    environment: azure
+
+    steps:
+    # An Azure storage account is used to keep results.
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download the wheel.
+      uses: actions/download-artifact@v4
+      with:
+        name: cshelve-${{ github.sha }}
+        path: performances/dist
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install package.
+      working-directory: performances
+      run: |
+        pip install ./dist/${{ env.WHEEL }}
+
+    - name: Run asterix-and-obelix-database
+      working-directory: examples/asterix-and-obelix-database
+      run: |
+        bash run-test.sh
