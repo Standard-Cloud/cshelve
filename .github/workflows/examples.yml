@@ -2,8 +2,8 @@
 name: Run examples
 on:
   push:
-    # branches:
-    #   - main
+    branches:
+      - main
 
 permissions:
   id-token: write
@@ -47,7 +47,7 @@ jobs:
         overwrite: false
 
 
-  performance-tests:
+  examples:
     needs: build
 
     # Tests are run on all supported OS and Python versions to ensure quality.
