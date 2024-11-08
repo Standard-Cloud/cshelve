@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.2] - 2024-11-03
+## [0.3.0] - 2024-11-08
 ### Added
 - In-memory provider
 
