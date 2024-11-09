@@ -1,17 +1,23 @@
-version: '3'
-
 services:
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+
   cshelve:
-    build: 
+    build:
       context: ..
       dockerfile: ./.devcontainer/Dockerfile
 
     volumes:
       # Forwards the local Docker socket to the container.
-      - /var/run/docker.sock:/var/run/docker-host.sock 
+      - /var/run/docker.sock:/var/run/docker-host.sock
       # Update this to wherever you want VS Code to mount the folder of your project
-      - ..:/workspaces:cached
+      - ..:/workspaces/package:cached
 
-    # Overrides default command so things don't shut down after the process ends.
-    entrypoint: /usr/local/share/docker-init.sh
-    command: sleep infinity 
+    depends_on:
+      - azurite
+
+    command: sleep infinity
