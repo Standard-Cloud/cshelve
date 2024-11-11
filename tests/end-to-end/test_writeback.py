@@ -2,16 +2,19 @@
 This module contains the integration tests for the writeback functionality.
 The `Shelf` object manages this feature but the `cshelve` module must provide all the necessary tools.
 """
+import os
 import pytest
 import cshelve
 
-import sys
 from helpers import unique_key
 
 CONFIG_FILES = [
-    "tests/configurations/azure-blob/standard.ini",
+    "tests/configurations/azure-blob/simulator/standard.ini",
     "tests/configurations/in-memory/persisted.ini",
 ]
+
+if os.getenv("CI"):
+    CONFIG_FILES.append("tests/configurations/azure-blob/real/standard.ini")
 
 
 @pytest.mark.parametrize("config_file", CONFIG_FILES)

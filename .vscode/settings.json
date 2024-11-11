@@ -3,7 +3,7 @@
         "-n",
         "auto",
         "-m",
-        "not sequential",
+        "not azure_blob",
         "tests",
     ],
     "python.testing.unittestEnabled": false,
