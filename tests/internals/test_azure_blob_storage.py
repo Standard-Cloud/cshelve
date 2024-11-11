@@ -4,7 +4,12 @@ from azure.storage.blob import BlobType
 
 from cshelve._factory import factory
 from azure.core.exceptions import ResourceNotFoundError
-from cshelve import AuthArgumentError, AuthTypeError, KeyNotFoundError
+from cshelve import (
+    AuthArgumentError,
+    AuthTypeError,
+    KeyNotFoundError,
+    ConfigurationError,
+)
 
 
 @patch("azure.identity.DefaultAzureCredential")
@@ -107,6 +112,24 @@ def test_missing_env_var(auth_type):
     }
 
     with pytest.raises(AuthArgumentError):
+        provider = factory("azure-blob")
+        provider.configure(config)
+
+
+@pytest.mark.parametrize(
+    "auth_type",
+    ["access_key", "connection_string"],
+)
+def test_missing_container(auth_type):
+    """
+    Ensure a ConfigurationError is raised when the container name is missing from the configuration.
+    """
+    config = {
+        "account_url": "https://account.blob.core.windows.net",
+        "auth_type": auth_type,
+    }
+
+    with pytest.raises(ConfigurationError):
         provider = factory("azure-blob")
         provider.configure(config)
 

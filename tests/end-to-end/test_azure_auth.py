@@ -5,7 +5,7 @@ import pytest
 
 import cshelve
 
-from helpers import write_data, unique_key, del_data
+from helpers import unique_key
 
 
 @pytest.mark.azure_blob

@@ -19,6 +19,7 @@ from .provider_interface import ProviderInterface
 from .exceptions import (
     AuthTypeError,
     AuthArgumentError,
+    ConfigurationError,
     key_access,
 )
 
@@ -61,10 +62,14 @@ class AzureBlobStorage(ProviderInterface):
         # It can be created if it does not exist depending on the flag parameter.
         self.container_name = config.get("container_name")
 
+        if self.container_name is None:
+            raise ConfigurationError("Missing container_name in the configuration file")
+
         # Create the BlobServiceClient and ContainerClient objects.
         self.blob_service_client = self.__create_blob_service(
             auth_type, account_url, environment_key
         )
+
         self.container_client = self.blob_service_client.get_container_client(
             self.container_name
         )
