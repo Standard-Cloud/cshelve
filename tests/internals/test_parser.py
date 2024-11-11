@@ -34,5 +34,5 @@ def test_azure_configuration():
 
     assert provider == "azure-blob"
     assert config["auth_type"] == "connection_string"
-    assert config["environment_key"] == "AZURE_STORAGE_CONNECTION_STRING"
+    assert config["environment_key"] == "AZURITE_CONNECTION_STRING"
     assert config["container_name"] == "standard"
