@@ -70,6 +70,14 @@ class AuthArgumentError(AuthError):
     pass
 
 
+class ConfigurationError(RuntimeError):
+    """
+    Raised when the configuration provided for a provider is incorrect.
+    """
+
+    pass
+
+
 def key_access(exception: Type[Exception]) -> KeyNotFoundError:
     """
     Create a KeyNotFoundError exception if the key is not found.

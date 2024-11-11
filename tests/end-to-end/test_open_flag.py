@@ -2,6 +2,7 @@
 This file contains the integration tests for the open flag.
 The `n` flag is tested in the [sequential tests](../sequential/test_sequential.py) due to its global impact.
 """
+import os
 import pytest
 
 import cshelve
@@ -9,12 +10,19 @@ import cshelve
 from helpers import write_data, del_data, unique_key
 
 
+CONFIG_FILES = [
+    "tests/configurations/azure-blob/simulator/flag.ini",
+    "tests/configurations/in-memory/persisted.ini",
+]
+
+
+if os.getenv("CI"):
+    CONFIG_FILES.append("tests/configurations/azure-blob/real/flag.ini")
+
+
 @pytest.mark.parametrize(
     "config_file",
-    [
-        "tests/configurations/azure-blob/flag.ini",
-        "tests/configurations/in-memory/persisted.ini",
-    ],
+    CONFIG_FILES,
 )
 def test_read_only(config_file):
     """
@@ -42,6 +50,7 @@ def test_read_only(config_file):
     del_data(config_file, key_pattern)
 
 
+@pytest.mark.azure
 def test_container_does_not_exists():
     """
     Depending of the flag, the database must already exists otherwise an exception is raised.
@@ -49,12 +58,12 @@ def test_container_does_not_exists():
     """
     with pytest.raises(cshelve.DBDoesNotExistsError):
         cshelve.open(
-            "tests/configurations/azure-blob/error-handling/container-does-not-exists.ini",
+            "tests/configurations/azure-blob/real/container-does-not-exists.ini",
             "w",
         )
 
     with pytest.raises(cshelve.DBDoesNotExistsError):
         cshelve.open(
-            "tests/configurations/azure-blob/error-handling/container-does-not-exists.ini",
+            "tests/configurations/azure-blob/real/container-does-not-exists.ini",
             "r",
         )

@@ -3,7 +3,7 @@
         "-n",
         "auto",
         "-m",
-        "not sequential",
+        "not azure",
         "tests",
     ],
     "python.testing.unittestEnabled": false,

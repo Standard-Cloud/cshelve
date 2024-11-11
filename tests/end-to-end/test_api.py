@@ -1,6 +1,8 @@
 """
 Ensure the standard behavior of the API works as expected in real scenarios.
 """
+import os
+
 import pytest
 
 import cshelve
@@ -9,16 +11,43 @@ from helpers import write_data, unique_key, del_data
 
 
 CONFIG_FILES = [
-    "tests/configurations/azure-blob/standard.ini",
+    "tests/configurations/azure-blob/simulator/standard.ini",
     "tests/configurations/in-memory/persisted.ini",
 ]
+
+CONFIG_FILES_ITER = [
+    "tests/configurations/azure-blob/simulator/iter.ini",
+    "tests/configurations/in-memory/iter.ini",
+]
+
+CONFIG_FILES_LEN = [
+    "tests/configurations/azure-blob/simulator/len.ini",
+    "tests/configurations/in-memory/len.ini",
+]
+
+CONFIG_FILES_DEL = [
+    "tests/configurations/azure-blob/simulator/del.ini",
+    "tests/configurations/in-memory/del.ini",
+]
+
+CONFIG_FILES_FLAG_N = [
+    "tests/configurations/azure-blob/simulator/flag-n.ini",
+    "tests/configurations/in-memory/flag-n.ini",
+]
+
+if os.getenv("CI"):
+    CONFIG_FILES.append("tests/configurations/azure-blob/real/standard.ini")
+    CONFIG_FILES_ITER.append("tests/configurations/azure-blob/real/iter.ini")
+    CONFIG_FILES_LEN.append("tests/configurations/azure-blob/real/len.ini")
+    CONFIG_FILES_DEL.append("tests/configurations/azure-blob/real/del.ini")
+    CONFIG_FILES_FLAG_N.append("tests/configurations/azure-blob/real/flag-n.ini")
 
 
 @pytest.mark.parametrize(
     "config_file",
     CONFIG_FILES,
 )
-def test_write_and_read(config_file: str):
+def test_write_then_read(config_file: str):
     """
     Ensure we can read and write data to the DB.
     """
@@ -62,60 +91,6 @@ def test_read_after_reopening(config_file: str):
 
     write_data(config_file, key_pattern, data_pattern)
     read_data()
-
-
-@pytest.mark.parametrize(
-    "config_file",
-    [
-        "tests/configurations/azure-blob/access-key.ini",
-        "tests/configurations/azure-blob/connection-string.ini",
-        "tests/configurations/azure-blob/standard.ini",
-    ],
-)
-def test_authentication(config_file):
-    """
-    Test authentication with password and connection string.
-    """
-    with cshelve.open(config_file) as db:
-        key = unique_key + "test_authentication"
-        data = "test_authentication"
-
-        # Write data to the DB.
-        db[key] = data
-
-        # Data must be accessible in the DB.
-        assert db[key] == data
-
-        # Delete the data from the DB.
-        del db[key]
-
-    db.close()
-
-
-def test_authentication_read_only():
-    """
-    Test the read-only authentication.
-    """
-    can_write_config_file = "tests/configurations/azure-blob/writeable-anonymous.ini"
-    read_only_config_file = "tests/configurations/azure-blob/anonymous.ini"
-
-    key = unique_key + "test_authentication_read_only"
-    data = "test_authentication_read_only"
-
-    with cshelve.open(can_write_config_file) as db:
-        # Write data to the DB.
-        db[key] = data
-
-    # The read-only flag is not mandatory, but the underlying implementation will raise an exception if we try to write.
-    with cshelve.open(read_only_config_file) as db:
-        # Data must be present in the DB.
-        assert db[key] == data
-
-    with cshelve.open(can_write_config_file) as db:
-        # Delete the data from the DB.
-        del db[key]
-
-    db.close()
 
 
 @pytest.mark.parametrize(
@@ -191,13 +166,7 @@ def test_contains(config_file: str):
 
 
 @pytest.mark.sequential
-@pytest.mark.parametrize(
-    "config_file",
-    [
-        "tests/configurations/azure-blob/flag-n.ini",
-        "tests/configurations/in-memory/flag-n.ini",
-    ],
-)
+@pytest.mark.parametrize("config_file", CONFIG_FILES_FLAG_N)
 def test_clear_db(config_file):
     """
     Ensure the database is cleared when using the 'n' flag.
@@ -233,10 +202,7 @@ def test_clear_db(config_file):
 @pytest.mark.sequential
 @pytest.mark.parametrize(
     "config_file",
-    [
-        "tests/configurations/azure-blob/del.ini",
-        "tests/configurations/in-memory/del.ini",
-    ],
+    CONFIG_FILES_DEL,
 )
 def test_del(config_file):
     """
@@ -263,10 +229,7 @@ def test_del(config_file):
 @pytest.mark.sequential
 @pytest.mark.parametrize(
     "config_file",
-    [
-        "tests/configurations/azure-blob/len.ini",
-        "tests/configurations/in-memory/len.ini",
-    ],
+    CONFIG_FILES_LEN,
 )
 def test_len(config_file):
     """
@@ -291,13 +254,7 @@ def test_len(config_file):
 
 
 @pytest.mark.sequential
-@pytest.mark.parametrize(
-    "config_file",
-    [
-        "tests/configurations/azure-blob/iter.ini",
-        "tests/configurations/in-memory/iter.ini",
-    ],
-)
+@pytest.mark.parametrize("config_file", CONFIG_FILES_ITER)
 def test_iter(config_file):
     """
     Ensure the __iter__ method works as expected.

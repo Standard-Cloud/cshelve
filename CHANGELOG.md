@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.0] -
+### Added
+- Dev container for development.
+- Exception `ConfigurationError` for providers' configuration errors.
+
 ## [0.3.0] - 2024-11-08
 ### Added
 - In-memory provider
