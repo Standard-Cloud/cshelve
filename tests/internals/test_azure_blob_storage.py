@@ -162,6 +162,7 @@ def test_wrong_auth_type():
     config = {
         "account_url": "https://account.blob.core.windows.net",
         "auth_type": "unknonwn",
+        "container_name": "container",
     }
 
     with pytest.raises(AuthTypeError):

@@ -8,7 +8,7 @@ import cshelve
 from helpers import unique_key
 
 
-@pytest.mark.azure_blob
+@pytest.mark.azure
 @pytest.mark.parametrize(
     "config_file",
     [
@@ -37,7 +37,7 @@ def test_authentication(config_file):
     db.close()
 
 
-@pytest.mark.azure_blob
+@pytest.mark.azure
 def test_authentication_read_only():
     """
     Test the read-only authentication.

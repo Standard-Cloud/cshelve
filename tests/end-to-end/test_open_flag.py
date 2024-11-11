@@ -17,7 +17,7 @@ CONFIG_FILES = [
 
 
 if os.getenv("CI"):
-    CONFIG_FILES.append("tests/configurations/azure-blob/real/standard.ini")
+    CONFIG_FILES.append("tests/configurations/azure-blob/real/flag.ini")
 
 
 @pytest.mark.parametrize(
@@ -50,7 +50,7 @@ def test_read_only(config_file):
     del_data(config_file, key_pattern)
 
 
-@pytest.mark.azure_blob
+@pytest.mark.azure
 def test_container_does_not_exists():
     """
     Depending of the flag, the database must already exists otherwise an exception is raised.

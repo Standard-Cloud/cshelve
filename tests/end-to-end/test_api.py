@@ -37,7 +37,7 @@ CONFIG_FILES_FLAG_N = [
 
 if os.getenv("CI"):
     CONFIG_FILES.append("tests/configurations/azure-blob/real/standard.ini")
-    CONFIG_FILES_ITER.append("tests/configurations/azure-blob/real/standard.ini")
+    CONFIG_FILES_ITER.append("tests/configurations/azure-blob/real/iter.ini")
     CONFIG_FILES_LEN.append("tests/configurations/azure-blob/real/len.ini")
     CONFIG_FILES_DEL.append("tests/configurations/azure-blob/real/del.ini")
     CONFIG_FILES_FLAG_N.append("tests/configurations/azure-blob/real/flag-n.ini")
@@ -47,7 +47,7 @@ if os.getenv("CI"):
     "config_file",
     CONFIG_FILES,
 )
-def test_write_and_read(config_file: str):
+def test_write_then_read(config_file: str):
     """
     Ensure we can read and write data to the DB.
     """

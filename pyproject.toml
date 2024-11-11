@@ -35,4 +35,5 @@ bird-feeder = { path = "./cshelve" }
 pythonpath = ["."]
 markers = [
     "sequential: marks tests that can only run in sequential (deselect with '-m \"not sequential\"')",
+    "azure: marks tests that can only run with an Azure connection (deselect with '-m \"not azure\"')",
 ]
