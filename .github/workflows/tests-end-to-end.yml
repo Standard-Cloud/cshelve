@@ -52,7 +52,7 @@ jobs:
         # Start Azureit.
         azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
         # Run tests
-        uv run --python ${{ matrix.python-version }} pytest -m "not sequential" tests/end-to-end
+        uv run --python ${{ matrix.python-version }} pytest tests/end-to-end
       env:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
         AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
