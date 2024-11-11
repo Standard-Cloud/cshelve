@@ -26,6 +26,15 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+    # Nodejs is used to install Azurite.
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    - name: Install Azureit to emulate Azure Storage Account locally.
+      run: |
+        npm install -g azurite
+
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -39,7 +48,12 @@ jobs:
       run: uv sync --all-extras --dev --python ${{ matrix.python-version }}
 
     - name: Run tests
-      run: uv run --python ${{ matrix.python-version }} pytest -n auto -m "not sequential" tests/end-to-end
+      run: |
+        # Start Azureit.
+        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
+        # Run tests
+        uv run --python ${{ matrix.python-version }} pytest -n auto -m "not sequential" tests/end-to-end
       env:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
         AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
+        AZURITE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
