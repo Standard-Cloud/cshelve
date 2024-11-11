@@ -42,7 +42,9 @@ def test_authentication_read_only():
     """
     Test the read-only authentication.
     """
-    can_write_config_file = "tests/configurations/azure-blob/real/writeable-anonymous.ini"
+    can_write_config_file = (
+        "tests/configurations/azure-blob/real/writeable-anonymous.ini"
+    )
     read_only_config_file = "tests/configurations/azure-blob/real/anonymous.ini"
 
     key = unique_key + "test_authentication_read_only"

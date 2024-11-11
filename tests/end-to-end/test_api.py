@@ -166,10 +166,7 @@ def test_contains(config_file: str):
 
 
 @pytest.mark.sequential
-@pytest.mark.parametrize(
-    "config_file",
-    CONFIG_FILES_FLAG_N
-)
+@pytest.mark.parametrize("config_file", CONFIG_FILES_FLAG_N)
 def test_clear_db(config_file):
     """
     Ensure the database is cleared when using the 'n' flag.
@@ -257,10 +254,7 @@ def test_len(config_file):
 
 
 @pytest.mark.sequential
-@pytest.mark.parametrize(
-    "config_file",
-    CONFIG_FILES_ITER
-)
+@pytest.mark.parametrize("config_file", CONFIG_FILES_ITER)
 def test_iter(config_file):
     """
     Ensure the __iter__ method works as expected.
