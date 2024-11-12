@@ -29,7 +29,7 @@ with cshelve.open('my_cloud_shelve') as db:
     db['preferences'] = {'theme': 'dark', 'notifications': True}
 ```
 
-Here, we're opening a `cshelve` database named `my_cloud_shelve`. The database behaves just like a dictionary: you can add key-value pairs to it, and they'll be saved in the cloud. 
+Here, we're opening a `cshelve` database named `my_cloud_shelve`. The database behaves just like a dictionary: you can add key-value pairs to it, and they'll be saved in the cloud.
 
 ### 2. Storing Data
 
@@ -138,4 +138,4 @@ In this tutorial, we covered the basics of using `cshelve` to store and retrieve
 - Store various Python data types and custom objects
 - Retrieve, update, and delete data just like with a dictionary
 
-`cshelve` combines the ease and familiarity of `shelve` with the accessibility and scalability of cloud storage, making it ideal for modern applications that require shared, persistent storage. 
+`cshelve` combines the ease and familiarity of `shelve` with the accessibility and scalability of cloud storage, making it ideal for modern applications that require shared, persistent storage.
