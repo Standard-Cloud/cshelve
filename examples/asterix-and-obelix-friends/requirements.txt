@@ -1,1 +1,1 @@
-cshelve
+cshelve[azure-blob]

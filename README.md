@@ -51,7 +51,7 @@ d['xx'] = temp                # Store it back to persist changes
 d.close()                     # Close the database
 ```
 
-### Debug Storage
+### Debug/test Storage
 
 For testing purposes, it is possible to use an in-memory provider that can:
 - Persist the data during all the program execution.
@@ -99,15 +99,23 @@ with cshelve.open('do-not-persist.ini') as db:
 
 ### Remote Storage (e.g., Azure)
 
-To configure remote cloud storage, you need to provide an INI file containing your cloud provider's configuration. The file should have a `.ini` extension.
+To configure remote cloud storage, you need to provide an INI file containing your cloud provider's configuration. The file should have a `.ini` extension. Remote storage also requires the installation of optional dependencies for the cloud provider you want to use.
 
 #### Example Azure Blob Configuration
 
+First, install the Azure Blob Storage provider:
+```bash
+pip install cshelve[azure-blob]
+```
+
+Then, create an INI file with the following configuration:
 ```bash
 $ cat azure-blob.ini
 [default]
 provider        = azure-blob
 account_url     = https://myaccount.blob.core.windows.net
+# Note: The auth_type can be access_key, passwordless, connection_string, or anonymous.
+# The passwordless authentication method is recommended, but the Azure CLI must be installed (https://learn.microsoft.com/en-us/cli/azure/install-azure-cli).
 auth_type       = passwordless
 container_name  = mycontainer
 ```
@@ -122,22 +130,23 @@ d = cshelve.open('azure-blob.ini')  # Open using the remote storage configuratio
 key = 'key'
 data = 'data'
 
-d[key] = data                  # Store data at the key
-data = d[key]                  # Retrieve the data
-del d[key]                     # Delete the data
+d[key] = data                  # Store data at the key on the remote storage
+data = d[key]                  # Retrieve the data from the remote storage
+del d[key]                     # Delete the data from the remote storage
 
-flag = key in d                # Check if the key exists in the cloud store
-klist = list(d.keys())         # List all keys in the remote storage
+flag = key in d                # Check if the key exists in the cloud storage
+klist = list(d.keys())         # List all keys present in the remote storage
 
-d['xx'] = [0, 1, 2]            # Store a list remotely
-d['xx'].append(3)              # Changes to the list won't persist
+# Note: Since writeback=True is not used, handle data carefully:
+d['xx'] = [0, 1, 2]            # Store a list on the remote storage
+d['xx'].append(3)              # This won't persist since writeback=True is not used
 
 # Correct approach:
-temp = d['xx']                 # Extract the stored list
-temp.append(5)                 # Modify the list
-d['xx'] = temp                 # Store it back to persist changes
+temp = d['xx']                 # Extract the stored list from the remote storage
+temp.append(5)                 # Modify the list locally
+d['xx'] = temp                 # Store it back on the remote storage to persist changes
 
-d.close()                      # Close the connection to the remote store
+d.close()                      # Close the connection to the remote storage
 ```
 
 More configuration examples for other cloud providers can be found [here](./tests/configurations/).
@@ -147,6 +156,7 @@ More configuration examples for other cloud providers can be found [here](./test
 #### In Memory
 
 Provider: `in-memory`
+Installation: No additional installation required.
 
 The In Memory provider uses an in-memory data structure to simulate storage. This is useful for testing and development purposes.
 
@@ -159,6 +169,7 @@ The In Memory provider uses an in-memory data structure to simulate storage. Thi
 #### Azure Blob
 
 Provider: `azure-blob`
+Installation: `pip install cshelve[azure-blob]`
 
 The Azure provider uses [Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction) as remote storage.
 The module considers the provided container as dedicated to the application. The impact might be significant. For example, if the flag `n` is provided to the `open` function, the entire container will be purged, aligning with the [official interface](https://docs.python.org/3/library/shelve.html#shelve.open).

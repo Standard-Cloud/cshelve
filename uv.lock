@@ -391,7 +391,9 @@ wheels = [
 name = "cshelve"
 version = "0.3.0"
 source = { virtual = "." }
-dependencies = [
+
+[package.optional-dependencies]
+azure-blob = [
     { name = "azure-identity" },
     { name = "azure-storage-blob" },
 ]
@@ -410,8 +412,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "azure-identity", specifier = ">=1.19.0" },
-    { name = "azure-storage-blob", specifier = ">=12.23.1" },
+    { name = "azure-identity", marker = "extra == 'azure-blob'", specifier = ">=1.19.0" },
+    { name = "azure-storage-blob", marker = "extra == 'azure-blob'", specifier = ">=12.23.1" },
 ]
 
 [package.metadata.requires-dev]
