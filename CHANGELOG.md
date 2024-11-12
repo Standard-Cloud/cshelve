@@ -1,10 +1,12 @@
 # Changelog
 
 ## [0.4.0] -
+### Breaking Change
+- The `azure-blob` is not installed by default. To install it, use `pip install cshelve[azure-blob]`.
+
 ### Added
 - Added a development container for streamlined development.
 - Introduced `ConfigurationError` exception for handling provider configuration errors.
-- Separated the azure-blob provider into its own package.
 - Initialized project documentation.
 
 ## [0.3.0] - 2024-11-08
