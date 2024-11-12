@@ -1,19 +1,29 @@
 """
 Azure Blob Storage implementation.
 
-This module provides an implementation of the ProviderInterface using Azure Blob Storage for the storage.
+This module provides an implementation of the ProviderInterface using Azure Blob Storage for storage.
 
 This module uses an Azure container to store key/value data in blobs.
 It creates a blob for each key/value pair, where the key is the blob name and the value is the blob content.
 Operations such as iteration and length are performed using the container API.
+
+# To use this module, you need to install:
+# - The Azure SDK for Python: `pip install cshelve[azure-blob]`
+# - If you want to use passwordless authentication, you also need to install the Azure CLI: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 """
 import functools
 import io
 import os
 from typing import Dict, Iterator, Optional
 
-from azure.core.exceptions import ResourceNotFoundError
-from azure.storage.blob import BlobType
+try:
+    from azure.core.exceptions import ResourceNotFoundError
+    from azure.storage.blob import BlobType
+except ImportError:
+    raise ImportError(
+        "The Azure SDK for Python is required to use the Azure Blob Storage implementation. "
+        "You can install it with `pip install cshelve[azure-blob]`"
+    )
 
 from .provider_interface import ProviderInterface
 from .exceptions import (
@@ -205,6 +215,7 @@ class AzureBlobStorage(ProviderInterface):
             "connection_string": lambda: BlobServiceClient.from_connection_string(
                 self.__get_credentials(environment_key)
             ),
+            # Passwordless authentication is only available with the Azure CLI.
             "passwordless": lambda: BlobServiceClient(
                 account_url, credential=DefaultAzureCredential()
             ),

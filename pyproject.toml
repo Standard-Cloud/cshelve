@@ -1,13 +1,10 @@
 [project]
 name = "cshelve"
-version = "0.3.0"
+version = "0.4.0"
 description = "Propulsing the shelve module to the cloud"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = [
-    "azure-identity>=1.19.0",
-    "azure-storage-blob>=12.23.1",
-]
+dependencies = []
 keywords = ["shelve", "database", "azure-storage-account", "azure", "cloud"]
 
 [tool.setuptools]
@@ -38,4 +35,10 @@ pythonpath = ["."]
 markers = [
     "sequential: marks tests that can only run in sequential (deselect with '-m \"not sequential\"')",
     "azure: marks tests that can only run with an Azure connection (deselect with '-m \"not azure\"')",
+]
+
+[project.optional-dependencies]
+azure-blob = [
+    "azure-identity>=1.19.0",
+    "azure-storage-blob>=12.23.1",
 ]
