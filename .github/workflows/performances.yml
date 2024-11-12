@@ -96,7 +96,7 @@ jobs:
     - name: Install package.
       working-directory: performances
       run: |
-        pip install ./dist/${{ env.WHEEL }}
+        pip install ./dist/${{ env.WHEEL }}[azure-blob]
 
     - name: Run performances tests
       working-directory: performances
