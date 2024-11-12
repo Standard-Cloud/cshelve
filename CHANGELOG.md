@@ -2,8 +2,10 @@
 
 ## [0.4.0] -
 ### Added
-- Dev container for development.
-- Exception `ConfigurationError` for providers' configuration errors.
+- Added a development container for streamlined development.
+- Introduced `ConfigurationError` exception for handling provider configuration errors.
+- Separated the azure-blob provider into its own package.
+- Initialized project documentation.
 
 ## [0.3.0] - 2024-11-08
 ### Added

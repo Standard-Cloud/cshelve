@@ -8,6 +8,7 @@ Cshelve documentation
 
 `Cloud Shelve (cshelve)` is a Python package that provides a seamless way to store and manage data in the cloud using the familiar [Python Shelve interface](https://docs.python.org/3/library/shelve.html). It is designed for efficient and scalable storage solutions, allowing you to leverage cloud providers for persistent storage while keeping the simplicity of the `shelve` API.
 
+We welcome your feedback, contributions, and support! Feel free to star the project on [GitHub](https://github.com/Standard-Cloud/cshelve).
 
 Table of contents
 #################
@@ -22,7 +23,7 @@ Table of contents
 
 
 Install
--------
+#######
 
 .. code-block:: console
 
@@ -30,7 +31,7 @@ Install
 
 
 Usage
------
+#####
 
 Locally, `cshelve` works just like the built-in `shelve` module.
 
