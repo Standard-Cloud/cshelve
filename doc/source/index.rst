@@ -6,9 +6,10 @@
 Cshelve documentation
 =====================
 
-`Cloud Shelve (cshelve)` is a Python package that provides a seamless way to store and manage data in the cloud using the familiar [Python Shelve interface](https://docs.python.org/3/library/shelve.html). It is designed for efficient and scalable storage solutions, allowing you to leverage cloud providers for persistent storage while keeping the simplicity of the `shelve` API.
+**Cloud Shelve (cshelve)** is a Python package that provides a seamless way to store and manage data in the cloud using the familiar `Python Shelve interface <https://docs.python.org/3/library/shelve.html>`_.
+It is designed for efficient and scalable storage solutions, allowing you to leverage cloud providers for persistent storage while keeping the simplicity of the *shelve* API.
 
-We welcome your feedback, contributions, and support! Feel free to star the project on [GitHub](https://github.com/Standard-Cloud/cshelve).
+We welcome your feedback, contributions, and support! Feel free to star the project on `GitHub <https://github.com/Standard-Cloud/cshelve>`_.
 
 Table of contents
 #################
@@ -33,7 +34,7 @@ Install
 Usage
 #####
 
-Locally, `cshelve` works just like the built-in `shelve` module.
+Locally, *cshelve* works just like the built-in *shelve* module.
 
 .. code-block:: python
 
@@ -62,21 +63,13 @@ Locally, `cshelve` works just like the built-in `shelve` module.
 
    d.close()                     # Close the database
 
-[Python official documentation of the Shelve module](https://docs.python.org/3/library/shelve.html)
+`Python official documentation of the Shelve module <https://docs.python.org/3/library/shelve.html>`_
 
-But, `cshelve` also supports cloud storage. You can use the same API to store data in the cloud.
-You just need to create an `ini` with your configuration.
-
-Here to use a In-Memory storage to simplify your tests:
-
-.. code-block:: console
-
-   $ cat in-memory.ini
-   [default]
-   provider    = in-memory
+But, *cshelve* also supports cloud storage. You can use the same API to store data in the cloud.
+You just need to create an ``ini`` with your configuration.
 
 
-Here to use Azure Blob Storage:
+Here is an example using Azure Blob Storage:
 
 .. code-block:: console
 

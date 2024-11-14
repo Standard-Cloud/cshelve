@@ -12,12 +12,23 @@ This provider is included in the package and does not require any additional ins
 Options
 #######
 
-| Option         | Description                                                                  | Required | Default Value |
-|----------------|------------------------------------------------------------------------------|----------|---------------|
-| `persist-key`  | If set, its value will be conserved and reused during the program execution. | :x:      | None          |
-| `exists`       | If True, the database exists; otherwise, it will be created.                 | :x:      | False         |
+.. list-table::
+    :header-rows: 1
 
-Note: The `exists` option is mainly for internal testing of `cloud-shelve`.
+    * - Option
+      - Description
+      - Required
+      - Default Value
+    * - ``persist-key``
+      - If set, its value will be conserved and reused during the program execution.
+      - No
+      - ``False``
+    * - ``exists``
+      - If True, the database exists; otherwise, it will be created.
+      - No
+      - ``False``
+
+Note: The ``exists`` option is mainly for internal testing of ``cshelve``.
 
 Configuration example
 #####################

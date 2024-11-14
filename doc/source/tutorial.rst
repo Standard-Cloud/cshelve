@@ -1,18 +1,18 @@
-Tutorial: Getting Started with `cshelve`
+Tutorial: Getting Started with *cshelve*
 ========================================
 
-Because the `cshelve` follows the `shelve` interface, a good getting started of the `cshelve` is the `shelve` [tutorial](https://docs.python.org/3/library/shelve.html).
+Because the *cshelve* follows the *shelve* interface, a good getting started of the *cshelve* is the *shelve* `tutorial <https://docs.python.org/3/library/shelve.html>`_.
 
 Installation
 ############
 
-Before getting started, ensure that `cshelve` is installed:
+Before getting started, ensure that *cshelve* is installed:
 
 .. code-block:: console
 
     $ pip install cshelve
 
-Note that the default installation only includes the `in-memory` provider, which is suitable for testing and development but not recommended for production use. To use a specific provider, install the corresponding provider. For example, to use the `azure-blob` provider:
+Note that the default installation only includes the ``in-memory`` provider, which is suitable for testing and development but not recommended for production use. To use a specific provider, install the corresponding provider. For example, to use the ``azure-blob`` provider:
 
 .. code-block:: console
 
@@ -22,12 +22,12 @@ Note that the default installation only includes the `in-memory` provider, which
 Basic Usage
 ###########
 
-The following examples demonstrate how to open a `cshelve` storage, save data, and retrieve it.
+The following examples demonstrate how to open a *cshelve* storage, save data, and retrieve it.
 
 How to open a database
 ++++++++++++++++++++++
 
-To start using `cshelve`, we need to open a database connection. The term "database" is used loosely here; it could be a local file, a cloud storage service, or an in-memory store.
+To start using *cshelve*, we need to open a database connection. The term "database" is used loosely here; it could be a local file, a cloud storage service, or an in-memory store.
 
 .. code-block:: python
 
@@ -45,7 +45,7 @@ To start using `cshelve`, we need to open a database connection. The term "datab
 Storing Data
 ++++++++++++
 
-`cshelve` can store almost any Python object, including complex data types like lists, dictionaries, and custom objects. For example:
+*cshelve* can store almost any Python object, including complex data types like lists, dictionaries, and custom objects. For example:
 
 .. code-block:: python
 
@@ -56,7 +56,7 @@ Storing Data
 
 These objects are automatically serialized and saved on the targeted provider.
 
-Note: By nature, the `in-memory` provider does not persist data across program execution, but can between sessions.
+Note: By nature, the ``in-memory`` provider does not persist data across program execution, but can between sessions.
 
 Retrieving Data
 +++++++++++++++
@@ -72,7 +72,7 @@ To retrieve data, simply access it by its key:
         print(username)       # Output: Alice
         print(preferences)    # Output: {'theme': 'dark', 'notifications': True}
 
-Just like with dictionaries, accessing a key that doesn't exist, `cshelve` will raise a `KeyError`.
+Just like with dictionaries, accessing a key that doesn't exist, *cshelve* will raise a ``KeyError``.
 
 Updating Data
 +++++++++++++
@@ -99,7 +99,7 @@ Updating data is as simple as assigning a new value to an existing key:
         db['ages'] = temp
 
 
-The writeback option allows object updates in place, but the update is local until the `sync` or the `close` method is called.:
+The writeback option allows object updates in place, but the update is local until the ``sync`` or the ``close`` method is called.:
 
 .. code-block:: python
 
@@ -111,11 +111,11 @@ The writeback option allows object updates in place, but the update is local unt
         assert db['ages'] == [21, 42, 84, 168]
         # Persisted on the provider
         db.sync()
-        
+
         # Persisted in memory
         db['ages'].append(336)
         assert db['ages'] == [21, 42, 84, 168, 336]
-    
+
     # The context manager called the `close` method and persists the data on the provider
     with cshelve.open('config.ini') as db:
         assert db['ages'] == [21, 42, 84, 168, 336]
@@ -125,7 +125,7 @@ The updated data is saved to the provider, so any future access will retrieve th
 Deleting Data
 +++++++++++++
 
-To delete a key from a `cshelve` database, use the `del` statement:
+To delete a key from a *cshelve* database, use the ``del`` statement:
 
 .. code-block:: python
     with cshelve.open('conf.ini') as db:
@@ -146,7 +146,7 @@ Deleting a key-value pair removes it from is provider, freeing up space and ensu
 Working with Custom Objects
 +++++++++++++++++++++++++++
 
-`cshelve` allows storing custom Python objects as well, making it suitable for applications that need to persist complex data structures.
+*cshelve* allows storing custom Python objects as well, making it suitable for applications that need to persist complex data structures.
 
 .. code-block:: python
 
@@ -186,25 +186,15 @@ Exactly as the update example, updating a complex object requires a little more 
         assert db['user1'].age == 28
 
 
-Closing the `cshelve` Database
+Closing the *cshelve* Database
 ++++++++++++++++++++++++++++++
 
-When using `cshelve`, data is automatically saved when the database is closed. By using a `with` statement, as shown in the examples above, `cshelve` will handle opening and closing the connection.
+When using *cshelve*, data is automatically saved when the database is closed. By using a ``with`` statement, as shown in the examples above, *cshelve* will handle opening and closing the connection.
 
-If not using a `with` statement, remember to close the database manually:
+If not using a ``with`` statement, remember to close the database manually:
 
-```python
-db = cshelve.open('conf.ini')
-db['key'] = 'value'
-db.close()  # Make sure to call close() to save changes
-```
+.. code-block:: python
 
-## Summary
-
-In this tutorial, the basics of using `cshelve` to store and retrieve data were covered. With `cshelve`, it is possible to:
-
-- Open a cloud-based key-value store using `cshelve.open`
-- Store various Python data types and custom objects
-- Retrieve, update, and delete data just like with a dictionary
-
-`cshelve` combines the ease and familiarity of `shelve` with the accessibility and scalability of cloud storage, making it ideal for modern applications that require shared, persistent storage.
+    db = cshelve.open('conf.ini')
+    db['key'] = 'value'
+    db.close()  # Make sure to call close() to save changes
