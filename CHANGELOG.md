@@ -1,6 +1,10 @@
 # Changelog
 
-## [0.4.0] -
+## [0.4.1] - 2024-11-14
+### Improvement
+- Documentation for the `cshelve` package.
+
+## [0.4.0] - 2024-11-12
 ### Breaking Change
 - The `azure-blob` is not installed by default. To install it, use `pip install cshelve[azure-blob]`.
 
