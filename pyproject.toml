@@ -17,6 +17,8 @@ documentation = "https://github.com/Standard-Cloud/cshelve"
 
 [tool.uv]
 dev-dependencies = [
+    "azure-identity>=1.19.0",
+    "azure-storage-blob>=12.23.1",
     "pandas>=1.4",
     "pre-commit>=4.0.1",
     "pytest-cov>=6.0.0",

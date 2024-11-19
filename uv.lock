@@ -400,6 +400,8 @@ azure-blob = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "azure-identity" },
+    { name = "azure-storage-blob" },
     { name = "pandas" },
     { name = "pre-commit" },
     { name = "pytest" },
@@ -418,6 +420,8 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "azure-identity", specifier = ">=1.19.0" },
+    { name = "azure-storage-blob", specifier = ">=12.23.1" },
     { name = "pandas", specifier = ">=1.4" },
     { name = "pre-commit", specifier = ">=4.0.1" },
     { name = "pytest", specifier = ">=8.3.3" },
