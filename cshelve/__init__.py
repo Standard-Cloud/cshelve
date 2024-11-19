@@ -7,6 +7,7 @@ Based on the file extension, it will open a local or cloud shelf, but in any cas
 If the file extension is `.ini`, the file is considered a configuration file and handled by `cshelve`; otherwise, it will be handled by the standard `shelve` module.
 """
 
+from pathlib import Path
 import shelve
 
 from ._database import _Database
@@ -74,8 +75,12 @@ def open(
     """
     Open a cloud shelf or a local shelf based on the file extension.
     """
+    # Ensure the filename is a Path object.
+    filename = Path(filename)
+
     if use_local_shelf(filename):
         # The user requests a local and not a cloud shelf.
-        return shelve.open(filename, flag, protocol, writeback)
+        # Dependending of the Python version, the shelve module doesn't accept Path objects.
+        return shelve.open(str(filename), flag, protocol, writeback)
 
     return CloudShelf(filename, flag.lower(), protocol, writeback, loader, factory)
