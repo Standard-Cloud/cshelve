@@ -159,3 +159,23 @@ Then the same example as before but using *cshelve* with Azure Blob Storage:
         print(db['username'])  # Output: Alice
         print(db['age'])       # Output: 28
         print(db['preferences'])  # Output: {'theme': 'dark', 'notifications': True}
+
+
+Using `Pathlib`
+###############
+
+The `Pathlib` module is a Python module that provides an object-oriented interface for working with the file system.
+Not all Python versions support the `Pathlib` module with `shelve`, but `cshelve` does.
+
+.. code-block:: python
+
+    import cshelve
+
+    with cshelve.open(Path('in-memory.ini')) as db:
+        ...
+
+    with cshelve.open(Path('local-shelve.db')) as db:
+        ...
+
+    with cshelve.open(Path('azure-blob.ini')) as db:
+        ...

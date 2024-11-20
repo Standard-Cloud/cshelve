@@ -7,6 +7,7 @@ At this level, the only necessary configuration is the provider name.
 Other configurations are loaded into a dictionary and passed to the provider for further configuration.
 """
 import configparser
+from pathlib import Path
 from typing import Dict, Tuple
 
 
@@ -16,14 +17,14 @@ DEFAULT_CONFIG_STORE = "default"
 PROVIDER_KEY = "provider"
 
 
-def use_local_shelf(filename: str) -> bool:
+def use_local_shelf(filename: Path) -> bool:
     """
     If the user specify a filename with an extension different of '.ini', a local shelf (the standard library) must be used.
     """
-    return not filename.endswith(".ini")
+    return not filename.suffix == ".ini"
 
 
-def load(filename: str) -> Tuple[str, Dict[str, str]]:
+def load(filename: Path) -> Tuple[str, Dict[str, str]]:
     """
     Load the configuration file and return it as a dictionary.
     """

@@ -128,6 +128,7 @@ Deleting Data
 To delete a key from a *cshelve* database, use the ``del`` statement:
 
 .. code-block:: python
+
     with cshelve.open('conf.ini') as db:
         db["name"] = "foo"
         # Remove a key-value pair
