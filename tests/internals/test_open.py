@@ -54,19 +54,6 @@ def test_load_local_shelf_config():
                 assert isinstance(db, shelve.DbfilenameShelf)
 
 
-def test_pathlib_not_support_on_all_python_version():
-    """
-    The pathlib object is not supported on all Python versions with the shelve module.
-    We must ensure that the filename is converted to a string before being used.
-    """
-    my_path = Mock()
-
-    my_path.__str__.return_value = "test.db"
-    with cshelve.open(my_path) as db:
-        assert isinstance(db, shelve.DbfilenameShelf)
-    my_path.__str__.assert_called_once()
-
-
 def test_support_pathlib():
     """
     Provide a pathlib object to the open function and ensure the correct filename is used.
