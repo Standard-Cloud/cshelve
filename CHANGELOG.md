@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.0] - 2024-11-20
+### Added
+- Pathlib support.
+
 ## [0.4.1] - 2024-11-14
 ### Improvement
 - Documentation for the `cshelve` package.
