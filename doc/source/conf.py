@@ -9,7 +9,7 @@
 project = "cshelve"
 copyright = "2024, Vuillemot Florian"
 author = "Vuillemot Florian"
-release = "0.4.1"
+release = "0.5.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
