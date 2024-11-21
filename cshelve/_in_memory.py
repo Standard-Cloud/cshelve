@@ -27,7 +27,7 @@ class InMemory(ProviderInterface):
         self._exists = False
         self._synced = False
 
-    def configure(self, config: Dict[str, str]) -> None:
+    def configure_default(self, config: Dict[str, str]) -> None:
         """
         Configure the InMemory client based on the configuration dictionary.
         """

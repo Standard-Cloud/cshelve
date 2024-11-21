@@ -12,7 +12,7 @@ import shelve
 
 from ._database import _Database
 from ._factory import factory as _factory
-from ._parser import load as _loader
+from ._parser import load as _config_loader
 from ._parser import use_local_shelf
 from .exceptions import (
     AuthArgumentError,
@@ -46,13 +46,13 @@ class CloudShelf(shelve.Shelf):
     The underlying storage provider is provided by the factory based on the provider name then abstract by the _Database facade.
     """
 
-    def __init__(self, filename, flag, protocol, writeback, loader, factory):
+    def __init__(self, filename, flag, protocol, writeback, config_loader, factory):
         # Load the configuration file to retrieve the provider and its configuration.
-        provider, config = loader(filename)
+        config = config_loader(filename)
 
         # Let the factory create the provider interface object based on the provider name then configure it.
-        provider_interface = factory(provider)
-        provider_interface.configure(config)
+        provider_interface = factory(config.provider)
+        provider_interface.configure_default(config.default)
 
         # The CloudDatabase object is the class that interacts with the cloud storage backend.
         # This class doesn't perform or respect the shelve.Shelf logic and interface so we need to wrap it.
@@ -69,7 +69,7 @@ def open(
     protocol=None,
     writeback=False,
     *args,
-    loader=_loader,
+    config_loader=_config_loader,
     factory=_factory,
 ) -> shelve.Shelf:
     """
@@ -83,4 +83,6 @@ def open(
         # Dependending of the Python version, the shelve module doesn't accept Path objects.
         return shelve.open(str(filename), flag, protocol, writeback)
 
-    return CloudShelf(filename, flag.lower(), protocol, writeback, loader, factory)
+    return CloudShelf(
+        filename, flag.lower(), protocol, writeback, config_loader, factory
+    )

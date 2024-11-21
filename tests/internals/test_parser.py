@@ -31,11 +31,9 @@ def test_azure_configuration():
     """
     Load the Azure configuration file and return it as a dictionary.
     """
-    provider, config = load(
-        Path("tests/configurations/azure-blob/simulator/standard.ini")
-    )
+    config = load(Path("tests/configurations/azure-blob/simulator/standard.ini"))
 
-    assert provider == "azure-blob"
-    assert config["auth_type"] == "connection_string"
-    assert config["environment_key"] == "AZURITE_CONNECTION_STRING"
-    assert config["container_name"] == "standard"
+    assert config.provider == "azure-blob"
+    assert config.default["auth_type"] == "connection_string"
+    assert config.default["environment_key"] == "AZURITE_CONNECTION_STRING"
+    assert config.default["container_name"] == "standard"

@@ -11,7 +11,7 @@ def test_get_and_set():
     key, value = b"key", b"value"
 
     provider = factory("in-memory")
-    provider.configure({})
+    provider.configure_default({})
 
     provider.set(key, value)
     assert value == provider.get(key)
@@ -24,7 +24,7 @@ def test_do_not_persist():
     key, value = b"key", b"value"
 
     provider = factory("in-memory")
-    provider.configure({})
+    provider.configure_default({})
 
     provider.set(key, value)
     # Ensure the element is persisted.
@@ -32,7 +32,7 @@ def test_do_not_persist():
 
     # Re open the database to ensure the element is gone.
     provider = factory("in-memory")
-    provider.configure({})
+    provider.configure_default({})
 
     assert provider.len() == 0
 
@@ -45,7 +45,7 @@ def test_get_and_set_persist():
     key, value = b"key", b"value"
 
     provider = factory("in-memory")
-    provider.configure(config)
+    provider.configure_default(config)
 
     provider.set(key, value)
     # Ensure the element is persisted.
@@ -53,7 +53,7 @@ def test_get_and_set_persist():
 
     # Re open the database to ensure the element is still there.
     provider = factory("in-memory")
-    provider.configure(config)
+    provider.configure_default(config)
 
     assert provider.len() == 1
 
@@ -65,7 +65,7 @@ def test_get_key_error():
     key = b"does-not-exist"
 
     provider = factory("in-memory")
-    provider.configure({})
+    provider.configure_default({})
 
     with pytest.raises(KeyNotFoundError):
         provider.get(key)
@@ -76,7 +76,7 @@ def test_close():
     Ensure the close method can be called.
     """
     provider = factory("in-memory")
-    provider.configure({})
+    provider.configure_default({})
     provider.close()
 
 
@@ -87,7 +87,7 @@ def test_delete():
     key, value = b"key", b"value"
 
     provider = factory("in-memory")
-    provider.configure({})
+    provider.configure_default({})
 
     provider.set(key, value)
     assert provider.contains(key)
@@ -102,7 +102,7 @@ def test_iter():
     keys = [b"key1", b"key2"]
 
     provider = factory("in-memory")
-    provider.configure({})
+    provider.configure_default({})
 
     for k in keys:
         provider.set(k, b"value")
@@ -117,7 +117,7 @@ def test_contains():
     key = b"key"
 
     provider = factory("in-memory")
-    provider.configure({})
+    provider.configure_default({})
 
     assert not provider.contains(key)
     provider.set(key, b"value")
@@ -131,7 +131,7 @@ def test_len():
     list_blob_names = [b"key1", b"key2"]
 
     provider = factory("in-memory")
-    provider.configure({})
+    provider.configure_default({})
 
     for k in list_blob_names:
         provider.set(k, b"value")
@@ -144,7 +144,7 @@ def test_exists():
     Ensure the exists method can be called.
     """
     provider = factory("in-memory")
-    provider.configure({})
+    provider.configure_default({})
     provider.exists()
 
 
@@ -153,5 +153,5 @@ def test_create():
     Ensure the create method can be called.
     """
     provider = factory("in-memory")
-    provider.configure({})
+    provider.configure_default({})
     provider.create()

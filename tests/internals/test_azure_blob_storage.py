@@ -27,7 +27,7 @@ def test_passwordless(BlobServiceClient, DefaultAzureCredential):
     DefaultAzureCredential.return_value = identity
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
 
     DefaultAzureCredential.assert_called_once()
     BlobServiceClient.assert_called_once_with(
@@ -48,7 +48,7 @@ def test_anonymous_public_read_access(BlobServiceClient):
     }
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
 
     BlobServiceClient.assert_called_once_with(config["account_url"])
 
@@ -68,7 +68,7 @@ def test_connection_string(BlobServiceClient):
 
     with patch.dict("os.environ", {"ENV_VAR": connection_string}):
         provider = factory("azure-blob")
-        provider.configure(config)
+        provider.configure_default(config)
 
     BlobServiceClient.from_connection_string.assert_called_once_with(connection_string)
 
@@ -88,7 +88,7 @@ def test_account_key(BlobServiceClient):
 
     with patch.dict("os.environ", {"ENV_VAR": access_key}):
         provider = factory("azure-blob")
-        provider.configure(config)
+        provider.configure_default(config)
 
     BlobServiceClient.assert_called_once_with(
         config["account_url"],
@@ -113,7 +113,7 @@ def test_missing_env_var(auth_type):
 
     with pytest.raises(AuthArgumentError):
         provider = factory("azure-blob")
-        provider.configure(config)
+        provider.configure_default(config)
 
 
 @pytest.mark.parametrize(
@@ -131,7 +131,7 @@ def test_missing_container(auth_type):
 
     with pytest.raises(ConfigurationError):
         provider = factory("azure-blob")
-        provider.configure(config)
+        provider.configure_default(config)
 
 
 @pytest.mark.parametrize(
@@ -152,7 +152,7 @@ def test_missing_env_var_value(auth_type):
 
     with pytest.raises(AuthArgumentError):
         provider = factory("azure-blob")
-        provider.configure(config)
+        provider.configure_default(config)
 
 
 def test_wrong_auth_type():
@@ -167,7 +167,7 @@ def test_wrong_auth_type():
 
     with pytest.raises(AuthTypeError):
         provider = factory("azure-blob")
-        provider.configure(config)
+        provider.configure_default(config)
 
 
 @patch("io.BytesIO")
@@ -197,7 +197,7 @@ def test_get(BlobServiceClient, DefaultAzureCredential, BytesIO):
     blob_client.download_blob.return_value = download_blob
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
 
     provider.get(key)
 
@@ -236,7 +236,7 @@ def test_get_key_error(BlobServiceClient, DefaultAzureCredential):
     blob_client.download_blob.side_effect = ResourceNotFoundError
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
 
     with pytest.raises(KeyNotFoundError):
         provider.get(key)
@@ -266,7 +266,7 @@ def test_set(BlobServiceClient, DefaultAzureCredential):
     blob_client.upload_blob.return_value = upload_blob
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
 
     provider.set(key, value)
 
@@ -304,7 +304,7 @@ def test_close(BlobServiceClient, DefaultAzureCredential):
     blob_service_client.get_container_client.return_value = container_client
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
     provider.close()
 
     container_client.close.assert_called_once()
@@ -333,7 +333,7 @@ def test_delete(BlobServiceClient, DefaultAzureCredential):
     blob_service_client.get_blob_client.return_value = blob_client
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
 
     provider.delete(key)
 
@@ -369,7 +369,7 @@ def test_iter(BlobServiceClient, DefaultAzureCredential):
     container_client.list_blob_names.return_value = list_blob_names
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
 
     assert list(provider.iter()) == list_blob_names_attended
 
@@ -397,7 +397,7 @@ def test_contains(BlobServiceClient, DefaultAzureCredential):
     blob_service_client.get_blob_client.return_value = blob_client
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
 
     provider.contains(key)
 
@@ -432,7 +432,7 @@ def test_len(BlobServiceClient, DefaultAzureCredential):
     container_client.list_blob_names.return_value = list_blob_names
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
 
     assert 2 == provider.len()
 
@@ -458,7 +458,7 @@ def test_exists(BlobServiceClient, DefaultAzureCredential):
     blob_service_client.get_container_client.return_value = container_client
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
     provider.exists()
 
     container_client.exists.assert_called_once()
@@ -483,7 +483,7 @@ def test_create(BlobServiceClient, DefaultAzureCredential):
     BlobServiceClient.return_value = blob_service_client
 
     provider = factory("azure-blob")
-    provider.configure(config)
+    provider.configure_default(config)
     provider.create()
 
     blob_service_client.create_container.assert_called_once_with(container_name)

@@ -55,7 +55,7 @@ class AzureBlobStorage(ProviderInterface):
             cache_fct
         )
 
-    def configure(self, config: Dict[str, str]) -> None:
+    def configure_default(self, config: Dict[str, str]) -> None:
         """
         Configure the Azure Blob Storage client based on the configuration file.
         """

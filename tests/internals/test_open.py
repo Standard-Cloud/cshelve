@@ -8,6 +8,7 @@ import tempfile
 from unittest.mock import Mock
 
 import cshelve
+from cshelve._parser import Config
 
 
 def test_load_cloud_shelf_config():
@@ -29,11 +30,11 @@ def test_load_cloud_shelf_config():
     attended_filename = Path(filename)
 
     factory.return_value = cloud_database
-    loader.return_value = provider, config
+    loader.return_value = Config(provider, config)
     cloud_database.exists.return_value = False
 
     # Replace the default parser with the mock parser.
-    with cshelve.open(filename, loader=loader, factory=factory) as cs:
+    with cshelve.open(filename, config_loader=loader, factory=factory) as cs:
         loader.assert_called_once_with(attended_filename)
         factory.assert_called_once_with(provider)
         assert isinstance(cs.dict.db, Mock)
