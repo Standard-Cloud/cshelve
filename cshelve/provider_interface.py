@@ -23,9 +23,9 @@ class ProviderInterface:
         raise NotImplementedError
 
     @abstractmethod
-    def configure(self, config: Dict[str, str]) -> None:
+    def configure_default(self, config: Dict[str, str]) -> None:
         """
-        Configure the cloud storage backend.
+        Default configuration of the backend.
         """
         raise NotImplementedError
 

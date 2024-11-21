@@ -5,6 +5,7 @@ import pickle
 from unittest.mock import Mock
 
 from cshelve import CloudShelf
+from cshelve._parser import Config
 
 
 def test_factory_usage():
@@ -23,12 +24,12 @@ def test_factory_usage():
     loader = Mock()
     cloud_database = Mock()
 
-    loader.return_value = provider, config
+    loader.return_value = Config(provider, config)
     factory.return_value = cloud_database
     cloud_database.exists.return_value = False
 
     with CloudShelf(
-        filename, flag, protocol, writeback, loader=loader, factory=factory
+        filename, flag, protocol, writeback, config_loader=loader, factory=factory
     ) as cs:
         cloud_database.exists.assert_called_once()
         factory.assert_called_once_with(provider)
@@ -52,11 +53,11 @@ def test_loader_usage():
     loader = Mock()
     cloud_database = Mock()
 
-    loader.return_value = provider, config
+    loader.return_value = Config(provider, config)
     factory.return_value = cloud_database
     cloud_database.exists.return_value = False
 
     with CloudShelf(
-        filename, flag, protocol, writeback, loader=loader, factory=factory
+        filename, flag, protocol, writeback, config_loader=loader, factory=factory
     ) as cs:
         loader.assert_called_once_with(filename)

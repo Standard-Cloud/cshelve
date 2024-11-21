@@ -96,7 +96,7 @@ def test_doesnt_create_database_if_exists():
     """
     flag = "c"
     provider_db = InMemory()
-    provider_db.configure({"exists": "True"})
+    provider_db.configure_default({"exists": "True"})
 
     assert provider_db._created == False
 
@@ -161,7 +161,7 @@ def test_database_clear_if_asked():
     """
     flag = "n"
     provider_db = InMemory()
-    provider_db.configure({"exists": "True"})
+    provider_db.configure_default({"exists": "True"})
 
     provider_db.set("key", "value")
     provider_db.set("key2", "value2")
@@ -180,7 +180,7 @@ def test_do_not_clear_database():
 
     for flag in flags:
         provider_db = InMemory()
-        provider_db.configure({"exists": "True"})
+        provider_db.configure_default({"exists": "True"})
 
         provider_db.set("key", "value")
         provider_db.set("key2", "value2")
@@ -200,7 +200,7 @@ def test_read_only():
     new_key, new_value = b"key-new", b"value-new"
 
     provider_db = InMemory()
-    provider_db.configure({"exists": "True"})
+    provider_db.configure_default({"exists": "True"})
 
     provider_db.set(key, value)
 

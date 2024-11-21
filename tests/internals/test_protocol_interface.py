@@ -7,6 +7,7 @@ import pickle
 from unittest.mock import Mock
 
 import cshelve
+from cshelve._parser import Config
 
 
 def test_use_protocol():
@@ -27,9 +28,11 @@ def test_use_protocol():
     loader = Mock()
 
     factory.return_value = cdit
-    loader.return_value = provider, config
+    loader.return_value = Config(provider, config)
 
     # Replace the default parser with the mock parser.
-    db = cshelve.open(filename, protocol=protocol, loader=loader, factory=factory)
+    db = cshelve.open(
+        filename, protocol=protocol, config_loader=loader, factory=factory
+    )
 
     assert db._protocol == protocol

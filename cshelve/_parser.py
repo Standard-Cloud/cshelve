@@ -6,6 +6,7 @@ It also provides a function to determine if a local shelf should be used based o
 At this level, the only necessary configuration is the provider name.
 Other configurations are loaded into a dictionary and passed to the provider for further configuration.
 """
+from collections import namedtuple
 import configparser
 from pathlib import Path
 from typing import Dict, Tuple
@@ -15,6 +16,9 @@ from typing import Dict, Tuple
 DEFAULT_CONFIG_STORE = "default"
 # Key containing the provider name.
 PROVIDER_KEY = "provider"
+
+# Tuple containing the provider name and its configuration.
+Config = namedtuple("Config", ["provider", "default"])
 
 
 def use_local_shelf(filename: Path) -> bool:
@@ -31,4 +35,4 @@ def load(filename: Path) -> Tuple[str, Dict[str, str]]:
     config = configparser.ConfigParser()
     config.read(filename)
     c = config[DEFAULT_CONFIG_STORE]
-    return c[PROVIDER_KEY], c
+    return Config(c[PROVIDER_KEY], c)
