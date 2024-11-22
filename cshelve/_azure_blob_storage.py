@@ -53,6 +53,8 @@ class AzureBlobStorage(ProviderInterface):
 
         # Azure Blob Storage client configuration.
         self._client_configuration = {}
+        # Azure Credential configuration.
+        self._credentials_configuration = {}
 
         # Cache the blob clients to avoid creating a new client for each operation.
         # As the class is not hashable, we can't use the lru_cache directly on the class method and so we wrap it.
@@ -115,6 +117,10 @@ class AzureBlobStorage(ProviderInterface):
         if "http" in config:
             self._client_configuration["logging_enable"] = (
                 config["http"].lower() == "true"
+            )
+        if "credentials" in config:
+            self._credentials_configuration["logging_enable"] = (
+                config["credentials"].lower() == "true"
             )
 
     # If an `ResourceNotFoundError` is raised by the SDK, it is converted to a `KeyError` to follow the `dbm` behavior based on a custom module error.
@@ -253,7 +259,7 @@ class AzureBlobStorage(ProviderInterface):
             # Passwordless authentication is only available with the Azure CLI.
             "passwordless": lambda: BlobServiceClient(
                 account_url,
-                credential=DefaultAzureCredential(),
+                credential=DefaultAzureCredential(**self._credentials_configuration),
                 **self._client_configuration,
             ),
         }

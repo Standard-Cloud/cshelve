@@ -511,16 +511,11 @@ def test_http_logging(BlobServiceClient, DefaultAzureCredential):
     enable_logging = {"http": "true"}
     disable_logging = {"http": "false"}
 
-    blob_service_client = Mock()
-    DefaultAzureCredential.return_value = Mock()
-
-    BlobServiceClient.return_value = blob_service_client
-
     # Ensure the default behaviour of the azure-blob-storage package.
     provider = factory("azure-blob")
     provider.configure_default(config_default)
     provider.create()
-    assert "http" not in BlobServiceClient.call_args.kwargs
+    assert "logging_enable" not in BlobServiceClient.call_args.kwargs
 
     # Ensure the logging is disabled.
     provider = factory("azure-blob")
@@ -537,3 +532,41 @@ def test_http_logging(BlobServiceClient, DefaultAzureCredential):
     provider.create()
     assert "logging_enable" in BlobServiceClient.call_args.kwargs
     assert BlobServiceClient.call_args.kwargs["logging_enable"] == True
+
+
+@patch("azure.identity.DefaultAzureCredential")
+@patch("azure.storage.blob.BlobServiceClient")
+def test_credential_logging(BlobServiceClient, DefaultAzureCredential):
+    """
+    Ensure the correct logging configuration is applied to the Azure Blob Storage client.
+    """
+    container_name = "container"
+    config_default = {
+        "account_url": "https://account.blob.core.windows.net",
+        "auth_type": "passwordless",
+        "container_name": container_name,
+    }
+    enable_credentials_logging = {"credentials": "true"}
+    disable_credentials_logging = {"credentials": "false"}
+
+    # Ensure the default behaviour of the azure-blob-storage package.
+    provider = factory("azure-blob")
+    provider.configure_default(config_default)
+    provider.create()
+    assert "logging_enable" not in DefaultAzureCredential.call_args.kwargs
+
+    # Ensure the logging is disabled.
+    provider = factory("azure-blob")
+    provider.configure_default(config_default)
+    provider.configure_logging(disable_credentials_logging)
+    provider.create()
+    assert "logging_enable" in DefaultAzureCredential.call_args.kwargs
+    assert DefaultAzureCredential.call_args.kwargs["logging_enable"] == False
+
+    # Ensure the logging is enable.
+    provider = factory("azure-blob")
+    provider.configure_default(config_default)
+    provider.configure_logging(enable_credentials_logging)
+    provider.create()
+    assert "logging_enable" in DefaultAzureCredential.call_args.kwargs
+    assert DefaultAzureCredential.call_args.kwargs["logging_enable"] == True
