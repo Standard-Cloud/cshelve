@@ -28,6 +28,7 @@ def test_passwordless(BlobServiceClient, DefaultAzureCredential):
 
     provider = factory("azure-blob")
     provider.configure_default(config)
+    provider.create()
 
     DefaultAzureCredential.assert_called_once()
     BlobServiceClient.assert_called_once_with(
@@ -49,6 +50,7 @@ def test_anonymous_public_read_access(BlobServiceClient):
 
     provider = factory("azure-blob")
     provider.configure_default(config)
+    provider.create()
 
     BlobServiceClient.assert_called_once_with(config["account_url"])
 
@@ -69,6 +71,7 @@ def test_connection_string(BlobServiceClient):
     with patch.dict("os.environ", {"ENV_VAR": connection_string}):
         provider = factory("azure-blob")
         provider.configure_default(config)
+        provider.create()
 
     BlobServiceClient.from_connection_string.assert_called_once_with(connection_string)
 
@@ -89,6 +92,7 @@ def test_account_key(BlobServiceClient):
     with patch.dict("os.environ", {"ENV_VAR": access_key}):
         provider = factory("azure-blob")
         provider.configure_default(config)
+        provider.create()
 
     BlobServiceClient.assert_called_once_with(
         config["account_url"],
@@ -114,6 +118,7 @@ def test_missing_env_var(auth_type):
     with pytest.raises(AuthArgumentError):
         provider = factory("azure-blob")
         provider.configure_default(config)
+        provider.create()
 
 
 @pytest.mark.parametrize(
@@ -153,6 +158,7 @@ def test_missing_env_var_value(auth_type):
     with pytest.raises(AuthArgumentError):
         provider = factory("azure-blob")
         provider.configure_default(config)
+        provider.create()
 
 
 def test_wrong_auth_type():
@@ -168,6 +174,7 @@ def test_wrong_auth_type():
     with pytest.raises(AuthTypeError):
         provider = factory("azure-blob")
         provider.configure_default(config)
+        provider.create()
 
 
 @patch("io.BytesIO")
@@ -183,7 +190,7 @@ def test_get(BlobServiceClient, DefaultAzureCredential, BytesIO):
         "auth_type": "passwordless",
         "container_name": container_name,
     }
-    key, value = b"key", b"value"
+    key = b"key"
 
     blob_client = Mock()
     blob_service_client = Mock()
@@ -487,3 +494,46 @@ def test_create(BlobServiceClient, DefaultAzureCredential):
     provider.create()
 
     blob_service_client.create_container.assert_called_once_with(container_name)
+
+
+@patch("azure.identity.DefaultAzureCredential")
+@patch("azure.storage.blob.BlobServiceClient")
+def test_http_logging(BlobServiceClient, DefaultAzureCredential):
+    """
+    Ensure the correct logging configuration is applied to the Azure Blob Storage client.
+    """
+    container_name = "container"
+    config_default = {
+        "account_url": "https://account.blob.core.windows.net",
+        "auth_type": "passwordless",
+        "container_name": container_name,
+    }
+    enable_logging = {"http": "true"}
+    disable_logging = {"http": "false"}
+
+    blob_service_client = Mock()
+    DefaultAzureCredential.return_value = Mock()
+
+    BlobServiceClient.return_value = blob_service_client
+
+    # Ensure the default behaviour of the azure-blob-storage package.
+    provider = factory("azure-blob")
+    provider.configure_default(config_default)
+    provider.create()
+    assert "http" not in BlobServiceClient.call_args.kwargs
+
+    # Ensure the logging is disabled.
+    provider = factory("azure-blob")
+    provider.configure_default(config_default)
+    provider.configure_logging(disable_logging)
+    provider.create()
+    assert "logging_enable" in BlobServiceClient.call_args.kwargs
+    assert BlobServiceClient.call_args.kwargs["logging_enable"] == False
+
+    # Ensure the logging is enable.
+    provider = factory("azure-blob")
+    provider.configure_default(config_default)
+    provider.configure_logging(enable_logging)
+    provider.create()
+    assert "logging_enable" in BlobServiceClient.call_args.kwargs
+    assert BlobServiceClient.call_args.kwargs["logging_enable"] == True
