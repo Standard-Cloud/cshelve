@@ -45,6 +45,12 @@ class InMemory(ProviderInterface):
             else:
                 self.db = DB_PERSISTED[self.persist_key]
 
+    def configure_logging(self, config: Dict[str, str]) -> None:
+        """
+        Configure the logging for the InMemory client based on the configuration dictionary.
+        """
+        pass
+
     @key_access(KeyError)
     def get(self, key: bytes) -> bytes:
         """

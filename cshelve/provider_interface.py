@@ -30,6 +30,13 @@ class ProviderInterface:
         raise NotImplementedError
 
     @abstractmethod
+    def configure_logging(self, config: Dict[str, str]) -> None:
+        """
+        Logging configuration of the backend.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def contains(self, key: bytes) -> bool:
         """
         Check if the key exists.

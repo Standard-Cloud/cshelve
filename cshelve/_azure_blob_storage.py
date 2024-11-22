@@ -84,6 +84,12 @@ class AzureBlobStorage(ProviderInterface):
             self.container_name
         )
 
+    def configure_logging(self, config: Dict[str, str]) -> None:
+        """
+        Configure the logging for the InMemory client based on the configuration dictionary.
+        """
+        pass
+
     # If an `ResourceNotFoundError` is raised by the SDK, it is converted to a `KeyError` to follow the `dbm` behavior based on a custom module error.
     @key_access(ResourceNotFoundError)
     def get(self, key: bytes) -> bytes:
