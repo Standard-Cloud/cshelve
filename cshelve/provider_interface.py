@@ -15,6 +15,9 @@ class ProviderInterface:
     Some methods may be left empty if not needed by the storage backend.
     """
 
+    def __init__(self, logger) -> None:
+        self.logger = logger
+
     @abstractmethod
     def close(self) -> None:
         """

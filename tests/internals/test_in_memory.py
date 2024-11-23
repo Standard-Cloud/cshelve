@@ -1,3 +1,4 @@
+from unittest.mock import Mock
 import pytest
 
 from cshelve._factory import factory
@@ -10,7 +11,7 @@ def test_get_and_set():
     """
     key, value = b"key", b"value"
 
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default({})
 
     provider.set(key, value)
@@ -23,7 +24,7 @@ def test_do_not_persist():
     """
     key, value = b"key", b"value"
 
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default({})
 
     provider.set(key, value)
@@ -31,7 +32,7 @@ def test_do_not_persist():
     assert provider.len() == 1
 
     # Re open the database to ensure the element is gone.
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default({})
 
     assert provider.len() == 0
@@ -44,7 +45,7 @@ def test_get_and_set_persist():
     config = {"persist-key": "only-in-memory"}
     key, value = b"key", b"value"
 
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default(config)
 
     provider.set(key, value)
@@ -52,7 +53,7 @@ def test_get_and_set_persist():
     assert provider.len() == 1
 
     # Re open the database to ensure the element is still there.
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default(config)
 
     assert provider.len() == 1
@@ -64,7 +65,7 @@ def test_get_key_error():
     """
     key = b"does-not-exist"
 
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default({})
 
     with pytest.raises(KeyNotFoundError):
@@ -75,7 +76,7 @@ def test_close():
     """
     Ensure the close method can be called.
     """
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default({})
     provider.close()
 
@@ -86,7 +87,7 @@ def test_delete():
     """
     key, value = b"key", b"value"
 
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default({})
 
     provider.set(key, value)
@@ -101,7 +102,7 @@ def test_iter():
     """
     keys = [b"key1", b"key2"]
 
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default({})
 
     for k in keys:
@@ -116,7 +117,7 @@ def test_contains():
     """
     key = b"key"
 
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default({})
 
     assert not provider.contains(key)
@@ -130,7 +131,7 @@ def test_len():
     """
     list_blob_names = [b"key1", b"key2"]
 
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default({})
 
     for k in list_blob_names:
@@ -143,7 +144,7 @@ def test_exists():
     """
     Ensure the exists method can be called.
     """
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default({})
     provider.exists()
 
@@ -152,6 +153,6 @@ def test_create():
     """
     Ensure the create method can be called.
     """
-    provider = factory("in-memory")
+    provider = factory(Mock(), "in-memory")
     provider.configure_default({})
     provider.create()

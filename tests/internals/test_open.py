@@ -28,6 +28,7 @@ def test_load_cloud_shelf_config():
     cloud_database = Mock()
     factory = Mock()
     loader = Mock()
+    logger = Mock()
     attended_filename = Path(filename)
 
     factory.return_value = cloud_database
@@ -35,9 +36,11 @@ def test_load_cloud_shelf_config():
     cloud_database.exists.return_value = False
 
     # Replace the default parser with the mock parser.
-    with cshelve.open(filename, config_loader=loader, factory=factory) as cs:
-        loader.assert_called_once_with(attended_filename)
-        factory.assert_called_once_with(provider)
+    with cshelve.open(
+        filename, config_loader=loader, factory=factory, logger=logger
+    ) as cs:
+        loader.assert_called_once_with(logger, attended_filename)
+        factory.assert_called_once_with(logger, provider)
         assert isinstance(cs.dict.db, Mock)
         cs.dict.db.configure_default.assert_called_once_with(default_config)
         cs.dict.db.configure_logging.assert_called_once_with(logging_config)

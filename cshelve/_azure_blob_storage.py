@@ -11,6 +11,7 @@ Operations such as iteration and length are performed using the container API.
 # - The Azure SDK for Python: `pip install cshelve[azure-blob]`
 # - If you want to use passwordless authentication, you also need to install the Azure CLI: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 """
+import logging
 import functools
 import io
 import os
@@ -37,14 +38,17 @@ from .exceptions import (
 # Blob clients are cached to avoid creating a new client for each operation.
 LRU_CACHE_MAX_SIZE = 2048
 
+# Logs messages.
+NO_HANDLER_PROVIDED = "Logging configuration for Azure SDK is set but no handler is provided, logs will be ignored."
+
 
 class AzureBlobStorage(ProviderInterface):
     """
     Implement the database based on the Azure Blob Storage technology.
     """
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, logger) -> None:
+        super().__init__(logger)
         self.container_name = None
 
         # Azure Blob Storage clients.
@@ -110,7 +114,9 @@ class AzureBlobStorage(ProviderInterface):
             )
         return self._container_client
 
-    def configure_logging(self, config: Dict[str, str]) -> None:
+    def configure_logging(
+        self, config: Dict[str, str], handler: logging.Handler = None
+    ) -> None:
         """
         Configure the logging for the InMemory client based on the configuration dictionary.
         """
@@ -118,15 +124,21 @@ class AzureBlobStorage(ProviderInterface):
             self._client_configuration["logging_enable"] = (
                 config["http"].lower() == "true"
             )
+            print("HTTP logging is enabled", self._client_configuration)
         if "credentials" in config:
             self._credentials_configuration["logging_enable"] = (
                 config["credentials"].lower() == "true"
             )
         if "level" in config:
-            import logging
-
             level = config["level"].upper()
             azure_sdk_logger = logging.getLogger("azure.storage.blob")
+
+            # Add the handler to the Azure SDK logger.
+            # Without handler, the Azure SDK will not log anything.
+            # We don't consider a missing handler as an error but as a warning.
+            if handler is None:
+                self.logger.warning(NO_HANDLER_PROVIDED)
+            azure_sdk_logger.addHandler(handler)
 
             # Log levels specific to the Azure SDK.
             # https://learn.microsoft.com/en-us/azure/developer/python/sdk/azure-sdk-logging#set-logging-levels

@@ -9,8 +9,9 @@ from cshelve.exceptions import CanNotCreateDBError, DBDoesNotExistsError, ReadOn
 @pytest.fixture
 def database() -> _Database:
     flag = "c"
-    provider_db = InMemory()
-    db = _Database(provider_db, flag)
+    logger = Mock()
+    provider_db = InMemory(logger)
+    db = _Database(logger, provider_db, flag)
     db._init()
     return db
 
@@ -94,13 +95,14 @@ def test_doesnt_create_database_if_exists():
     """
     Ensure the database is not created if it already exists.
     """
+    logger = Mock()
     flag = "c"
-    provider_db = InMemory()
+    provider_db = InMemory(logger)
     provider_db.configure_default({"exists": "True"})
 
     assert provider_db._created == False
 
-    db = _Database(provider_db, flag)
+    db = _Database(logger, provider_db, flag)
     db._init()
 
     assert provider_db._created == False
@@ -110,13 +112,14 @@ def test_create_database_if_not_exists():
     """
     Ensure the database is created if it doesn't exist.
     """
+    logger = Mock()
     flag = "c"
-    provider_db = InMemory()
+    provider_db = InMemory(logger)
 
     assert provider_db._created == False
     assert provider_db._exists == False
 
-    db = _Database(provider_db, flag)
+    db = _Database(logger, provider_db, flag)
     db._init()
 
     assert provider_db._created == True
@@ -126,15 +129,16 @@ def test_cant_create_database_if_not_exists_and_not_allowed():
     """
     Ensure exception is raised if the database doesn't exist and the flag doesn't allow it.
     """
+    logger = Mock()
     flags = "r", "w"
 
     for flag in flags:
-        provider_db = InMemory()
+        provider_db = InMemory(logger)
 
         assert provider_db._created == False
         assert provider_db._exists == False
 
-        db = _Database(provider_db, flag)
+        db = _Database(logger, provider_db, flag)
 
         with pytest.raises(DBDoesNotExistsError) as _:
             db._init()
@@ -144,12 +148,13 @@ def test_error_database_creation():
     """
     Ensure an internal exception is raised if the database can't be created.
     """
+    logger = Mock()
     provider_db = Mock()
     flag = "c"
 
     provider_db.exists.return_value = False
     provider_db.create.side_effect = Exception
-    db = _Database(provider_db, flag)
+    db = _Database(logger, provider_db, flag)
 
     with pytest.raises(CanNotCreateDBError) as _:
         db._init()
@@ -159,15 +164,16 @@ def test_database_clear_if_asked():
     """
     Ensure the database is cleared if the flag allows it.
     """
+    logger = Mock()
     flag = "n"
-    provider_db = InMemory()
+    provider_db = InMemory(logger)
     provider_db.configure_default({"exists": "True"})
 
     provider_db.set("key", "value")
     provider_db.set("key2", "value2")
 
     assert provider_db.len() == 2
-    db = _Database(provider_db, flag)
+    db = _Database(logger, provider_db, flag)
     db._init()
     assert provider_db.len() == 0
 
@@ -176,17 +182,18 @@ def test_do_not_clear_database():
     """
     Ensure the database is not cleared if the flag doesn't allow it.
     """
+    logger = Mock()
     flags = "r", "w", "c"
 
     for flag in flags:
-        provider_db = InMemory()
+        provider_db = InMemory(logger)
         provider_db.configure_default({"exists": "True"})
 
         provider_db.set("key", "value")
         provider_db.set("key2", "value2")
 
         assert provider_db.len() == 2
-        db = _Database(provider_db, flag)
+        db = _Database(logger, provider_db, flag)
         db._init()
         assert provider_db.len() == 2
 
@@ -195,16 +202,17 @@ def test_read_only():
     """
     Ensure the database is not cleared if the flag doesn't allow it.
     """
+    logger = Mock()
     flag = "r"
     key, value = b"key", b"value"
     new_key, new_value = b"key-new", b"value-new"
 
-    provider_db = InMemory()
+    provider_db = InMemory(logger)
     provider_db.configure_default({"exists": "True"})
 
     provider_db.set(key, value)
 
-    db = _Database(provider_db, flag)
+    db = _Database(logger, provider_db, flag)
     db._init()
 
     with pytest.raises(ReadOnlyError) as _:

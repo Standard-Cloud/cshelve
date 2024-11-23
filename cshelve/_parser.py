@@ -6,6 +6,7 @@ It also provides a function to determine if a local shelf should be used based o
 At this level, the only necessary configuration is the provider name.
 Other configurations are loaded into a dictionary and passed to the provider for further configuration.
 """
+from logging import Logger
 from collections import namedtuple
 import configparser
 from pathlib import Path
@@ -31,10 +32,11 @@ def use_local_shelf(filename: Path) -> bool:
     return not filename.suffix == ".ini"
 
 
-def load(filename: Path) -> Tuple[str, Dict[str, str]]:
+def load(logger: Logger, filename: Path) -> Tuple[str, Dict[str, str]]:
     """
     Load the configuration file and return it as a dictionary.
     """
+    logger.info(f"Loading configuration file: {filename}")
     config = configparser.ConfigParser()
     config.read(filename)
 

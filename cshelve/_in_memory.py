@@ -17,8 +17,8 @@ class InMemory(ProviderInterface):
     This is mainly for the package and users tests.
     """
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, logger) -> None:
+        super().__init__(logger)
         self.db = {}
         self.persist_key = None
 
