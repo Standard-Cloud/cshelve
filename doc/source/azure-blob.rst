@@ -72,8 +72,9 @@ Example Configuration
 #####################
 Here is an example of an INI file with logging configuration:
 
-.. code-block:: ini
+.. code-block:: console
 
+    $ cat passwordless.ini
     [default]
     provider        = azure-blob
     account_url     = https://myaccount.blob.core.windows.net
