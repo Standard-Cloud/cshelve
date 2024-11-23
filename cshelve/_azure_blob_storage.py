@@ -122,6 +122,24 @@ class AzureBlobStorage(ProviderInterface):
             self._credentials_configuration["logging_enable"] = (
                 config["credentials"].lower() == "true"
             )
+        if "level" in config:
+            import logging
+
+            logger = logging.getLogger("azure.storage.blob")
+
+            # Log levels specific to the Azure SDK.
+            # https://learn.microsoft.com/en-us/azure/developer/python/sdk/azure-sdk-logging#set-logging-levels
+            azure_sdk_log_levels = {
+                "CRITICAL": logging.CRITICAL,
+                "DEBUG": logging.DEBUG,
+                "ERROR": logging.ERROR,
+                "INFO": logging.INFO,
+                "NOTSET": logging.NOTSET,
+                "WARNING": logging.WARNING,
+            }
+            # If the level is not valid, we ignore the configuration.
+            if config["level"] in azure_sdk_log_levels:
+                logger.setLevel(azure_sdk_log_levels[config["level"]])
 
     # If an `ResourceNotFoundError` is raised by the SDK, it is converted to a `KeyError` to follow the `dbm` behavior based on a custom module error.
     @key_access(ResourceNotFoundError)

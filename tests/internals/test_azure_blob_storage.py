@@ -1,3 +1,4 @@
+import logging
 from unittest.mock import patch, Mock
 import pytest
 from azure.storage.blob import BlobType
@@ -638,3 +639,24 @@ def test_credential_logging(BlobServiceClient, DefaultAzureCredential):
     assert "logging_enable" in DefaultAzureCredential.call_args.kwargs
     assert DefaultAzureCredential.call_args.kwargs["logging_enable"] == True
     DefaultAzureCredential.reset_mock()
+
+
+def test_log_levels():
+    """
+    Ensure the log levels are correctly set for the Azure SDK.
+    """
+    azure_sdk_log_levels = {
+        "CRITICAL": logging.CRITICAL,
+        "DEBUG": logging.DEBUG,
+        "ERROR": logging.ERROR,
+        "INFO": logging.INFO,
+        "NOTSET": logging.NOTSET,
+        "WARNING": logging.WARNING,
+    }
+
+    logger = logging.getLogger("azure.storage.blob")
+
+    for level, value in azure_sdk_log_levels.items():
+        provider = factory("azure-blob")
+        provider.configure_logging({"level": level})
+        assert logger.getEffectiveLevel() == value
