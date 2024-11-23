@@ -252,7 +252,9 @@ class AzureBlobStorage(ProviderInterface):
                 credential=self.__get_credentials(environment_key),
                 **self._client_configuration,
             ),
-            "anonymous": lambda: BlobServiceClient(account_url),
+            "anonymous": lambda: BlobServiceClient(
+                account_url, **self._client_configuration
+            ),
             "connection_string": lambda: BlobServiceClient.from_connection_string(
                 self.__get_credentials(environment_key), **self._client_configuration
             ),
