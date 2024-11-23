@@ -20,19 +20,26 @@ def test_factory_usage():
     protocol = pickle.HIGHEST_PROTOCOL
     writeback = False
 
+    cloud_database = Mock()
     factory = Mock()
     loader = Mock()
-    cloud_database = Mock()
+    logger = Mock()
 
-    loader.return_value = Config(provider, config)
+    loader.return_value = Config(provider, config, config)
     factory.return_value = cloud_database
     cloud_database.exists.return_value = False
 
     with CloudShelf(
-        filename, flag, protocol, writeback, config_loader=loader, factory=factory
+        filename,
+        flag,
+        protocol,
+        writeback,
+        config_loader=loader,
+        factory=factory,
+        logger=logger,
     ) as cs:
         cloud_database.exists.assert_called_once()
-        factory.assert_called_once_with(provider)
+        factory.assert_called_once_with(logger, provider)
         # The mock returned by the factory must be the MuttableMapping object used by the shelve.Shelf object.
         assert isinstance(cs.dict.db, Mock)
 
@@ -49,15 +56,22 @@ def test_loader_usage():
     protocol = pickle.HIGHEST_PROTOCOL
     writeback = False
 
+    cloud_database = Mock()
     factory = Mock()
     loader = Mock()
-    cloud_database = Mock()
+    logger = Mock()
 
-    loader.return_value = Config(provider, config)
+    loader.return_value = Config(provider, config, config)
     factory.return_value = cloud_database
     cloud_database.exists.return_value = False
 
     with CloudShelf(
-        filename, flag, protocol, writeback, config_loader=loader, factory=factory
+        filename,
+        flag,
+        protocol,
+        writeback,
+        config_loader=loader,
+        factory=factory,
+        logger=logger,
     ) as cs:
-        loader.assert_called_once_with(filename)
+        loader.assert_called_once_with(logger, filename)

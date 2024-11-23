@@ -6,7 +6,7 @@ Based on the file extension, it will open a local or cloud shelf, but in any cas
 
 If the file extension is `.ini`, the file is considered a configuration file and handled by `cshelve`; otherwise, it will be handled by the standard `shelve` module.
 """
-
+import logging
 from pathlib import Path
 import shelve
 
@@ -46,17 +46,30 @@ class CloudShelf(shelve.Shelf):
     The underlying storage provider is provided by the factory based on the provider name then abstract by the _Database facade.
     """
 
-    def __init__(self, filename, flag, protocol, writeback, config_loader, factory):
+    def __init__(
+        self,
+        filename,
+        flag,
+        protocol,
+        writeback,
+        config_loader,
+        factory,
+        logger,
+        *args,
+        **kwargs,
+    ):
         # Load the configuration file to retrieve the provider and its configuration.
-        config = config_loader(filename)
+        config = config_loader(logger, filename)
 
         # Let the factory create the provider interface object based on the provider name then configure it.
-        provider_interface = factory(config.provider)
+        provider_interface = factory(logger, config.provider)
+        provider_interface.configure_logging(config.logging)
         provider_interface.configure_default(config.default)
+        provider_interface.provider_parameters(*args, **kwargs)
 
         # The CloudDatabase object is the class that interacts with the cloud storage backend.
         # This class doesn't perform or respect the shelve.Shelf logic and interface so we need to wrap it.
-        database = _Database(provider_interface, flag)
+        database = _Database(logger, provider_interface, flag)
         database._init()
 
         # Let the standard shelve.Shelf class handle the rest.
@@ -68,9 +81,11 @@ def open(
     flag="c",
     protocol=None,
     writeback=False,
-    *args,
     config_loader=_config_loader,
     factory=_factory,
+    logger=logging.getLogger("cshelve"),
+    *args,
+    **kwargs,
 ) -> shelve.Shelf:
     """
     Open a cloud shelf or a local shelf based on the file extension.
@@ -79,10 +94,20 @@ def open(
     filename = Path(filename)
 
     if use_local_shelf(filename):
+        logger.debug("Opening a local shelf.")
         # The user requests a local and not a cloud shelf.
         # Dependending of the Python version, the shelve module doesn't accept Path objects.
         return shelve.open(str(filename), flag, protocol, writeback)
 
+    logger.debug("Opening a cloud shelf.")
     return CloudShelf(
-        filename, flag.lower(), protocol, writeback, config_loader, factory
+        filename,
+        flag.lower(),
+        protocol,
+        writeback,
+        config_loader,
+        factory,
+        logger,
+        *args,
+        **kwargs,
     )

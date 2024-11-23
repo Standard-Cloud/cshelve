@@ -11,6 +11,7 @@ Operations such as iteration and length are performed using the container API.
 # - The Azure SDK for Python: `pip install cshelve[azure-blob]`
 # - If you want to use passwordless authentication, you also need to install the Azure CLI: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 """
+import logging
 import functools
 import io
 import os
@@ -37,16 +38,27 @@ from .exceptions import (
 # Blob clients are cached to avoid creating a new client for each operation.
 LRU_CACHE_MAX_SIZE = 2048
 
+# Logs messages.
+NO_HANDLER_PROVIDED = "Logging configuration for Azure SDK is set but no handler is provided, logs will be ignored."
+
 
 class AzureBlobStorage(ProviderInterface):
     """
     Implement the database based on the Azure Blob Storage technology.
     """
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, logger) -> None:
+        super().__init__(logger)
         self.container_name = None
-        self.container_client = None
+
+        # Azure Blob Storage clients.
+        self._blob_service_client = None
+        self._container_client = None
+
+        # Azure Blob Storage client configuration.
+        self._client_configuration = {}
+        # Azure Credential configuration.
+        self._credentials_configuration = {}
 
         # Cache the blob clients to avoid creating a new client for each operation.
         # As the class is not hashable, we can't use the lru_cache directly on the class method and so we wrap it.
@@ -55,6 +67,11 @@ class AzureBlobStorage(ProviderInterface):
             cache_fct
         )
 
+        # Default configuration parameters.
+        self.account_url = None
+        self.auth_type = None
+        self.environment_key = None
+
     def configure_default(self, config: Dict[str, str]) -> None:
         """
         Configure the Azure Blob Storage client based on the configuration file.
@@ -62,12 +79,12 @@ class AzureBlobStorage(ProviderInterface):
         # Retrieve the configuration parameters.
         # The Azure Storage Account URL
         # Ex: https://<account_name>.blob.core.windows.net
-        account_url = config.get("account_url")
+        self.account_url = config.get("account_url")
         # The authentication type to use.
         # Can be either 'connection_string' or 'passwordless'.
-        auth_type = config.get("auth_type")
+        self.auth_type = config.get("auth_type")
         # The environment variable key that contains the connection string.
-        environment_key = config.get("environment_key")
+        self.environment_key = config.get("environment_key")
         # The name of the container to use.
         # It can be created if it does not exist depending on the flag parameter.
         self.container_name = config.get("container_name")
@@ -75,14 +92,44 @@ class AzureBlobStorage(ProviderInterface):
         if self.container_name is None:
             raise ConfigurationError("Missing container_name in the configuration file")
 
-        # Create the BlobServiceClient and ContainerClient objects.
-        self.blob_service_client = self.__create_blob_service(
-            auth_type, account_url, environment_key
-        )
+    def provider_parameters(self, *args, **kwargs):
+        """
+        This method allows the user to specify custom parameters that can't be included in the config.
+        """
+        ...
 
-        self.container_client = self.blob_service_client.get_container_client(
-            self.container_name
-        )
+    @property
+    def blob_service_client(self):
+        """
+        Create the BlobServiceClient and ContainerClient objects when needed.
+        """
+        if self._blob_service_client is None:
+            self._blob_service_client = self.__create_blob_service(
+                self.auth_type, self.account_url, self.environment_key
+            )
+        return self._blob_service_client
+
+    @property
+    def container_client(self):
+        """
+        Only instantiate the container client when it is needed.
+        """
+        if self._container_client is None:
+            self._container_client = self.blob_service_client.get_container_client(
+                self.container_name
+            )
+        return self._container_client
+
+    def configure_logging(self, config: Dict[str, str]) -> None:
+        """
+        Configure the logging for the InMemory client based on the configuration dictionary.
+        """
+        if http := config.get("http"):
+            self._client_configuration["logging_enable"] = http.lower() == "true"
+        if credentials := config.get("credentials"):
+            self._credentials_configuration["logging_enable"] = (
+                credentials.lower() == "true"
+            )
 
     # If an `ResourceNotFoundError` is raised by the SDK, it is converted to a `KeyError` to follow the `dbm` behavior based on a custom module error.
     @key_access(ResourceNotFoundError)
@@ -185,7 +232,7 @@ class AzureBlobStorage(ProviderInterface):
         Create the container.
         The container must not exist before calling this method.
         """
-        self.container_client = self.blob_service_client.create_container(
+        self._container_client = self.blob_service_client.create_container(
             self.container_name
         )
 
@@ -209,15 +256,21 @@ class AzureBlobStorage(ProviderInterface):
         # A lambda is used to avoid calling the method if the auth_type is not valid.
         supported_auth = {
             "access_key": lambda: BlobServiceClient(
-                account_url, credential=self.__get_credentials(environment_key)
+                account_url,
+                credential=self.__get_credentials(environment_key),
+                **self._client_configuration,
             ),
-            "anonymous": lambda: BlobServiceClient(account_url),
+            "anonymous": lambda: BlobServiceClient(
+                account_url, **self._client_configuration
+            ),
             "connection_string": lambda: BlobServiceClient.from_connection_string(
-                self.__get_credentials(environment_key)
+                self.__get_credentials(environment_key), **self._client_configuration
             ),
             # Passwordless authentication is only available with the Azure CLI.
             "passwordless": lambda: BlobServiceClient(
-                account_url, credential=DefaultAzureCredential()
+                account_url,
+                credential=DefaultAzureCredential(**self._credentials_configuration),
+                **self._client_configuration,
             ),
         }
 

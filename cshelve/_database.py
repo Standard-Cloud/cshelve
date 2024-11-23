@@ -3,6 +3,7 @@ MutableMapping interface for the database.
 
 The term _Database is used to follow the naming convention of the Python Shelve module, even though it is not mandatory.
 """
+from logging import Logger
 from collections.abc import MutableMapping
 from concurrent.futures import ThreadPoolExecutor
 
@@ -23,8 +24,9 @@ class _Database(MutableMapping):
     Wrapper around the ProviderInterface to provide a MutableMapping interface with the Shelf business logic.
     """
 
-    def __init__(self, db: ProviderInterface, flag: str) -> None:
+    def __init__(self, logger: Logger, db: ProviderInterface, flag: str) -> None:
         super().__init__()
+        self.logger = logger
         self.db = db
         self.flag = flag
 

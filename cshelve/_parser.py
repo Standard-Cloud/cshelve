@@ -6,6 +6,7 @@ It also provides a function to determine if a local shelf should be used based o
 At this level, the only necessary configuration is the provider name.
 Other configurations are loaded into a dictionary and passed to the provider for further configuration.
 """
+from logging import Logger
 from collections import namedtuple
 import configparser
 from pathlib import Path
@@ -16,9 +17,12 @@ from typing import Dict, Tuple
 DEFAULT_CONFIG_STORE = "default"
 # Key containing the provider name.
 PROVIDER_KEY = "provider"
+# Logging configuration section.
+LOGGING_KEY_STORE = "logging"
+
 
 # Tuple containing the provider name and its configuration.
-Config = namedtuple("Config", ["provider", "default"])
+Config = namedtuple("Config", ["provider", "default", "logging"])
 
 
 def use_local_shelf(filename: Path) -> bool:
@@ -28,11 +32,15 @@ def use_local_shelf(filename: Path) -> bool:
     return not filename.suffix == ".ini"
 
 
-def load(filename: Path) -> Tuple[str, Dict[str, str]]:
+def load(logger: Logger, filename: Path) -> Tuple[str, Dict[str, str]]:
     """
     Load the configuration file and return it as a dictionary.
     """
+    logger.info(f"Loading configuration file: {filename}")
     config = configparser.ConfigParser()
     config.read(filename)
+
     c = config[DEFAULT_CONFIG_STORE]
-    return Config(c[PROVIDER_KEY], c)
+    logging_config = config[LOGGING_KEY_STORE] if LOGGING_KEY_STORE in config else {}
+
+    return Config(provider=c[PROVIDER_KEY], default=c, logging=logging_config)

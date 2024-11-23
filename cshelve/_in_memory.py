@@ -17,8 +17,8 @@ class InMemory(ProviderInterface):
     This is mainly for the package and users tests.
     """
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, logger) -> None:
+        super().__init__(logger)
         self.db = {}
         self.persist_key = None
 
@@ -26,6 +26,9 @@ class InMemory(ProviderInterface):
         self._created = False
         self._exists = False
         self._synced = False
+        self._logging = None
+        self._args = None
+        self._kwargs = None
 
     def configure_default(self, config: Dict[str, str]) -> None:
         """
@@ -44,6 +47,19 @@ class InMemory(ProviderInterface):
                 DB_PERSISTED[self.persist_key] = self.db
             else:
                 self.db = DB_PERSISTED[self.persist_key]
+
+    def configure_logging(self, config: Dict[str, str]) -> None:
+        """
+        Configure the logging for the InMemory client based on the configuration dictionary.
+        """
+        self._logging = config
+
+    def provider_parameters(self, *args, **kwargs) -> None:
+        """
+        This method allows the user to specify custom parameters that can't be included in the config.
+        """
+        self._args = args
+        self._kwargs = kwargs
 
     @key_access(KeyError)
     def get(self, key: bytes) -> bytes:

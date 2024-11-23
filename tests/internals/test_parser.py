@@ -3,6 +3,7 @@ Depending on the filename, either the native shelve module or the cloud shelve m
 The cloud shelve module is used when the filename has a specific extension, and we must ensure that the correct module is used.
 """
 from pathlib import Path
+from unittest.mock import Mock
 from cshelve._parser import load, use_local_shelf
 
 
@@ -31,9 +32,16 @@ def test_azure_configuration():
     """
     Load the Azure configuration file and return it as a dictionary.
     """
-    config = load(Path("tests/configurations/azure-blob/simulator/standard.ini"))
+    config = load(
+        Mock(), Path("tests/configurations/azure-blob/simulator/standard.ini")
+    )
 
     assert config.provider == "azure-blob"
+
     assert config.default["auth_type"] == "connection_string"
     assert config.default["environment_key"] == "AZURITE_CONNECTION_STRING"
     assert config.default["container_name"] == "standard"
+
+    assert config.logging["http"] == "true"
+    assert config.logging["credentials"] == "false"
+    assert config.logging["level"] == "INFO"

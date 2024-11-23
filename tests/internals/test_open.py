@@ -18,26 +18,48 @@ def test_load_cloud_shelf_config():
     """
     filename = "test.ini"
     provider = "myprovider"
-    config = {
+    default_config = {
         "provider": provider,
         "auth_type": "passwordless",
         "container_name": "mycontainer",
     }
+    logging_config = {"http": "true", "credentials": "false"}
 
     cloud_database = Mock()
     factory = Mock()
     loader = Mock()
+    logger = Mock()
     attended_filename = Path(filename)
 
     factory.return_value = cloud_database
-    loader.return_value = Config(provider, config)
+    loader.return_value = Config(provider, default_config, logging_config)
     cloud_database.exists.return_value = False
 
     # Replace the default parser with the mock parser.
-    with cshelve.open(filename, config_loader=loader, factory=factory) as cs:
-        loader.assert_called_once_with(attended_filename)
-        factory.assert_called_once_with(provider)
+    with cshelve.open(
+        filename, config_loader=loader, factory=factory, logger=logger
+    ) as cs:
+        loader.assert_called_once_with(logger, attended_filename)
+        factory.assert_called_once_with(logger, provider)
         assert isinstance(cs.dict.db, Mock)
+        cs.dict.db.configure_default.assert_called_once_with(default_config)
+        cs.dict.db.configure_logging.assert_called_once_with(logging_config)
+
+
+def test_load_cloud_shelf_config_memory():
+    """
+    Test the open function and the configuration.
+    """
+    filename = "tests/configurations/in-memory/not-persisted.ini"
+
+    # Replace the default parser with the mock parser.
+    with cshelve.open(filename) as cs:
+        # Ensure the default configuration is loaded.
+        cs.persist_key = False
+        # Ensure the logging is loaded.
+        cs._config = {"enabled": "true"}
+        # Ensure the database is created.
+        cs._created = True
 
 
 def test_load_local_shelf_config():
