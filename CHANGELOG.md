@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.6.0] - 2024-11-24
+### Added
+- Logging support for the `cshelve`.
+- Logging support for the `azure-blob` provider.
+
 ## [0.5.0] - 2024-11-20
 ### Added
 - Pathlib support.
