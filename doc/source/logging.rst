@@ -34,8 +34,9 @@ Refer to the provider's documentation for details on configuring logging for tha
 
 Example with Azure Blob Storage:
 
-.. code-block:: ini
+.. code-block:: console
 
+    $ cat azure-blob.ini
     [default]
     provider        = azure-blob
     account_url     = https://myaccount.blob.core.windows.net
@@ -62,5 +63,5 @@ Example with Azure Blob Storage:
     azure_logger.addHandler(handler)
 
     # Use cshelve with Azure Blob Storage
-    with cshelve.open('azure-blob-config-with-logging.ini') as db:
+    with cshelve.open('azure-blob.ini') as db:
         ...

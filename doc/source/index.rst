@@ -22,6 +22,7 @@ Table of contents
    in-memory
    azure-blob
    logging
+   writeback
 
 
 Install
