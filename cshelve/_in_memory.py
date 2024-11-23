@@ -26,6 +26,7 @@ class InMemory(ProviderInterface):
         self._created = False
         self._exists = False
         self._synced = False
+        self._logging = None
 
     def configure_default(self, config: Dict[str, str]) -> None:
         """
@@ -49,7 +50,7 @@ class InMemory(ProviderInterface):
         """
         Configure the logging for the InMemory client based on the configuration dictionary.
         """
-        pass
+        self._logging = config
 
     @key_access(KeyError)
     def get(self, key: bytes) -> bytes:

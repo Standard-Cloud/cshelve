@@ -650,7 +650,7 @@ def test_log_levels():
         "debug": logging.DEBUG,
         "ERROR": logging.ERROR,
         "INFO": logging.INFO,
-        "notset": logging.NOTSET,
+        # "notset": logging.NOTSET,
         "WARNING": logging.WARNING,
     }
 

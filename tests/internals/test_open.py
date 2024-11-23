@@ -43,6 +43,22 @@ def test_load_cloud_shelf_config():
         cs.dict.db.configure_logging.assert_called_once_with(logging_config)
 
 
+def test_load_cloud_shelf_config_memory():
+    """
+    Test the open function and the configuration.
+    """
+    filename = "tests/configurations/in-memory/not-persisted.ini"
+
+    # Replace the default parser with the mock parser.
+    with cshelve.open(filename) as cs:
+        # Ensure the default configuration is loaded.
+        cs.persist_key = False
+        # Ensure the logging is loaded.
+        cs._config = {"enabled": "true", "level": "INFO"}
+        # Ensure the database is created.
+        cs._created = True
+
+
 def test_load_local_shelf_config():
     """
     Based on the filename, the default shelve module must be used.

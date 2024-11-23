@@ -24,7 +24,7 @@ def test_factory_usage():
     loader = Mock()
     cloud_database = Mock()
 
-    loader.return_value = Config(provider, config)
+    loader.return_value = Config(provider, config, config)
     factory.return_value = cloud_database
     cloud_database.exists.return_value = False
 
@@ -53,7 +53,7 @@ def test_loader_usage():
     loader = Mock()
     cloud_database = Mock()
 
-    loader.return_value = Config(provider, config)
+    loader.return_value = Config(provider, config, config)
     factory.return_value = cloud_database
     cloud_database.exists.return_value = False
 
