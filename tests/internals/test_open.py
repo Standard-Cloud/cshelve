@@ -23,7 +23,7 @@ def test_load_cloud_shelf_config():
         "auth_type": "passwordless",
         "container_name": "mycontainer",
     }
-    logging_config = {"http": "true", "credentials": "false", "level": "INFO"}
+    logging_config = {"http": "true", "credentials": "false"}
 
     cloud_database = Mock()
     factory = Mock()
@@ -57,7 +57,7 @@ def test_load_cloud_shelf_config_memory():
         # Ensure the default configuration is loaded.
         cs.persist_key = False
         # Ensure the logging is loaded.
-        cs._config = {"enabled": "true", "level": "INFO"}
+        cs._config = {"enabled": "true"}
         # Ensure the database is created.
         cs._created = True
 
