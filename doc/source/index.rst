@@ -21,6 +21,7 @@ Table of contents
    tutorial
    in-memory
    azure-blob
+   logging
 
 
 Install
