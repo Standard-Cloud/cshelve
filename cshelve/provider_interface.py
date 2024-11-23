@@ -11,8 +11,8 @@ __all__ = ["ProviderInterface"]
 
 class ProviderInterface:
     """
-    This class defines the interface for storage backends to be used by `cshelve`.
-    Some methods may be left empty if not needed by the storage backend.
+    This class defines the interface for storage provider to be used by `cshelve`.
+    Some methods may be left empty if not needed by the storage provider.
     """
 
     def __init__(self, logger) -> None:
@@ -21,14 +21,14 @@ class ProviderInterface:
     @abstractmethod
     def close(self) -> None:
         """
-        Close the cloud storage backend.
+        Close the cloud storage provider.
         """
         raise NotImplementedError
 
     @abstractmethod
     def configure_default(self, config: Dict[str, str]) -> None:
         """
-        Default configuration of the backend.
+        Default configuration of the v.
         """
         raise NotImplementedError
 
@@ -36,6 +36,13 @@ class ProviderInterface:
     def configure_logging(self, config: Dict[str, str]) -> None:
         """
         Logging configuration of the backend.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def provider_parameters(self, *args, **kwargs) -> None:
+        """
+        This method allows the user to specify custom parameters that can't be included in the config.
         """
         raise NotImplementedError
 
@@ -49,7 +56,7 @@ class ProviderInterface:
     @abstractmethod
     def create(self) -> None:
         """
-        Create the cloud storage backend.
+        Create the cloud storage provider.
         """
         raise NotImplementedError
 
@@ -63,7 +70,7 @@ class ProviderInterface:
     @abstractmethod
     def exists(self) -> bool:
         """
-        Check if the cloud storage backend exists.
+        Check if the cloud storage provider exists.
         """
         raise NotImplementedError
 
@@ -98,6 +105,6 @@ class ProviderInterface:
     @abstractmethod
     def sync(self) -> None:
         """
-        Sync the cloud storage backend.
+        Sync the cloud storage provider.
         """
         raise NotImplementedError

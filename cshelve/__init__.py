@@ -47,15 +47,25 @@ class CloudShelf(shelve.Shelf):
     """
 
     def __init__(
-        self, filename, flag, protocol, writeback, config_loader, factory, logger
+        self,
+        filename,
+        flag,
+        protocol,
+        writeback,
+        config_loader,
+        factory,
+        logger,
+        *args,
+        **kwargs,
     ):
         # Load the configuration file to retrieve the provider and its configuration.
         config = config_loader(logger, filename)
 
         # Let the factory create the provider interface object based on the provider name then configure it.
         provider_interface = factory(logger, config.provider)
-        provider_interface.configure_default(config.default)
         provider_interface.configure_logging(config.logging)
+        provider_interface.configure_default(config.default)
+        provider_interface.provider_parameters(*args, **kwargs)
 
         # The CloudDatabase object is the class that interacts with the cloud storage backend.
         # This class doesn't perform or respect the shelve.Shelf logic and interface so we need to wrap it.
@@ -71,10 +81,11 @@ def open(
     flag="c",
     protocol=None,
     writeback=False,
-    *args,
     config_loader=_config_loader,
     factory=_factory,
     logger=logging.getLogger("cshelve"),
+    *args,
+    **kwargs,
 ) -> shelve.Shelf:
     """
     Open a cloud shelf or a local shelf based on the file extension.
@@ -90,5 +101,13 @@ def open(
 
     logger.debug("Opening a cloud shelf.")
     return CloudShelf(
-        filename, flag.lower(), protocol, writeback, config_loader, factory, logger
+        filename,
+        flag.lower(),
+        protocol,
+        writeback,
+        config_loader,
+        factory,
+        logger,
+        *args,
+        **kwargs,
     )

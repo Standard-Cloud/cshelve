@@ -639,24 +639,3 @@ def test_credential_logging(BlobServiceClient, DefaultAzureCredential):
     assert "logging_enable" in DefaultAzureCredential.call_args.kwargs
     assert DefaultAzureCredential.call_args.kwargs["logging_enable"] == True
     DefaultAzureCredential.reset_mock()
-
-
-def test_log_levels():
-    """
-    Ensure the log levels are correctly set for the Azure SDK.
-    """
-    azure_sdk_log_levels = {
-        "CRITICAL": logging.CRITICAL,
-        "debug": logging.DEBUG,
-        "ERROR": logging.ERROR,
-        "INFO": logging.INFO,
-        # "notset": logging.NOTSET,
-        "WARNING": logging.WARNING,
-    }
-
-    logger = logging.getLogger("azure.storage.blob")
-
-    for level, value in azure_sdk_log_levels.items():
-        provider = factory(Mock(), "azure-blob")
-        provider.configure_logging({"level": level})
-        assert logger.getEffectiveLevel() == value

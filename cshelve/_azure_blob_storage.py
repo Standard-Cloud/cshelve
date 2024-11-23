@@ -92,6 +92,12 @@ class AzureBlobStorage(ProviderInterface):
         if self.container_name is None:
             raise ConfigurationError("Missing container_name in the configuration file")
 
+    def provider_parameters(self, *args, **kwargs):
+        """
+        This method allows the user to specify custom parameters that can't be included in the config.
+        """
+        ...
+
     @property
     def blob_service_client(self):
         """
@@ -114,45 +120,16 @@ class AzureBlobStorage(ProviderInterface):
             )
         return self._container_client
 
-    def configure_logging(
-        self, config: Dict[str, str], handler: logging.Handler = None
-    ) -> None:
+    def configure_logging(self, config: Dict[str, str]) -> None:
         """
         Configure the logging for the InMemory client based on the configuration dictionary.
         """
-        if "http" in config:
-            self._client_configuration["logging_enable"] = (
-                config["http"].lower() == "true"
-            )
-            print("HTTP logging is enabled", self._client_configuration)
-        if "credentials" in config:
+        if http := config.get("http"):
+            self._client_configuration["logging_enable"] = http.lower() == "true"
+        if credentials := config.get("credentials"):
             self._credentials_configuration["logging_enable"] = (
-                config["credentials"].lower() == "true"
+                credentials.lower() == "true"
             )
-        if "level" in config:
-            level = config["level"].upper()
-            azure_sdk_logger = logging.getLogger("azure.storage.blob")
-
-            # Add the handler to the Azure SDK logger.
-            # Without handler, the Azure SDK will not log anything.
-            # We don't consider a missing handler as an error but as a warning.
-            if handler is None:
-                self.logger.warning(NO_HANDLER_PROVIDED)
-            azure_sdk_logger.addHandler(handler)
-
-            # Log levels specific to the Azure SDK.
-            # https://learn.microsoft.com/en-us/azure/developer/python/sdk/azure-sdk-logging#set-logging-levels
-            azure_sdk_log_levels = {
-                "CRITICAL": logging.CRITICAL,
-                "DEBUG": logging.DEBUG,
-                "ERROR": logging.ERROR,
-                "INFO": logging.INFO,
-                "NOTSET": logging.NOTSET,
-                "WARNING": logging.WARNING,
-            }
-            # If the level is not valid, we ignore the configuration.
-            if level := azure_sdk_log_levels.get(level):
-                azure_sdk_logger.setLevel(level)
 
     # If an `ResourceNotFoundError` is raised by the SDK, it is converted to a `KeyError` to follow the `dbm` behavior based on a custom module error.
     @key_access(ResourceNotFoundError)
