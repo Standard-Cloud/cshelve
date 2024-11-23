@@ -125,6 +125,7 @@ class AzureBlobStorage(ProviderInterface):
         if "level" in config:
             import logging
 
+            level = config["level"].upper()
             logger = logging.getLogger("azure.storage.blob")
 
             # Log levels specific to the Azure SDK.
@@ -138,8 +139,8 @@ class AzureBlobStorage(ProviderInterface):
                 "WARNING": logging.WARNING,
             }
             # If the level is not valid, we ignore the configuration.
-            if config["level"] in azure_sdk_log_levels:
-                logger.setLevel(azure_sdk_log_levels[config["level"]])
+            if level := azure_sdk_log_levels.get(level):
+                logger.setLevel(azure_sdk_log_levels[level])
 
     # If an `ResourceNotFoundError` is raised by the SDK, it is converted to a `KeyError` to follow the `dbm` behavior based on a custom module error.
     @key_access(ResourceNotFoundError)

@@ -53,6 +53,7 @@ class CloudShelf(shelve.Shelf):
         # Let the factory create the provider interface object based on the provider name then configure it.
         provider_interface = factory(config.provider)
         provider_interface.configure_default(config.default)
+        provider_interface.configure_logging(config.logging)
 
         # The CloudDatabase object is the class that interacts with the cloud storage backend.
         # This class doesn't perform or respect the shelve.Shelf logic and interface so we need to wrap it.

@@ -16,9 +16,12 @@ from typing import Dict, Tuple
 DEFAULT_CONFIG_STORE = "default"
 # Key containing the provider name.
 PROVIDER_KEY = "provider"
+# Logging configuration section.
+LOGGING_KEY_STORE = "logging"
+
 
 # Tuple containing the provider name and its configuration.
-Config = namedtuple("Config", ["provider", "default"])
+Config = namedtuple("Config", ["provider", "default", "logging"])
 
 
 def use_local_shelf(filename: Path) -> bool:
@@ -34,5 +37,8 @@ def load(filename: Path) -> Tuple[str, Dict[str, str]]:
     """
     config = configparser.ConfigParser()
     config.read(filename)
+
     c = config[DEFAULT_CONFIG_STORE]
-    return Config(c[PROVIDER_KEY], c)
+    logging_config = config[LOGGING_KEY_STORE] if LOGGING_KEY_STORE in config else {}
+
+    return Config(provider=c[PROVIDER_KEY], default=c, logging=logging_config)

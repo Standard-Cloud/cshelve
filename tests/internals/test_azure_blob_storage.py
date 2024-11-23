@@ -647,10 +647,10 @@ def test_log_levels():
     """
     azure_sdk_log_levels = {
         "CRITICAL": logging.CRITICAL,
-        "DEBUG": logging.DEBUG,
+        "debug": logging.DEBUG,
         "ERROR": logging.ERROR,
         "INFO": logging.INFO,
-        "NOTSET": logging.NOTSET,
+        "notset": logging.NOTSET,
         "WARNING": logging.WARNING,
     }
 

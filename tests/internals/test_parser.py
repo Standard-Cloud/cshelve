@@ -34,6 +34,11 @@ def test_azure_configuration():
     config = load(Path("tests/configurations/azure-blob/simulator/standard.ini"))
 
     assert config.provider == "azure-blob"
+
     assert config.default["auth_type"] == "connection_string"
     assert config.default["environment_key"] == "AZURITE_CONNECTION_STRING"
     assert config.default["container_name"] == "standard"
+
+    assert config.logging["http"] == "true"
+    assert config.logging["credentials"] == "false"
+    assert config.logging["level"] == "INFO"

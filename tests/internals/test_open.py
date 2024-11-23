@@ -18,11 +18,12 @@ def test_load_cloud_shelf_config():
     """
     filename = "test.ini"
     provider = "myprovider"
-    config = {
+    default_config = {
         "provider": provider,
         "auth_type": "passwordless",
         "container_name": "mycontainer",
     }
+    logging_config = {"http": "true", "credentials": "false", "level": "INFO"}
 
     cloud_database = Mock()
     factory = Mock()
@@ -30,7 +31,7 @@ def test_load_cloud_shelf_config():
     attended_filename = Path(filename)
 
     factory.return_value = cloud_database
-    loader.return_value = Config(provider, config)
+    loader.return_value = Config(provider, default_config, logging_config)
     cloud_database.exists.return_value = False
 
     # Replace the default parser with the mock parser.
@@ -38,6 +39,8 @@ def test_load_cloud_shelf_config():
         loader.assert_called_once_with(attended_filename)
         factory.assert_called_once_with(provider)
         assert isinstance(cs.dict.db, Mock)
+        cs.dict.db.configure_default.assert_called_once_with(default_config)
+        cs.dict.db.configure_logging.assert_called_once_with(logging_config)
 
 
 def test_load_local_shelf_config():
