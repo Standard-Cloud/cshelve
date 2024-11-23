@@ -1,6 +1,6 @@
 """
-This Interface defines the interface for storage backends supporting the `MutableMapping` interface.
-This class is used by the `Shelf` class to interact with the cloud storage backend.
+This Interface defines the interface for storage provider supporting the `MutableMapping` interface.
+This class is used by the `Shelf` class to interact with the cloud storage provider.
 """
 from abc import abstractmethod
 from typing import Dict, Iterator
@@ -28,14 +28,14 @@ class ProviderInterface:
     @abstractmethod
     def configure_default(self, config: Dict[str, str]) -> None:
         """
-        Default configuration of the v.
+        Default configuration of the provider.
         """
         raise NotImplementedError
 
     @abstractmethod
     def configure_logging(self, config: Dict[str, str]) -> None:
         """
-        Logging configuration of the backend.
+        Logging configuration of the provider.
         """
         raise NotImplementedError
 
