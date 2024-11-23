@@ -103,7 +103,7 @@ To see the logging output, you need to set the logging handler in your code:
     logger.addHandler(handler)
 
     # The usual cshelve usage remains the same.
-    with cshelve.open('config-with-logging.ini', 'r') as db:
+    with cshelve.open('passwordless.ini', 'r') as db:
         ...
 
 Authentication Examples
