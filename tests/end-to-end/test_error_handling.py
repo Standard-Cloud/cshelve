@@ -53,7 +53,7 @@ def test_unknown_auth_type():
     """
     with pytest.raises(cshelve.AuthTypeError):
         cshelve.open(
-            "tests/configurations/azure-blob/simulator/error-handling/unknown-auth-type.ini"
+            "tests/configurations/azure-blob/error-handling/unknown-auth-type.ini"
         )
 
 
@@ -63,7 +63,7 @@ def test_no_connection_string_key_auth_type():
     """
     with pytest.raises(cshelve.AuthArgumentError):
         cshelve.open(
-            "tests/configurations/azure-blob/simulator/error-handling/connection-string-without-connection-string.ini"
+            "tests/configurations/azure-blob/error-handling/connection-string-without-connection-string.ini"
         )
 
 
@@ -73,5 +73,5 @@ def test_no_connection_string_in_env():
     """
     with pytest.raises(cshelve.AuthArgumentError):
         cshelve.open(
-            "tests/configurations/azure-blob/simulator/error-handling/connection-string-without-env-var.ini"
+            "tests/configurations/azure-blob/error-handling/connection-string-without-env-var.ini"
         )

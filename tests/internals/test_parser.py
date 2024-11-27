@@ -32,9 +32,7 @@ def test_azure_configuration():
     """
     Load the Azure configuration file and return it as a dictionary.
     """
-    config = load(
-        Mock(), Path("tests/configurations/azure-blob/simulator/standard.ini")
-    )
+    config = load(Mock(), Path("tests/configurations/azure-blob/standard.ini"))
 
     assert config.provider == "azure-blob"
 
