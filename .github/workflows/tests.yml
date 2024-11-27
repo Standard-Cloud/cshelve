@@ -1,24 +1,18 @@
-# Some tests need to be run sequentially, for example, when they are working with the number of items.
-# In this case, the tests are run on all supported OS and Python versions to ensure quality one by one.
-# The time taken to run the tests is too significant to run in pull requests, so they are run only on the main branch.
+# Following tests are using Azure services to ensure the quality of the project.
 
-name: Run end to end sequentials tests
-on:
-  push:
-    branches:
-      - main
+name: End to end tests
+on: [pull_request]
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  azure-test-sequential:
+  azure-test:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-      max-parallel: 1
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
@@ -56,12 +50,20 @@ jobs:
     - name: Install the project
       run: uv sync --all-extras --dev --python ${{ matrix.python-version }}
 
-    - name: Run tests
+    - name: Run tests without dependencies
+      run: uv run pytest tests/units
+
+    - name: Run end-to-end tests interracting with Azure
+      run: uv run --python ${{ matrix.python-version }} pytest -m "azure" tests/end-to-end
+      env:
+        AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
+
+    - name: Run end-to-end tests supporting Azurite
       run: |
         # Start Azureit.
         azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
-        # Run performance tests.
-        uv run --python ${{ matrix.python-version }} pytest -n auto -m sequential tests
+        # Run tests
+        uv run --python ${{ matrix.python-version }} pytest -m "not azure" tests/end-to-end
       env:
-        # Local connection string for Azurite.
         AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
