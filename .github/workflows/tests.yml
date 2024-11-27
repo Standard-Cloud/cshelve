@@ -50,13 +50,20 @@ jobs:
     - name: Install the project
       run: uv sync --all-extras --dev --python ${{ matrix.python-version }}
 
-    - name: Run tests
+    - name: Run tests without dependencies
+      run: uv run pytest tests/units
+
+    - name: Run end-to-end tests interracting with Azure
+      run: uv run --python ${{ matrix.python-version }} pytest -m "azure" tests/end-to-end
+      env:
+        AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
+
+    - name: Run end-to-end tests supporting Azurite
       run: |
         # Start Azureit.
         azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
         # Run tests
-        uv run --python ${{ matrix.python-version }} pytest -m "not sequential"  tests/end-to-end
+        uv run --python ${{ matrix.python-version }} pytest -m "not azure" tests/end-to-end
       env:
-        AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
-        AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
-        AZURITE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+        AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"

@@ -32,14 +32,12 @@ def test_azure_configuration():
     """
     Load the Azure configuration file and return it as a dictionary.
     """
-    config = load(
-        Mock(), Path("tests/configurations/azure-blob/simulator/standard.ini")
-    )
+    config = load(Mock(), Path("tests/configurations/azure-blob/standard.ini"))
 
     assert config.provider == "azure-blob"
 
     assert config.default["auth_type"] == "connection_string"
-    assert config.default["environment_key"] == "AZURITE_CONNECTION_STRING"
+    assert config.default["environment_key"] == "AZURE_STORAGE_CONNECTION_STRING"
     assert config.default["container_name"] == "standard"
 
     assert config.logging["http"] == "true"

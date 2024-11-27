@@ -8,13 +8,9 @@ import cshelve
 
 
 CONFIG_FILES = [
-    "tests/configurations/azure-blob/simulator/standard.ini",
+    "tests/configurations/azure-blob/standard.ini",
     "tests/configurations/in-memory/persisted.ini",
 ]
-
-
-if os.getenv("CI"):
-    CONFIG_FILES.append("tests/configurations/azure-blob/real/standard.ini")
 
 
 @pytest.mark.parametrize(
@@ -57,7 +53,7 @@ def test_unknown_auth_type():
     """
     with pytest.raises(cshelve.AuthTypeError):
         cshelve.open(
-            "tests/configurations/azure-blob/simulator/error-handling/unknown-auth-type.ini"
+            "tests/configurations/azure-blob/error-handling/unknown-auth-type.ini"
         )
 
 
@@ -67,7 +63,7 @@ def test_no_connection_string_key_auth_type():
     """
     with pytest.raises(cshelve.AuthArgumentError):
         cshelve.open(
-            "tests/configurations/azure-blob/simulator/error-handling/connection-string-without-connection-string.ini"
+            "tests/configurations/azure-blob/error-handling/connection-string-without-connection-string.ini"
         )
 
 
@@ -77,5 +73,5 @@ def test_no_connection_string_in_env():
     """
     with pytest.raises(cshelve.AuthArgumentError):
         cshelve.open(
-            "tests/configurations/azure-blob/simulator/error-handling/connection-string-without-env-var.ini"
+            "tests/configurations/azure-blob/error-handling/connection-string-without-env-var.ini"
         )

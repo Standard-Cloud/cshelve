@@ -11,13 +11,9 @@ import cshelve
 from helpers import unique_key
 
 CONFIG_FILES = [
-    "tests/configurations/azure-blob/simulator/standard.ini",
+    "tests/configurations/azure-blob/standard.ini",
     "tests/configurations/in-memory/persisted.ini",
 ]
-
-
-if os.getenv("CI"):
-    CONFIG_FILES.append("tests/configurations/azure-blob/real/standard.ini")
 
 
 @pytest.mark.parametrize(

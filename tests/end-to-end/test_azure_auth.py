@@ -12,9 +12,9 @@ from helpers import unique_key
 @pytest.mark.parametrize(
     "config_file",
     [
-        "tests/configurations/azure-blob/real/access-key.ini",
-        "tests/configurations/azure-blob/real/connection-string.ini",
-        "tests/configurations/azure-blob/real/standard.ini",
+        "tests/configurations/azure-blob/access-key.ini",
+        "tests/configurations/azure-blob/connection-string.ini",
+        "tests/configurations/azure-blob/standard.ini",
     ],
 )
 def test_authentication(config_file):
@@ -42,10 +42,8 @@ def test_authentication_read_only():
     """
     Test the read-only authentication.
     """
-    can_write_config_file = (
-        "tests/configurations/azure-blob/real/writeable-anonymous.ini"
-    )
-    read_only_config_file = "tests/configurations/azure-blob/real/anonymous.ini"
+    can_write_config_file = "tests/configurations/azure-blob/writeable-anonymous.ini"
+    read_only_config_file = "tests/configurations/azure-blob/anonymous.ini"
 
     key = unique_key + "test_authentication_read_only"
     data = "test_authentication_read_only"
