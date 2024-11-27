@@ -158,7 +158,6 @@ def test_contains(config_file: str):
     del db[key_pattern]
 
 
-# @pytest.mark.sequential
 @pytest.mark.parametrize("config_file", CONFIG_FILES_FLAG_N)
 def test_clear_db(config_file):
     """
@@ -192,7 +191,6 @@ def test_clear_db(config_file):
     del_data(config_file, key_pattern)
 
 
-# @pytest.mark.sequential
 @pytest.mark.parametrize(
     "config_file",
     CONFIG_FILES_DEL,
@@ -219,7 +217,6 @@ def test_del(config_file):
     _del_data()
 
 
-# @pytest.mark.sequential
 @pytest.mark.parametrize(
     "config_file",
     CONFIG_FILES_LEN,
@@ -246,7 +243,6 @@ def test_len(config_file):
     assert len(db) == 0
 
 
-# @pytest.mark.sequential
 @pytest.mark.parametrize("config_file", CONFIG_FILES_ITER)
 def test_iter(config_file):
     """
