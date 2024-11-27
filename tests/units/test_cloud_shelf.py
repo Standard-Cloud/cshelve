@@ -37,6 +37,7 @@ def test_factory_usage():
         config_loader=loader,
         factory=factory,
         logger=logger,
+        provider_params={},
     ) as cs:
         cloud_database.exists.assert_called_once()
         factory.assert_called_once_with(logger, provider)
@@ -73,5 +74,6 @@ def test_loader_usage():
         config_loader=loader,
         factory=factory,
         logger=logger,
+        provider_params={},
     ) as cs:
         loader.assert_called_once_with(logger, filename)
