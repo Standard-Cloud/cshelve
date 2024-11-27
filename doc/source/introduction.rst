@@ -179,3 +179,25 @@ Not all Python versions support the `Pathlib` module with `shelve`, but `cshelve
 
     with cshelve.open(Path('azure-blob.ini')) as db:
         ...
+
+
+Advanced Usage
+##############
+
+The `provider_params` parameter allows users to pass custom parameters to the underlying storage provider.
+This can be useful for configuring specific provider options that are not covered by the default configuration.
+
+For example, when using the `azure-blob` provider, you can pass parameters like `secondary_hostname`, `max_block_size`, or `use_byte_buffer`.
+
+.. code-block:: python
+
+    import cshelve
+
+    provider_params = {
+        'secondary_hostname': 'https://secondary.blob.core.windows.net',
+        'max_block_size': 4 * 1024 * 1024,  # 4 MB
+        'use_byte_buffer': True
+    }
+
+    with cshelve.open('azure-blob.ini', provider_params=provider_params) as db:
+        ...

@@ -72,6 +72,8 @@ class AzureBlobStorage(ProviderInterface):
         self.auth_type = None
         self.environment_key = None
 
+        self._provider_parameters = {}
+
     def configure_default(self, config: Dict[str, str]) -> None:
         """
         Configure the Azure Blob Storage client based on the configuration file.
@@ -92,11 +94,11 @@ class AzureBlobStorage(ProviderInterface):
         if self.container_name is None:
             raise ConfigurationError("Missing container_name in the configuration file")
 
-    def provider_parameters(self, *args, **kwargs):
+    def set_provider_params(self, provider_params):
         """
         This method allows the user to specify custom parameters that can't be included in the config.
         """
-        ...
+        self._provider_parameters = provider_params
 
     @property
     def blob_service_client(self):
@@ -252,25 +254,26 @@ class AzureBlobStorage(ProviderInterface):
         from azure.storage.blob import BlobServiceClient
         from azure.identity import DefaultAzureCredential
 
+        # Concat users defined parameters and client configuration.
+        parameters = {**self._provider_parameters, **self._client_configuration}
+
         # Create the BlobServiceClient based on the authentication type.
         # A lambda is used to avoid calling the method if the auth_type is not valid.
         supported_auth = {
             "access_key": lambda: BlobServiceClient(
                 account_url,
+                **parameters,
                 credential=self.__get_credentials(environment_key),
-                **self._client_configuration,
             ),
-            "anonymous": lambda: BlobServiceClient(
-                account_url, **self._client_configuration
-            ),
+            "anonymous": lambda: BlobServiceClient(account_url, **parameters),
             "connection_string": lambda: BlobServiceClient.from_connection_string(
-                self.__get_credentials(environment_key), **self._client_configuration
+                self.__get_credentials(environment_key), **parameters
             ),
             # Passwordless authentication is only available with the Azure CLI.
             "passwordless": lambda: BlobServiceClient(
                 account_url,
+                **parameters,
                 credential=DefaultAzureCredential(**self._credentials_configuration),
-                **self._client_configuration,
             ),
         }
 

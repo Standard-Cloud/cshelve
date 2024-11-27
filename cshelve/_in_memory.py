@@ -27,8 +27,7 @@ class InMemory(ProviderInterface):
         self._exists = False
         self._synced = False
         self._logging = None
-        self._args = None
-        self._kwargs = None
+        self._provider_params = None
 
     def configure_default(self, config: Dict[str, str]) -> None:
         """
@@ -54,12 +53,11 @@ class InMemory(ProviderInterface):
         """
         self._logging = config
 
-    def provider_parameters(self, *args, **kwargs) -> None:
+    def set_provider_params(self, provider_params) -> None:
         """
         This method allows the user to specify custom parameters that can't be included in the config.
         """
-        self._args = args
-        self._kwargs = kwargs
+        self._provider_params = provider_params
 
     @key_access(KeyError)
     def get(self, key: bytes) -> bytes:

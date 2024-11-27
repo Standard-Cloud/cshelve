@@ -81,17 +81,24 @@ class _Database(MutableMapping):
         - Clearing the database if the flag allows it.
         """
         if not self.db.exists():
+            self.logger.info(f"Database doesn't exists.")
             if can_create(self.flag):
+                self.logger.info(f"Creating the database...")
                 try:
                     self.db.create()
                 except Exception as e:
+                    self.logger.critical(f"Can't create the database.")
                     raise CanNotCreateDBError("Can't create database.") from e
+                self.logger.info(f"Database created.")
             else:
+                self.logger.critical(f"Can't create the database")
                 raise DBDoesNotExistsError("Database does not exist.")
         else:
             # If the database exists, but the flag parameter indicates that it should be cleared, clear it.
             if clear_db(self.flag):
+                self.logger.info(f"Purging the database...")
                 # Retrieve all the keys and delete them.
                 # Retrieving keys is quick, but deletion synchronously is slow, so we use threads to speed up the process.
                 with ThreadPoolExecutor() as executor:
                     list(executor.map(self.db.delete, self.db.iter()))
+                self.logger.info(f"Database purged.")

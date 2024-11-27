@@ -6,12 +6,18 @@ Azure Blob Storage is a cloud storage solution for data storage and retrieval th
 
 Installation
 ############
+
+To install the *cshelve* package with Azure Blob Storage support, run the following command:
+
 .. code-block:: console
 
     $ pip install cshelve[azure-blob]
 
-Options
-#######
+Configuration Options
+#####################
+
+The following table lists the configuration options available for the Azure Blob Storage provider:
+
 .. list-table::
     :header-rows: 1
 
@@ -33,14 +39,17 @@ Options
       - Yes
     * - ``logging``
       - ``http``
-      - Enabling HTTP logging for all operations on the blob storage.
+      - Enable HTTP logging for all operations on the blob storage.
       - No
     * - ``logging``
       - ``credentials``
-      - Enabling HTTP logging for a credential operations.
+      - Enable HTTP logging for credential operations.
       - No
 
-Depending on the ``open`` flag, the permissions required by *cshelve* for blob storage vary.
+Permissions
+###########
+
+Depending on the ``open`` flag, the permissions required by *cshelve* for blob storage vary:
 
 .. list-table::
     :header-rows: 1
@@ -63,14 +72,18 @@ Depending on the ``open`` flag, the permissions required by *cshelve* for blob s
 
 Logging Configuration
 #####################
-The logging configuration allows you to enable HTTP logging for all operations on the blob storage and credential operations.
-This can be useful for debugging and monitoring purposes
-Note that you must set the logging handler to see the logging output.
-You can find more details about logging configuration in the `Azure SDK logging documentation <https://learn.microsoft.com/en-us/azure/developer/python/sdk/azure-sdk-logging#example-logging-output>`_.
 
-Example Configuration
-#####################
-Here is an example of an INI file with logging configuration:
+The logging configuration allows you to enable HTTP logging for all operations on the blob storage and credential operations.
+You must set the logging handler to see the logging output as explain in the `Azure SDK logging documentation <https://learn.microsoft.com/en-us/azure/developer/python/sdk/azure-sdk-logging#example-logging-output>`_.
+
+Examples
+########
+
+Passwordless Authentication
++++++++++++++++++++++++++++
+
+Here is an example of a configuration using passwordless authentication on the blob storage `myaccount` and the container `mycontainer`.
+The configuration also enables logging on the HTTP and credential operations.
 
 .. code-block:: console
 
@@ -93,7 +106,7 @@ To see the logging output, you need to set the logging handler in your code:
     import sys
     import cshelve
 
-    # Set the logging level for the all the azure libraries.
+    # Set the logging level for all the Azure libraries.
     logger = logging.getLogger("azure")
     logger.setLevel(logging.DEBUG)
 
@@ -106,8 +119,10 @@ To see the logging output, you need to set the logging handler in your code:
     with cshelve.open('passwordless.ini', 'r') as db:
         ...
 
-Authentication Examples
-#######################
+
+Access Key Authentication
++++++++++++++++++++++++++
+
 An access key can also be used for authentication. You can use either a Shared Access Signature (SAS) or an Access Key.
 The secret must be set in an environment variable, and the key must be defined in the configuration.
 
@@ -116,11 +131,15 @@ The secret must be set in an environment variable, and the key must be defined i
     $ cat access-key.ini
     [default]
     provider        = azure-blob
-    account_url     = https://dscccccccccccccc.blob.core.windows.net
+    account_url     = https://myaccount.blob.core.windows.net
     auth_type       = access_key
     # Here the environment variable containing the access key is named AZURE_STORAGE_ACCESS_KEY.
     environment_key = AZURE_STORAGE_ACCESS_KEY
     container_name  = test-account-key
+
+
+Connection String Authentication
+++++++++++++++++++++++++++++++++
 
 A connection string can also be used for authentication.
 The connection string must be set in an environment variable, and the key must be defined in the configuration.
@@ -135,7 +154,10 @@ The connection string must be set in an environment variable, and the key must b
     environment_key = AZURE_STORAGE_CONNECTION_STRING
     container_name  = test-connection-string
 
-The anonymous authentication method can be used to access public containers, but the authentication does not allow writing data.
+Anonymous Authentication
+++++++++++++++++++++++++
+
+The anonymous authentication method can be used to access public containers, but it does not allow writing data.
 
 .. code-block:: console
 
@@ -145,3 +167,24 @@ The anonymous authentication method can be used to access public containers, but
     account_url     = https://myaccount.blob.core.windows.net
     auth_type       = anonymous
     container_name  = public-container
+
+
+Configure the BlobServiceClient
+###############################
+
+Behind the scenes, this provider uses the `BlobServiceClient <https://learn.microsoft.com/en-us/python/api/azure-storage-blob/azure.storage.blob.blobserviceclient?view=azure-python>`_.
+Users can pass specific parameters using the `provider_params` parameter of the `cshelve.open` function.
+Here is an example where `secondary_hostname`, `max_block_size`, and `use_byte_buffer` are specified:
+
+.. code-block:: python
+
+  import cshelve
+
+  provider_params = {
+    'secondary_hostname': 'https://secondary.blob.core.windows.net',
+    'max_block_size': 4 * 1024 * 1024,  # 4 MB
+    'use_byte_buffer': True
+  }
+
+  with cshelve.open('azure-blob.ini', provider_params=provider_params) as db:
+    ...
