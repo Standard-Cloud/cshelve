@@ -11,13 +11,9 @@ from helpers import write_data, del_data, unique_key
 
 
 CONFIG_FILES = [
-    "tests/configurations/azure-blob/simulator/flag.ini",
+    "tests/configurations/azure-blob/flag.ini",
     "tests/configurations/in-memory/persisted.ini",
 ]
-
-
-if os.getenv("CI"):
-    CONFIG_FILES.append("tests/configurations/azure-blob/real/flag.ini")
 
 
 @pytest.mark.parametrize(
@@ -58,12 +54,12 @@ def test_container_does_not_exists():
     """
     with pytest.raises(cshelve.DBDoesNotExistsError):
         cshelve.open(
-            "tests/configurations/azure-blob/real/container-does-not-exists.ini",
+            "tests/configurations/azure-blob/container-does-not-exists.ini",
             "w",
         )
 
     with pytest.raises(cshelve.DBDoesNotExistsError):
         cshelve.open(
-            "tests/configurations/azure-blob/real/container-does-not-exists.ini",
+            "tests/configurations/azure-blob/container-does-not-exists.ini",
             "r",
         )

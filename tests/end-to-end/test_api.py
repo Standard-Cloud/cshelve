@@ -11,36 +11,29 @@ from helpers import write_data, unique_key, del_data
 
 
 CONFIG_FILES = [
-    "tests/configurations/azure-blob/simulator/standard.ini",
+    "tests/configurations/azure-blob/standard.ini",
     "tests/configurations/in-memory/persisted.ini",
 ]
 
 CONFIG_FILES_ITER = [
-    "tests/configurations/azure-blob/simulator/iter.ini",
+    "tests/configurations/azure-blob/iter.ini",
     "tests/configurations/in-memory/iter.ini",
 ]
 
 CONFIG_FILES_LEN = [
-    "tests/configurations/azure-blob/simulator/len.ini",
+    "tests/configurations/azure-blob/len.ini",
     "tests/configurations/in-memory/len.ini",
 ]
 
 CONFIG_FILES_DEL = [
-    "tests/configurations/azure-blob/simulator/del.ini",
+    "tests/configurations/azure-blob/del.ini",
     "tests/configurations/in-memory/del.ini",
 ]
 
 CONFIG_FILES_FLAG_N = [
-    "tests/configurations/azure-blob/simulator/flag-n.ini",
+    "tests/configurations/azure-blob/flag-n.ini",
     "tests/configurations/in-memory/flag-n.ini",
 ]
-
-if os.getenv("CI"):
-    CONFIG_FILES.append("tests/configurations/azure-blob/real/standard.ini")
-    CONFIG_FILES_ITER.append("tests/configurations/azure-blob/real/iter.ini")
-    CONFIG_FILES_LEN.append("tests/configurations/azure-blob/real/len.ini")
-    CONFIG_FILES_DEL.append("tests/configurations/azure-blob/real/del.ini")
-    CONFIG_FILES_FLAG_N.append("tests/configurations/azure-blob/real/flag-n.ini")
 
 
 @pytest.mark.parametrize(
@@ -165,7 +158,7 @@ def test_contains(config_file: str):
     del db[key_pattern]
 
 
-@pytest.mark.sequential
+# @pytest.mark.sequential
 @pytest.mark.parametrize("config_file", CONFIG_FILES_FLAG_N)
 def test_clear_db(config_file):
     """
@@ -199,7 +192,7 @@ def test_clear_db(config_file):
     del_data(config_file, key_pattern)
 
 
-@pytest.mark.sequential
+# @pytest.mark.sequential
 @pytest.mark.parametrize(
     "config_file",
     CONFIG_FILES_DEL,
@@ -226,7 +219,7 @@ def test_del(config_file):
     _del_data()
 
 
-@pytest.mark.sequential
+# @pytest.mark.sequential
 @pytest.mark.parametrize(
     "config_file",
     CONFIG_FILES_LEN,
@@ -253,7 +246,7 @@ def test_len(config_file):
     assert len(db) == 0
 
 
-@pytest.mark.sequential
+# @pytest.mark.sequential
 @pytest.mark.parametrize("config_file", CONFIG_FILES_ITER)
 def test_iter(config_file):
     """
