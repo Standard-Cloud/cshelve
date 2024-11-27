@@ -12,8 +12,8 @@ name: Quality
 
 on:
   push:
-    branches:
-      - main
+    # branches:
+    #   - main
 
 permissions:
   id-token: write
@@ -102,6 +102,11 @@ jobs:
       run: |
         bash run-test.sh
 
+    - name: Run asterix-and-obelix-friends
+      working-directory: examples/asterix-and-obelix-friends
+      run: |
+        bash run-test.sh
+
 
   performance-tests:
     needs: build
@@ -125,6 +130,7 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     # Azurite needs nodejs.
+    # Using Azurite limit the impact of the network on the performance tests.
     - uses: actions/setup-node@v4
       with:
         node-version: 18
