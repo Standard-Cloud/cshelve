@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.7.0] - 2024-11-
+### Added
+- Provide parameters to provider.
+- Provider parameters support on `in-memory` and `azure-blob`.
+
 ## [0.6.0] - 2024-11-24
 ### Added
 - Logging support for the `cshelve`.

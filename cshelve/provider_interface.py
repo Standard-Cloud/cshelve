@@ -40,7 +40,7 @@ class ProviderInterface:
         raise NotImplementedError
 
     @abstractmethod
-    def provider_parameters(self, *args, **kwargs) -> None:
+    def set_provider_params(self, provider_params) -> None:
         """
         This method allows the user to specify custom parameters that can't be included in the config.
         """

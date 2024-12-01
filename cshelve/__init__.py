@@ -55,8 +55,7 @@ class CloudShelf(shelve.Shelf):
         config_loader,
         factory,
         logger,
-        *args,
-        **kwargs,
+        provider_params,
     ):
         # Load the configuration file to retrieve the provider and its configuration.
         config = config_loader(logger, filename)
@@ -65,7 +64,7 @@ class CloudShelf(shelve.Shelf):
         provider_interface = factory(logger, config.provider)
         provider_interface.configure_logging(config.logging)
         provider_interface.configure_default(config.default)
-        provider_interface.provider_parameters(*args, **kwargs)
+        provider_interface.set_provider_params(provider_params)
 
         # The CloudDatabase object is the class that interacts with the cloud storage backend.
         # This class doesn't perform or respect the shelve.Shelf logic and interface so we need to wrap it.
@@ -84,8 +83,7 @@ def open(
     config_loader=_config_loader,
     factory=_factory,
     logger=logging.getLogger("cshelve"),
-    *args,
-    **kwargs,
+    provider_params={},
 ) -> shelve.Shelf:
     """
     Open a cloud shelf or a local shelf based on the file extension.
@@ -108,6 +106,5 @@ def open(
         config_loader,
         factory,
         logger,
-        *args,
-        **kwargs,
+        provider_params,
     )

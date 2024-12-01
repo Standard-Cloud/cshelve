@@ -36,11 +36,12 @@ def load(logger: Logger, filename: Path) -> Tuple[str, Dict[str, str]]:
     """
     Load the configuration file and return it as a dictionary.
     """
-    logger.info(f"Loading configuration file: {filename}")
+    logger.debug(f"Loading configuration file: {filename}.")
     config = configparser.ConfigParser()
     config.read(filename)
 
     c = config[DEFAULT_CONFIG_STORE]
     logging_config = config[LOGGING_KEY_STORE] if LOGGING_KEY_STORE in config else {}
 
+    logger.debug(f"Configuration file '{filename}' loaded.")
     return Config(provider=c[PROVIDER_KEY], default=c, logging=logging_config)

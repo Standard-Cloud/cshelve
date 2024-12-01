@@ -88,3 +88,14 @@ def test_support_pathlib():
 
     with cshelve.open(filepath) as cs:
         assert cs["key"] == "value"
+
+
+def test_parameters():
+    """
+    Ensure users parameters are provided to the provider.
+    """
+    filepath = Path("tests/configurations/in-memory/persisted.ini")
+    params = {"foo": "bar", "number": 42}
+
+    with cshelve.open(filepath, provider_params=params) as cs:
+        cs._user_parameters = params

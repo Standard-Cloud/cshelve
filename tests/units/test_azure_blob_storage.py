@@ -639,3 +639,27 @@ def test_credential_logging(BlobServiceClient, DefaultAzureCredential):
     assert "logging_enable" in DefaultAzureCredential.call_args.kwargs
     assert DefaultAzureCredential.call_args.kwargs["logging_enable"] == True
     DefaultAzureCredential.reset_mock()
+
+
+@patch("azure.storage.blob.BlobServiceClient")
+def test_provider_params(BlobServiceClient):
+    """
+    Ensure provider parameters are used.
+    """
+    config_default = {
+        "account_url": "https://account.blob.core.windows.net",
+        "auth_type": "anonymous",
+        "container_name": "container",
+    }
+    config_logging = {"http": "true"}
+    params = {"secondary_hostname": "second", "max_single_put_size": 42}
+
+    provider = factory(Mock(), "azure-blob")
+    provider.configure_logging(config_logging)
+    provider.configure_default(config_default)
+    provider.set_provider_params(params)
+    provider.create()
+
+    BlobServiceClient.assert_called_once_with(
+        config_default["account_url"], logging_enable=True, **params
+    )
