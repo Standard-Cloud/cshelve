@@ -1,9 +1,12 @@
 # Changelog
 
-## [0.7.0] - 2024-11-
+## [0.7.0] - 2024-11-12
 ### Added
 - Provide parameters to provider.
 - Provider parameters support on `in-memory` and `azure-blob`.
+
+### Improvement
+- Release on Pypi on the GitHub trigger.
 
 ## [0.6.0] - 2024-11-24
 ### Added
