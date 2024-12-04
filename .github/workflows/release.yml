@@ -5,6 +5,10 @@ on:
     branches:
       - release/*
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   WHEEL: cshelve-0.7.0-py3-none-any.whl
 
