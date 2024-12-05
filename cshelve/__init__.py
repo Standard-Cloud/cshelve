@@ -10,6 +10,7 @@ import logging
 from pathlib import Path
 import shelve
 
+from .data_processing import DataProcessing
 from ._database import _Database
 from ._factory import factory as _factory
 from ._parser import load as _config_loader
@@ -30,6 +31,7 @@ __all__ = [
     "AuthTypeError",
     "CanNotCreateDBError",
     "ConfigurationError",
+    "DataProcessing",
     "DBDoesNotExistsError",
     "KeyNotFoundError",
     "open",
