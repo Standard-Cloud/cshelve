@@ -1,6 +1,10 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "cshelve"
-version = "0.6.0"
+version = "0.7.0"
 description = "Propulsing the shelve module to the cloud"
 readme = "README.md"
 requires-python = ">=3.9"
