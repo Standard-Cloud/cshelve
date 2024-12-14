@@ -8,7 +8,7 @@ import pytest
 
 from cshelve import UnknownCompressionAlgorithmError
 from cshelve._compression import configure
-from cshelve.data_processing import DataProcessing
+from cshelve._data_processing import DataProcessing
 
 
 @pytest.fixture

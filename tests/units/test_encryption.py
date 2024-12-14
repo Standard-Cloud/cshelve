@@ -7,7 +7,7 @@ import pytest
 
 from cshelve import UnknownEncryptionAlgorithmError
 from cshelve._encryption import configure
-from cshelve.data_processing import DataProcessing
+from cshelve._data_processing import DataProcessing
 
 
 @pytest.fixture

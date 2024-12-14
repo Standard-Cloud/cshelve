@@ -7,7 +7,7 @@ from logging import Logger
 from collections.abc import MutableMapping
 from concurrent.futures import ThreadPoolExecutor
 
-from .data_processing import DataProcessing
+from ._data_processing import DataProcessing
 from .provider_interface import ProviderInterface
 from ._flag import can_create, can_write, clear_db
 from .exceptions import (

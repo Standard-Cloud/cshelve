@@ -5,7 +5,7 @@ from functools import partial
 from logging import Logger
 from typing import Dict
 
-from .data_processing import DataProcessing
+from ._data_processing import DataProcessing
 from .exceptions import UnknownCompressionAlgorithmError
 
 
