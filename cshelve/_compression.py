@@ -24,7 +24,6 @@ def configure(
         return
 
     if ALGORITHMS_NAME_KEY not in config:
-        # Inform the user in case of missing configuration.
         logger.info("No compression algorithm specified.")
         return
 

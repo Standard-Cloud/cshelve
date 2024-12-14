@@ -17,6 +17,8 @@ def factory(logger: Logger, provider: str) -> ProviderInterface:
 
 
 def _factory(logger: Logger, provider: str):
+    logger.info(f"Loading provider {provider}")
+
     if provider == "azure-blob":
         from ._azure_blob_storage import AzureBlobStorage
 

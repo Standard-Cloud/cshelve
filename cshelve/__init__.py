@@ -25,6 +25,7 @@ from .exceptions import (
     KeyNotFoundError,
     ReadOnlyError,
     UnknownCompressionAlgorithmError,
+    UnknownEncryptionAlgorithmError,
     UnknownProviderError,
 )
 
