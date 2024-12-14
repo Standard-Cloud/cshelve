@@ -1,6 +1,7 @@
 from unittest.mock import Mock
 
 import pytest
+from cshelve.data_processing import DataProcessing
 from cshelve._database import _Database
 from cshelve._in_memory import InMemory
 from cshelve.exceptions import CanNotCreateDBError, DBDoesNotExistsError, ReadOnlyError
@@ -11,7 +12,8 @@ def database() -> _Database:
     flag = "c"
     logger = Mock()
     provider_db = InMemory(logger)
-    db = _Database(logger, provider_db, flag)
+    data_processing = DataProcessing()
+    db = _Database(logger, provider_db, flag, data_processing)
     db._init()
     return db
 
@@ -102,7 +104,7 @@ def test_doesnt_create_database_if_exists():
 
     assert provider_db._created == False
 
-    db = _Database(logger, provider_db, flag)
+    db = _Database(logger, provider_db, flag, DataProcessing())
     db._init()
 
     assert provider_db._created == False
@@ -119,7 +121,7 @@ def test_create_database_if_not_exists():
     assert provider_db._created == False
     assert provider_db._exists == False
 
-    db = _Database(logger, provider_db, flag)
+    db = _Database(logger, provider_db, flag, DataProcessing())
     db._init()
 
     assert provider_db._created == True
@@ -138,7 +140,7 @@ def test_cant_create_database_if_not_exists_and_not_allowed():
         assert provider_db._created == False
         assert provider_db._exists == False
 
-        db = _Database(logger, provider_db, flag)
+        db = _Database(logger, provider_db, flag, DataProcessing())
 
         with pytest.raises(DBDoesNotExistsError) as _:
             db._init()
@@ -154,7 +156,7 @@ def test_error_database_creation():
 
     provider_db.exists.return_value = False
     provider_db.create.side_effect = Exception
-    db = _Database(logger, provider_db, flag)
+    db = _Database(logger, provider_db, flag, DataProcessing())
 
     with pytest.raises(CanNotCreateDBError) as _:
         db._init()
@@ -173,7 +175,7 @@ def test_database_clear_if_asked():
     provider_db.set("key2", "value2")
 
     assert provider_db.len() == 2
-    db = _Database(logger, provider_db, flag)
+    db = _Database(logger, provider_db, flag, DataProcessing())
     db._init()
     assert provider_db.len() == 0
 
@@ -193,7 +195,7 @@ def test_do_not_clear_database():
         provider_db.set("key2", "value2")
 
         assert provider_db.len() == 2
-        db = _Database(logger, provider_db, flag)
+        db = _Database(logger, provider_db, flag, DataProcessing())
         db._init()
         assert provider_db.len() == 2
 
@@ -212,7 +214,7 @@ def test_read_only():
 
     provider_db.set(key, value)
 
-    db = _Database(logger, provider_db, flag)
+    db = _Database(logger, provider_db, flag, DataProcessing())
     db._init()
 
     with pytest.raises(ReadOnlyError) as _:

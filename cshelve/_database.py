@@ -7,6 +7,7 @@ from logging import Logger
 from collections.abc import MutableMapping
 from concurrent.futures import ThreadPoolExecutor
 
+from .data_processing import DataProcessing
 from .provider_interface import ProviderInterface
 from ._flag import can_create, can_write, clear_db
 from .exceptions import (
@@ -24,23 +25,32 @@ class _Database(MutableMapping):
     Wrapper around the ProviderInterface to provide a MutableMapping interface with the Shelf business logic.
     """
 
-    def __init__(self, logger: Logger, db: ProviderInterface, flag: str) -> None:
+    def __init__(
+        self,
+        logger: Logger,
+        db: ProviderInterface,
+        flag: str,
+        data_processing: DataProcessing,
+    ) -> None:
         super().__init__()
-        self.logger = logger
+        self.data_processing = data_processing
         self.db = db
         self.flag = flag
+        self.logger = logger
 
     def __getitem__(self, key: bytes) -> bytes:
         """
         Retrieve the value associated with the key from the database.
         """
-        return self.db.get(key)
+        value = self.db.get(key)
+        return self.data_processing.apply_post_processing(value)
 
     @can_write
     def __setitem__(self, key: bytes, value: bytes) -> None:
         """
         Set the value associated with the key in the database.
         """
+        value = self.data_processing.apply_pre_processing(value)
         self.db.set(key, value)
 
     @can_write

@@ -19,10 +19,12 @@ DEFAULT_CONFIG_STORE = "default"
 PROVIDER_KEY = "provider"
 # Logging configuration section.
 LOGGING_KEY_STORE = "logging"
+# Compression configuration section.
+COMPRESSION_KEY_STORE = "compression"
 
 
 # Tuple containing the provider name and its configuration.
-Config = namedtuple("Config", ["provider", "default", "logging"])
+Config = namedtuple("Config", ["provider", "default", "logging", "compression"])
 
 
 def use_local_shelf(filename: Path) -> bool:
@@ -42,6 +44,14 @@ def load(logger: Logger, filename: Path) -> Tuple[str, Dict[str, str]]:
 
     c = config[DEFAULT_CONFIG_STORE]
     logging_config = config[LOGGING_KEY_STORE] if LOGGING_KEY_STORE in config else {}
+    compression_config = (
+        config[COMPRESSION_KEY_STORE] if COMPRESSION_KEY_STORE in config else {}
+    )
 
     logger.debug(f"Configuration file '{filename}' loaded.")
-    return Config(provider=c[PROVIDER_KEY], default=c, logging=logging_config)
+    return Config(
+        provider=c[PROVIDER_KEY],
+        default=c,
+        logging=logging_config,
+        compression=compression_config,
+    )

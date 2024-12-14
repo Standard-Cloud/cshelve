@@ -13,6 +13,8 @@ from helpers import write_data, unique_key, del_data
 CONFIG_FILES = [
     "tests/configurations/azure-blob/standard.ini",
     "tests/configurations/in-memory/persisted.ini",
+    "tests/configurations/azure-blob/compression.ini",
+    "tests/configurations/in-memory/compression.ini",
 ]
 
 CONFIG_FILES_ITER = [

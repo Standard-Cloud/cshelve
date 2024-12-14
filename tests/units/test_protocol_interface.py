@@ -28,7 +28,7 @@ def test_use_protocol():
     loader = Mock()
 
     factory.return_value = cdit
-    loader.return_value = Config(provider, config, {})
+    loader.return_value = Config(provider, config, {}, {})
 
     # Replace the default parser with the mock parser.
     db = cshelve.open(

@@ -10,7 +10,9 @@ import logging
 from pathlib import Path
 import shelve
 
+from .data_processing import DataProcessing
 from ._database import _Database
+from ._compression import configure as _configure_compression
 from ._factory import factory as _factory
 from ._parser import load as _config_loader
 from ._parser import use_local_shelf
@@ -22,19 +24,23 @@ from .exceptions import (
     DBDoesNotExistsError,
     KeyNotFoundError,
     ReadOnlyError,
+    UnknownCompressionAlgorithmError,
     UnknownProviderError,
 )
+
 
 __all__ = [
     "AuthArgumentError",
     "AuthTypeError",
     "CanNotCreateDBError",
     "ConfigurationError",
+    "DataProcessing",
     "DBDoesNotExistsError",
     "KeyNotFoundError",
     "open",
     "ReadOnlyError",
     "ResourceNotFoundError",
+    "UnknownCompressionAlgorithmError",
     "UnknownProviderError",
 ]
 
@@ -66,9 +72,13 @@ class CloudShelf(shelve.Shelf):
         provider_interface.configure_default(config.default)
         provider_interface.set_provider_params(provider_params)
 
+        # Data processing object used to apply pre and post processing to the data.
+        data_processing = DataProcessing()
+        _configure_compression(logger, data_processing, config.compression)
+
         # The CloudDatabase object is the class that interacts with the cloud storage backend.
         # This class doesn't perform or respect the shelve.Shelf logic and interface so we need to wrap it.
-        database = _Database(logger, provider_interface, flag)
+        database = _Database(logger, provider_interface, flag, data_processing)
         database._init()
 
         # Let the standard shelve.Shelf class handle the rest.
