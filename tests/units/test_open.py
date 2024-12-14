@@ -24,6 +24,7 @@ def test_load_cloud_shelf_config():
         "container_name": "mycontainer",
     }
     logging_config = {"http": "true", "credentials": "false"}
+    compression_config = {}
 
     cloud_database = Mock()
     factory = Mock()
@@ -32,7 +33,9 @@ def test_load_cloud_shelf_config():
     attended_filename = Path(filename)
 
     factory.return_value = cloud_database
-    loader.return_value = Config(provider, default_config, logging_config)
+    loader.return_value = Config(
+        provider, default_config, logging_config, compression_config
+    )
     cloud_database.exists.return_value = False
 
     # Replace the default parser with the mock parser.

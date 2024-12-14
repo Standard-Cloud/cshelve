@@ -14,6 +14,14 @@ class UnknownProviderError(RuntimeError):
     pass
 
 
+class UnknownCompressionAlgorithmError(RuntimeError):
+    """
+    Raised when the compression algorithm provided is incorrect.
+    """
+
+    pass
+
+
 class KeyNotFoundError(KeyError):
     """
     Raised when a resource is not found.
