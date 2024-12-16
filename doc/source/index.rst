@@ -17,11 +17,12 @@ Table of contents
 .. toctree::
    :maxdepth: 1
 
-   introduction
-   tutorial
-   in-memory
    azure-blob
+   compression
+   in-memory
+   introduction
    logging
+   tutorial
    writeback
 
 
