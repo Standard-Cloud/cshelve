@@ -68,5 +68,8 @@ run_test $DB
 DB=./azure-passwordless.ini
 run_test $DB
 
+DB=./azure-compression.ini
+run_test $DB
+
 echo "All tests passed."
 exit 0
