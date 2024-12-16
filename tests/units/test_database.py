@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 import pytest
-from cshelve.data_processing import DataProcessing
+from cshelve._data_processing import DataProcessing
 from cshelve._database import _Database
 from cshelve._in_memory import InMemory
 from cshelve.exceptions import CanNotCreateDBError, DBDoesNotExistsError, ReadOnlyError

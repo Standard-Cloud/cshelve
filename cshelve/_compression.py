@@ -5,7 +5,7 @@ from functools import partial
 from logging import Logger
 from typing import Dict
 
-from .data_processing import DataProcessing
+from ._data_processing import DataProcessing
 from .exceptions import UnknownCompressionAlgorithmError
 
 
@@ -24,7 +24,6 @@ def configure(
         return
 
     if ALGORITHMS_NAME_KEY not in config:
-        # Inform the user in case of missing configuration.
         logger.info("No compression algorithm specified.")
         return
 

@@ -22,6 +22,14 @@ class UnknownCompressionAlgorithmError(RuntimeError):
     pass
 
 
+class UnknownEncryptionAlgorithmError(RuntimeError):
+    """
+    Raised when the encryption algorithm provided is incorrect.
+    """
+
+    pass
+
+
 class KeyNotFoundError(KeyError):
     """
     Raised when a resource is not found.
