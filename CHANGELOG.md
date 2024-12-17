@@ -1,6 +1,10 @@
 # Changelog
 
-## [0.7.0] - 2024-11-12
+## [0.8.0] - 2024-12-17
+### Added
+- Allow data compression
+
+## [0.7.0] - 2024-12-04
 ### Added
 - Provide parameters to provider.
 - Provider parameters support on `in-memory` and `azure-blob`.
