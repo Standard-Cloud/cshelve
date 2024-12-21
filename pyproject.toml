@@ -32,6 +32,7 @@ dev-dependencies = [
     "ruff>=0.6.9",
     "sphinx-autobuild>=2024.10.3",
     "sphinx>=7.4.7",
+    "pycryptodome>=3.21.0",
 ]
 
 [tool.uv.sources]
@@ -49,4 +50,7 @@ addopts = "--doctest-modules"
 azure-blob = [
     "azure-identity>=1.19.0",
     "azure-storage-blob>=12.23.1",
+]
+encryption = [
+    "pycryptodome>=3.21.0",
 ]

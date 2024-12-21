@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.0] - 2024-
+### Added
+- Allow data encryption
+
 ## [0.8.0] - 2024-12-17
 ### Added
 - Allow data compression

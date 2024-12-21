@@ -30,6 +30,22 @@ class UnknownEncryptionAlgorithmError(RuntimeError):
     pass
 
 
+class NoEncryptionKeyError(RuntimeError):
+    """
+    Raised when there is no encryption key provided.
+    """
+
+    pass
+
+
+class EncryptionKeyNotDefinedError(RuntimeError):
+    """
+    Raised when there is no encryption key defined as environment variable.
+    """
+
+    pass
+
+
 class KeyNotFoundError(KeyError):
     """
     Raised when a resource is not found.
