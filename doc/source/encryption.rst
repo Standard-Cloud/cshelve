@@ -4,6 +4,8 @@ Encryption Configuration
 *cshelve* supports data encryption before sending data to the provider.
 This is particularly useful when user want to ensure the non modification of the data and reduce potential attacks via pickles.
 
+**Note:** Only the value (the pickle) is encrypted, not the key.
+
 Installation
 ############
 
@@ -68,6 +70,7 @@ The application code doesn't need to be updated:
     import cshelve
 
     with cshelve.open('config.ini') as db:
+        # The message will be encrypted but not the key 'data'.
         db['data'] = 'This is some data that will be encrypt.'
 
     with cshelve.open('config.ini') as db:

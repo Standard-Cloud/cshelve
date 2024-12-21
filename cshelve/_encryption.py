@@ -2,6 +2,8 @@
 Encryption module for cshelve.
 """
 import os
+import struct
+from collections import namedtuple
 from functools import partial
 from logging import Logger
 from typing import Dict
@@ -11,6 +13,7 @@ from .exceptions import (
     UnknownEncryptionAlgorithmError,
     NoEncryptionKeyError,
     EncryptionKeyNotDefinedError,
+    DataCorruptionError,
 )
 
 
@@ -19,6 +22,16 @@ ALGORITHMS_NAME_KEY = "algorithm"
 ## User can provide the key via the ini file or env variable.
 KEY_KEY = "key"
 ENVIRONMENT_KEY = "environment_key"
+
+
+# Normally the 'tag' is using 16 bytes and the 'nonce' 12 bytes.
+# But, by security and for the futur, we keep their length in a this dedicated data structure.
+# With also keep the algorithm as a unsigned char.
+MessageInformation = namedtuple(
+    "MessageInformation", ["algorithm", "len_tag", "len_nonce", "message"]
+)
+# Hold the encrypted message.
+Message = namedtuple("Message", ["tag", "nonce", "encrypted_data"])
 
 
 def configure(
@@ -40,12 +53,13 @@ def configure(
     key = _get_key(logger, config)
 
     supported_algorithms = {
-        "aes256": _aes256,
+        "aes256": (_aes256, 1),
     }
 
-    if encryption := supported_algorithms.get(algorithm):
+    if algorithm := supported_algorithms.get(algorithm):
+        fct, algo_signature = algorithm
         logger.debug(f"Configuring encryption algorithm: {algorithm}")
-        crypt_fct, decrypt_fct = encryption(config, key)
+        crypt_fct, decrypt_fct = fct(algo_signature, config, key)
         data_processing.add_pre_processing(crypt_fct)
         data_processing.add_post_processing(decrypt_fct)
         logger.debug(f"Encryption algorithm {algorithm} configured.")
@@ -76,35 +90,55 @@ def _get_key(logger, config) -> bytes:
     raise NoEncryptionKeyError("Encryption is specified without key.")
 
 
-def _aes256(config: Dict[str, str], key: bytes):
+def _aes256(signature, config: Dict[str, str], key: bytes):
     """
     Configure aes256 encryption.
     """
     from Crypto.Cipher import AES
 
-    crypt = partial(_crypt, AES, key)
-    decrypt = partial(_decrypt, AES, key)
+    crypt = partial(_crypt, signature, AES, key)
+    decrypt = partial(_decrypt, signature, AES, key)
 
     return crypt, decrypt
 
 
-def _crypt(AES, key: bytes, data: bytes) -> bytes:
+def _crypt(signature, AES, key: bytes, data: bytes) -> bytes:
     cipher = AES.new(key, AES.MODE_EAX)
-    ciphertext, tag = cipher.encrypt_and_digest(data)
+    encrypted_data, tag = cipher.encrypt_and_digest(data)
 
-    res = bytes()
-    res += tag
-    res += cipher.nonce
-    res += ciphertext
+    message = Message(tag=tag, nonce=cipher.nonce, encrypted_data=encrypted_data)
 
-    return res
+    info = MessageInformation(
+        algorithm=signature,
+        len_tag=len(tag),
+        len_nonce=len(cipher.nonce),
+        message=message.tag + message.nonce + message.encrypted_data,
+    )
+
+    return struct.pack(
+        f"<bbb{len(info.message)}s", info.len_tag, info.len_nonce, info.message
+    )
 
 
-def _decrypt(AES, key: bytes, data: bytes) -> bytes:
-    tag = data[:16]
-    nonce = data[16 : 16 + 12]
+def _decrypt(signature, AES, key: bytes, data: bytes) -> bytes:
+    message_len = len(bytes) - 8 * 3  # 3 bytes (b)
+    info = MessageInformation._make(struct.unpack(f"<bbb{message_len}s"))
 
-    cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
-    plaintext = cipher.decrypt(data)
+    if info.algorithm != signature:
+        raise DataCorruptionError("Algorithm used for the encryption is not AES256.")
+
+    encrypted_data_len = len(info.message) - info.len_tag - info.len_nonce
+    message = Message._make(
+        struct.unpack(f"<{info.len_tag}s{info.len_nonce}s{encrypted_data_len}")
+    )
+
+    cipher = AES.new(key, AES.MODE_EAX, nonce=message.nonce)
+
+    plaintext = cipher.decrypt(message.encrypted_data)
+
+    try:
+        cipher.verify(message.tag)
+    except ValueError:
+        raise DataCorruptionError("The encrypted data was modified.")
 
     return plaintext

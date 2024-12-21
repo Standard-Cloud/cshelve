@@ -46,6 +46,14 @@ class EncryptionKeyNotDefinedError(RuntimeError):
     pass
 
 
+class DataCorruptionError(RuntimeError):
+    """
+    Raised when a data is not accessible due to a corruption.
+    """
+
+    pass
+
+
 class KeyNotFoundError(KeyError):
     """
     Raised when a resource is not found.
