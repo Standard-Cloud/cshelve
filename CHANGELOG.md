@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.9.0] - 2024-
+## [0.9.0] - 2024-12-22
 ### Added
 - Allow data encryption
 
