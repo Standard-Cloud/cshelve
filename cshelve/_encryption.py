@@ -26,11 +26,12 @@ ENVIRONMENT_KEY = "environment_key"
 # Normally the 'tag' uses 16 bytes and the 'nonce' 12 bytes.
 # But, for security and future-proofing, we keep their lengths in this dedicated data structure.
 # We also keep the algorithm as an unsigned char.
-MessageInformation = namedtuple(
-    "MessageInformation", ["algorithm", "len_tag", "len_nonce", "message"]
+EncryptedMessageInformation = namedtuple(
+    "EncryptedMessageInformation",
+    ["algorithm", "len_tag", "len_nonce", "encrypted_message"],
 )
 # Holds the encrypted message.
-Message = namedtuple("Message", ["tag", "nonce", "encrypted_data"])
+EncryptedMessage = namedtuple("EncryptedMessage", ["tag", "nonce", "encrypted_data"])
 
 
 def configure(
@@ -55,8 +56,8 @@ def configure(
         "aes256": (_aes256, 1),
     }
 
-    if algorithm := supported_algorithms.get(algorithm):
-        fct, algo_signature = algorithm
+    if algorithm in supported_algorithms:
+        fct, algo_signature = supported_algorithms[algorithm]
         logger.debug(f"Configuring encryption algorithm: {algorithm}")
         crypt_fct, decrypt_fct = fct(algo_signature, config, key)
         data_processing.add_pre_processing(crypt_fct)
@@ -73,7 +74,7 @@ def _get_key(logger, config) -> bytes:
         if key := os.environ.get(env_key):
             return key.encode()
         logger.error(
-            f"Encryption key is configured to use the environment variable but the environment variable '{ENVIRONMENT_KEY}' does not exist."
+            f"Encryption key is configured to use the environment variable but the environment variable '{env_key}' does not exist."
         )
         raise MissingEncryptionKeyError(
             f"Environment variable '{ENVIRONMENT_KEY}' not found."
@@ -105,47 +106,75 @@ def _crypt(signature, AES, key: bytes, data: bytes) -> bytes:
     cipher = AES.new(key, AES.MODE_EAX)
     encrypted_data, tag = cipher.encrypt_and_digest(data)
 
-    message = Message(tag=tag, nonce=cipher.nonce, encrypted_data=encrypted_data)
+    encrypted_message = EncryptedMessage(
+        tag=tag, nonce=cipher.nonce, encrypted_data=encrypted_data
+    )
 
-    info = MessageInformation(
+    encrypted_message_information = EncryptedMessageInformation(
         algorithm=signature,
         len_tag=len(tag),
         len_nonce=len(cipher.nonce),
-        message=message.tag + message.nonce + message.encrypted_data,
+        encrypted_message=encrypted_message.tag
+        + encrypted_message.nonce
+        + encrypted_message.encrypted_data,
     )
 
     return struct.pack(
-        f"<bbb{len(info.message)}s",
-        info.algorithm,
-        info.len_tag,
-        info.len_nonce,
-        info.message,
+        f"<bbb{len(encrypted_message_information.encrypted_message)}s",
+        encrypted_message_information.algorithm,
+        encrypted_message_information.len_tag,
+        encrypted_message_information.len_nonce,
+        encrypted_message_information.encrypted_message,
     )
 
 
 def _decrypt(signature, AES, key: bytes, data: bytes) -> bytes:
-    message_len = len(data) - 3  # 3 bytes (b)
-    info = MessageInformation._make(struct.unpack(f"<bbb{message_len}s", data))
+    message_information = _extract_encrypted_message_information(signature, data)
+    message = _extract_encrypted_message(message_information)
+    return _decrypt_data(AES, key, message)
 
-    if info.algorithm != signature:
-        raise EncryptedDataCorruptionError(
-            "Algorithm used for the encryption is not AES256."
+
+def _extract_encrypted_message_information(
+    signature, data: bytes
+) -> EncryptedMessageInformation:
+    message_len = len(data) - 3  # 3 bytes for the MessageInformation structure (b)
+
+    if message_len > 1:
+        info = EncryptedMessageInformation._make(
+            struct.unpack(f"<bbb{message_len}s", data)
         )
 
-    encrypted_data_len = len(info.message) - info.len_tag - info.len_nonce
-    message = Message._make(
-        struct.unpack(
-            f"<{info.len_tag}s{info.len_nonce}s{encrypted_data_len}s", info.message
-        )
-    )
+        if info.algorithm != signature:
+            raise EncryptedDataCorruptionError(
+                "Algorithm used for the encryption is not the expected one."
+            )
 
+        return info
+
+    raise EncryptedDataCorruptionError("The encrypted data is corrupted.")
+
+
+def _extract_encrypted_message(info: EncryptedMessageInformation) -> EncryptedMessage:
+    encrypted_data_len = len(info.encrypted_message) - info.len_tag - info.len_nonce
+
+    if encrypted_data_len > 1:
+        encrypted_message = EncryptedMessage._make(
+            struct.unpack(
+                f"<{info.len_tag}s{info.len_nonce}s{encrypted_data_len}s",
+                info.encrypted_message,
+            )
+        )
+        return encrypted_message
+
+    raise EncryptedDataCorruptionError("The encrypted data is corrupted.")
+
+
+def _decrypt_data(AES, key: bytes, message: EncryptedMessage) -> bytes:
     cipher = AES.new(key, AES.MODE_EAX, nonce=message.nonce)
-
     plaintext = cipher.decrypt(message.encrypted_data)
 
     try:
         cipher.verify(message.tag)
+        return plaintext
     except ValueError:
-        raise EncryptedDataCorruptionError("The encrypted data was modified.")
-
-    return plaintext
+        raise EncryptedDataCorruptionError("The encrypted data is corrupted.")
