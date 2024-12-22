@@ -124,15 +124,17 @@ def _crypt(signature, AES, key: bytes, data: bytes) -> bytes:
 
 
 def _decrypt(signature, AES, key: bytes, data: bytes) -> bytes:
-    message_len = len(bytes) - 8 * 3  # 3 bytes (b)
-    info = MessageInformation._make(struct.unpack(f"<bbb{message_len}s"))
+    message_len = len(data) - 3  # 3 bytes (b)
+    info = MessageInformation._make(struct.unpack(f"<bbb{message_len}s", data))
 
     if info.algorithm != signature:
         raise DataCorruptionError("Algorithm used for the encryption is not AES256.")
 
     encrypted_data_len = len(info.message) - info.len_tag - info.len_nonce
     message = Message._make(
-        struct.unpack(f"<{info.len_tag}s{info.len_nonce}s{encrypted_data_len}")
+        struct.unpack(
+            f"<{info.len_tag}s{info.len_nonce}s{encrypted_data_len}s", info.message
+        )
     )
 
     cipher = AES.new(key, AES.MODE_EAX, nonce=message.nonce)
