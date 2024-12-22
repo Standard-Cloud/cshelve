@@ -19,6 +19,7 @@ Table of contents
 
    azure-blob
    compression
+   encryption
    in-memory
    introduction
    logging

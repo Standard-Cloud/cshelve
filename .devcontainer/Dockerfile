@@ -12,7 +12,7 @@ RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 USER vscode
 
 # Copy the project files then build the virtual environment
-COPY --chown=vscode:vscode pyproject.toml uv.lock /build/package
+COPY --chown=vscode:vscode . /build/package
 RUN cd /build/package && uv venv --python 3.9 && uv sync --dev
 
 # Copy the project files to the workspace

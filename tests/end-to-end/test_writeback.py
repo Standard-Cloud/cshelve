@@ -11,6 +11,8 @@ from helpers import unique_key
 CONFIG_FILES = [
     "tests/configurations/azure-blob/standard.ini",
     "tests/configurations/in-memory/persisted.ini",
+    "tests/configurations/azure-blob/encryption.ini",
+    "tests/configurations/in-memory/encryption.ini",
 ]
 
 

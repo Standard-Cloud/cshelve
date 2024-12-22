@@ -30,6 +30,22 @@ class UnknownEncryptionAlgorithmError(RuntimeError):
     pass
 
 
+class MissingEncryptionKeyError(RuntimeError):
+    """
+    Raised when there is no encryption key provided.
+    """
+
+    pass
+
+
+class EncryptedDataCorruptionError(RuntimeError):
+    """
+    Raised when a data is not accessible due to a corruption.
+    """
+
+    pass
+
+
 class KeyNotFoundError(KeyError):
     """
     Raised when a resource is not found.

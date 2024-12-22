@@ -1,4 +1,3 @@
-import logging
 from unittest.mock import patch, Mock
 import pytest
 from azure.storage.blob import BlobType

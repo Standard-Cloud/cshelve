@@ -15,6 +15,8 @@ CONFIG_FILES = [
     "tests/configurations/in-memory/persisted.ini",
     "tests/configurations/azure-blob/compression.ini",
     "tests/configurations/in-memory/compression.ini",
+    "tests/configurations/azure-blob/encryption.ini",
+    "tests/configurations/in-memory/encryption.ini",
 ]
 
 CONFIG_FILES_ITER = [
