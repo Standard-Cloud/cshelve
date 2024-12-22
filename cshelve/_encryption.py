@@ -18,18 +18,18 @@ from .exceptions import (
 
 # Key that can be defined in the INI file.
 ALGORITHMS_NAME_KEY = "algorithm"
-## User can provide the key via the ini file or env variable.
+# User can provide the key via the INI file or environment variable.
 KEY_KEY = "key"
 ENVIRONMENT_KEY = "environment_key"
 
 
-# Normally the 'tag' is using 16 bytes and the 'nonce' 12 bytes.
-# But, by security and for the futur, we keep their length in a this dedicated data structure.
-# With also keep the algorithm as a unsigned char.
+# Normally the 'tag' uses 16 bytes and the 'nonce' 12 bytes.
+# But, for security and future-proofing, we keep their lengths in this dedicated data structure.
+# We also keep the algorithm as an unsigned char.
 MessageInformation = namedtuple(
     "MessageInformation", ["algorithm", "len_tag", "len_nonce", "message"]
 )
-# Hold the encrypted message.
+# Holds the encrypted message.
 Message = namedtuple("Message", ["tag", "nonce", "encrypted_data"])
 
 
@@ -73,7 +73,7 @@ def _get_key(logger, config) -> bytes:
         if key := os.environ.get(env_key):
             return key.encode()
         logger.error(
-            f"Encryption key is configured to use use environment variable but environment variable '{ENVIRONMENT_KEY}' doesn't not exists."
+            f"Encryption key is configured to use the environment variable but the environment variable '{ENVIRONMENT_KEY}' does not exist."
         )
         raise NoEncryptionKeyError(
             f"Environment variable '{ENVIRONMENT_KEY}' not found."
@@ -85,8 +85,8 @@ def _get_key(logger, config) -> bytes:
         )
         return key.encode()
 
-    logger.error("Encryption is specified without key.")
-    raise NoEncryptionKeyError("Encryption is specified without key.")
+    logger.error("Encryption is specified without a key.")
+    raise NoEncryptionKeyError("Encryption is specified without a key.")
 
 
 def _aes256(signature, config: Dict[str, str], key: bytes):
