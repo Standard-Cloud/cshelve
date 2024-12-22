@@ -1,11 +1,11 @@
 """
 Test the encryption module.
 """
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 
-from cshelve import UnknownEncryptionAlgorithmError
+from cshelve import UnknownEncryptionAlgorithmError, NoEncryptionKeyError
 from cshelve._encryption import configure
 from cshelve._data_processing import DataProcessing
 
@@ -33,14 +33,12 @@ def test_default_aes256_config(data_processing):
     Ensure AES256 is configured when defined.
     """
     logger = Mock()
-    config = {"algorithm": "aes256"}
+    config = {"algorithm": "aes256", "key": "Sixteen byte key"}
 
     configure(logger, data_processing, config)
 
     assert len(data_processing.post_processing) == 1
     assert len(data_processing.pre_processing) == 1
-    assert data_processing.pre_processing[0].func == None
-    assert data_processing.post_processing[0].func == None
 
     first_pre_processing_applied = id(data_processing.pre_processing[0])
     first_post_processing_applied = id(data_processing.post_processing[0])
@@ -60,7 +58,41 @@ def test_unknowned_algorithm(data_processing):
     Ensure an exception is raised when an unknowed algorithm is provided.
     """
     logger = Mock()
-    config = {"algorithm": "unknow"}
+    config = {"algorithm": "unknow", "key": "Sixteen byte key"}
 
     with pytest.raises(UnknownEncryptionAlgorithmError):
+        configure(logger, data_processing, config)
+
+
+def test_no_key_provided(data_processing):
+    """
+    Ensure an exception is raised when no key is provided.
+    """
+    logger = Mock()
+    config = {"algorithm": "aes256"}
+
+    with pytest.raises(NoEncryptionKeyError):
+        configure(logger, data_processing, config)
+
+
+def test_key_as_env_variable(data_processing):
+    """
+    Retrieve the key from an environment variable.
+    """
+    logger = Mock()
+    key = "Sixteen byte key"
+    config = {"algorithm": "aes256", "environment_key": "KEY_IN_ENV"}
+
+    with patch.dict("os.environ", {"KEY_IN_ENV": key}):
+        configure(logger, data_processing, config)
+
+
+def test_key_not_in_env_var(data_processing):
+    """
+    Ensure an exception is raised when no key is provided in env var.
+    """
+    logger = Mock()
+    config = {"algorithm": "aes256", "environment_key": "KEY_IN_MISSING_ENV"}
+
+    with pytest.raises(NoEncryptionKeyError):
         configure(logger, data_processing, config)

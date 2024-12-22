@@ -38,14 +38,6 @@ class NoEncryptionKeyError(RuntimeError):
     pass
 
 
-class EncryptionKeyNotDefinedError(RuntimeError):
-    """
-    Raised when there is no encryption key defined as environment variable.
-    """
-
-    pass
-
-
 class DataCorruptionError(RuntimeError):
     """
     Raised when a data is not accessible due to a corruption.

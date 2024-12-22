@@ -25,6 +25,7 @@ def test_load_cloud_shelf_config():
     }
     logging_config = {"http": "true", "credentials": "false"}
     compression_config = {}
+    encryption_config = {}
 
     cloud_database = Mock()
     factory = Mock()
@@ -34,7 +35,7 @@ def test_load_cloud_shelf_config():
 
     factory.return_value = cloud_database
     loader.return_value = Config(
-        provider, default_config, logging_config, compression_config
+        provider, default_config, logging_config, compression_config, encryption_config
     )
     cloud_database.exists.return_value = False
 

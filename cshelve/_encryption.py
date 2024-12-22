@@ -12,7 +12,6 @@ from ._data_processing import DataProcessing
 from .exceptions import (
     UnknownEncryptionAlgorithmError,
     NoEncryptionKeyError,
-    EncryptionKeyNotDefinedError,
     DataCorruptionError,
 )
 
@@ -76,7 +75,7 @@ def _get_key(logger, config) -> bytes:
         logger.error(
             f"Encryption key is configured to use use environment variable but environment variable '{ENVIRONMENT_KEY}' doesn't not exists."
         )
-        raise EncryptionKeyNotDefinedError(
+        raise NoEncryptionKeyError(
             f"Environment variable '{ENVIRONMENT_KEY}' not found."
         )
 
@@ -116,7 +115,11 @@ def _crypt(signature, AES, key: bytes, data: bytes) -> bytes:
     )
 
     return struct.pack(
-        f"<bbb{len(info.message)}s", info.len_tag, info.len_nonce, info.message
+        f"<bbb{len(info.message)}s",
+        info.algorithm,
+        info.len_tag,
+        info.len_nonce,
+        info.message,
     )
 
 
