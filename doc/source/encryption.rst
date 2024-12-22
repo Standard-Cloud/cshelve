@@ -1,86 +1,95 @@
 Encryption Configuration
-========================
+=========================
 
-*cshelve* supports data encryption before sending data to the provider.
-This is particularly useful when user want to ensure the non modification of the data and reduce potential attacks via pickles.
+The `cshelve` module supports encrypting data before it is sent to the storage provider.
+This feature is particularly useful for ensuring data integrity and mitigating potential security risks associated with pickles.
 
-**Note:** Only the value (the pickle) is encrypted, not the key.
+.. note::
+   Only the values (pickled data) are encrypted, not the keys.
+
+.. caution::
+   Encryption is CPU-intensive and may impact performance.
 
 Installation
 ############
 
-The encryption functionality is not natively installed, to install it, run:
+Encryption functionality is not included by default. To enable encryption, install the additional dependencies by running:
 
 .. code-block:: console
 
-    $ pip install cshelve[encryption]
-
+   $ pip install cshelve[encryption]
 
 Configuration File
 ##################
 
-The encryption settings are specified in an INI file.
-Below is an example configuration file named `config.ini`:
+Encryption settings are defined in an INI file. Below is an example configuration file named `config.ini`:
 
 .. code-block:: ini
 
-    [default]
-    provider        = in-memory
-    persist-key     = compression
-    exists          = true
+   [default]
+   provider        = in-memory
+   persist-key     = compression
+   exists          = true
 
-    [encryption]
-    algorithm   = aes256
-    # Development configuration putting the key in the config file.
-    key         = "my encryption key"
+   [encryption]
+   algorithm   = aes256
+   # Development configuration: encryption key stored directly in the file.
+   key         = Sixteen byte key
 
-In this example, the `algorithm` is set to `aes256`, and the `encryption key` is set to `my encryption key`.
+In this example, the encryption algorithm is set to `aes256`, and the encryption key is defined as `my encryption key`.
 
-For security purpose its better to not put the key in the config file and use environment variable to provide it.
-Here the same example using an environment variable named `ENCRYPTION_KEY`:
+Using Environment Variables for Keys
+####################################
+
+For improved security, it is recommended to avoid storing encryption keys directly in configuration files. Instead, use an environment variable to supply the key.
+Here's an updated example using an environment variable named `ENCRYPTION_KEY`:
 
 .. code-block:: ini
 
-    [default]
-    provider        = in-memory
-    persist-key     = compression
-    exists          = true
+   [default]
+   provider        = in-memory
+   persist-key     = compression
+   exists          = true
 
-    [encryption]
-    algorithm   = aes256
-    # Here the environment variable containing the encryption key is named ENCRYPTION_KEY.
-    environment_key = ENCRYPTION_KEY
-
+   [encryption]
+   algorithm   = aes256
+   # The encryption key is retrieved from the environment variable `ENCRYPTION_KEY`.
+   environment_key = ENCRYPTION_KEY
 
 Supported Algorithms
 #####################
 
-Currently, *cshelve* supports the following encryption algorithms:
+Currently, `cshelve` supports the following encryption algorithm:
 
-- `aes256`: A widely-used symetric encryption library.
+- **`aes256`**: A widely-used symmetric encryption standard.
 
 Using Encryption
 #################
 
-Once encryption is configured as previously in the `config.ini` file, it will automatically crypt data before storing it and decrypt data when retrieving it.
-The application code doesn't need to be updated:
+Once encryption is configured in the `config.ini` file, data will automatically be encrypted before storage and decrypted upon retrieval. No changes are required in the application code. For example:
 
 .. code-block:: python
 
-    import cshelve
+   import cshelve
 
-    with cshelve.open('config.ini') as db:
-        # The message will be encrypted but not the key 'data'.
-        db['data'] = 'This is some data that will be encrypt.'
+   # Writing encrypted data
+   with cshelve.open('config.ini') as db:
+       db['data'] = 'This is some data that will be encrypted.'
 
-    with cshelve.open('config.ini') as db:
-        data = db['data']
-        print(data)  # Output: This is some data that will be encrypt.
+   # Reading encrypted data
+   with cshelve.open('config.ini') as db:
+       data = db['data']
+       print(data)  # Output: This is some data that will be encrypted.
 
-In this example, the data is encrypt before being stored and decrypt when retrieved, thanks to the configuration.
+In this example, the data is transparently encrypted when stored and decrypted when retrieved, as specified in the configuration.
 
 Error Handling
 ##############
 
-If an unsupported compression algorithm is specified, *cshelve* will raise an `UnknownEncryptionAlgorithmError`.
-Ensure that the algorithm specified in the configuration file is supported.
+If an unsupported encryption algorithm is specified in the configuration file, cshelve will raise an `UnknownEncryptionAlgorithmError`. Additionally, the following errors may occur:
+
+- `NoEncryptionKeyError`: Raised when no encryption key is provided for encryption.
+
+- `DataCorruptionError`: Raised when the encrypted data is found to be corrupted during decryption.
+
+Ensure that the algorithm listed in the config.ini file matches one of the supported options and that the encryption key is correctly provided.
