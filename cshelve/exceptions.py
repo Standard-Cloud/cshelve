@@ -30,7 +30,7 @@ class UnknownEncryptionAlgorithmError(RuntimeError):
     pass
 
 
-class NoEncryptionKeyError(RuntimeError):
+class MissingEncryptionKeyError(RuntimeError):
     """
     Raised when there is no encryption key provided.
     """
@@ -38,7 +38,7 @@ class NoEncryptionKeyError(RuntimeError):
     pass
 
 
-class DataCorruptionError(RuntimeError):
+class EncryptedDataCorruptionError(RuntimeError):
     """
     Raised when a data is not accessible due to a corruption.
     """

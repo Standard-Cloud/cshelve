@@ -11,8 +11,8 @@ from typing import Dict
 from ._data_processing import DataProcessing
 from .exceptions import (
     UnknownEncryptionAlgorithmError,
-    NoEncryptionKeyError,
-    DataCorruptionError,
+    MissingEncryptionKeyError,
+    EncryptedDataCorruptionError,
 )
 
 
@@ -75,7 +75,7 @@ def _get_key(logger, config) -> bytes:
         logger.error(
             f"Encryption key is configured to use the environment variable but the environment variable '{ENVIRONMENT_KEY}' does not exist."
         )
-        raise NoEncryptionKeyError(
+        raise MissingEncryptionKeyError(
             f"Environment variable '{ENVIRONMENT_KEY}' not found."
         )
 
@@ -86,7 +86,7 @@ def _get_key(logger, config) -> bytes:
         return key.encode()
 
     logger.error("Encryption is specified without a key.")
-    raise NoEncryptionKeyError("Encryption is specified without a key.")
+    raise MissingEncryptionKeyError("Encryption is specified without a key.")
 
 
 def _aes256(signature, config: Dict[str, str], key: bytes):
@@ -128,7 +128,9 @@ def _decrypt(signature, AES, key: bytes, data: bytes) -> bytes:
     info = MessageInformation._make(struct.unpack(f"<bbb{message_len}s", data))
 
     if info.algorithm != signature:
-        raise DataCorruptionError("Algorithm used for the encryption is not AES256.")
+        raise EncryptedDataCorruptionError(
+            "Algorithm used for the encryption is not AES256."
+        )
 
     encrypted_data_len = len(info.message) - info.len_tag - info.len_nonce
     message = Message._make(
@@ -144,6 +146,6 @@ def _decrypt(signature, AES, key: bytes, data: bytes) -> bytes:
     try:
         cipher.verify(message.tag)
     except ValueError:
-        raise DataCorruptionError("The encrypted data was modified.")
+        raise EncryptedDataCorruptionError("The encrypted data was modified.")
 
     return plaintext

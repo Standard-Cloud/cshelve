@@ -88,8 +88,8 @@ Error Handling
 
 If an unsupported encryption algorithm is specified in the configuration file, cshelve will raise an `UnknownEncryptionAlgorithmError`. Additionally, the following errors may occur:
 
-- `NoEncryptionKeyError`: Raised when no encryption key is provided for encryption.
+- `MissingEncryptionKeyError`: Raised when no encryption key is provided for encryption.
 
-- `DataCorruptionError`: Raised when the encrypted data is found to be corrupted during decryption.
+- `EncryptedDataCorruptionError`: Raised when the encrypted data is found to be corrupted during decryption.
 
 Ensure that the algorithm listed in the config.ini file matches one of the supported options and that the encryption key is correctly provided.

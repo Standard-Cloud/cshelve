@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from cshelve import UnknownEncryptionAlgorithmError, NoEncryptionKeyError
+from cshelve import UnknownEncryptionAlgorithmError, MissingEncryptionKeyError
 from cshelve._encryption import configure
 from cshelve._data_processing import DataProcessing
 
@@ -71,7 +71,7 @@ def test_no_key_provided(data_processing):
     logger = Mock()
     config = {"algorithm": "aes256"}
 
-    with pytest.raises(NoEncryptionKeyError):
+    with pytest.raises(MissingEncryptionKeyError):
         configure(logger, data_processing, config)
 
 
@@ -94,5 +94,5 @@ def test_key_not_in_env_var(data_processing):
     logger = Mock()
     config = {"algorithm": "aes256", "environment_key": "KEY_IN_MISSING_ENV"}
 
-    with pytest.raises(NoEncryptionKeyError):
+    with pytest.raises(MissingEncryptionKeyError):
         configure(logger, data_processing, config)
