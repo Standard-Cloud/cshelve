@@ -21,26 +21,26 @@ def test_add_post_processing():
 
 def test_apply_pre_processing():
     dp = DataProcessing()
-    dp.add_pre_processing("add_1", lambda x: x + 1)
-    dp.add_pre_processing("mult_by_2", lambda x: x * 2)
+    dp.add_pre_processing(0b00000001, lambda x: x + 1)
+    dp.add_pre_processing(0b00000010, lambda x: x * 2)
     result = dp.apply_pre_processing(1)
     assert result == 4  # (1 + 1) * 2
 
 
 def test_apply_post_processing():
     dp = DataProcessing()
-    dp.add_post_processing("div_by_2", lambda x: x / 2)
-    dp.add_post_processing("minus_1", lambda x: x - 1)
+    dp.add_post_processing(0b00000001, lambda x: x / 2)
+    dp.add_post_processing(0b00000010, lambda x: x - 1)
     result = dp.apply_post_processing(4)
     assert result == 1  # (4 / 2) - 1
 
 
 def test_full_processing():
     dp = DataProcessing()
-    dp.add_pre_processing("add_1", lambda x: x + 1)
-    dp.add_pre_processing("mult_by_2", lambda x: x * 2)
-    dp.add_post_processing("div_by_2", lambda x: x / 2)
-    dp.add_post_processing("minus_1", lambda x: x - 1)
+    dp.add_pre_processing(0b00000001, lambda x: x + 1)
+    dp.add_pre_processing(0b00000010, lambda x: x * 2)
+    dp.add_post_processing(0b00000100, lambda x: x / 2)
+    dp.add_post_processing(0b00001000, lambda x: x - 1)
 
     data = 1
     pre_processed_data = dp.apply_pre_processing(data)
