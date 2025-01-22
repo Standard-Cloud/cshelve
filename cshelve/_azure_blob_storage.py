@@ -11,7 +11,6 @@ Operations such as iteration and length are performed using the container API.
 # - The Azure SDK for Python: `pip install cshelve[azure-blob]`
 # - If you want to use passwordless authentication, you also need to install the Azure CLI: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 """
-import logging
 import functools
 import io
 import os
