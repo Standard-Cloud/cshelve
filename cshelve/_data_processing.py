@@ -18,16 +18,14 @@ from typing import Callable, List
 
 _Process = namedtuple(
     "_Process",
-    ["name", "function"],
+    ["binary_signature", "function"],
 )
 
 
 # Algorithm signatures to applied to the data.
 # Used with a XOR to ensure that the data is processed correctly.
-SIGNATURES = {
-    'COMPRESSION': 0b00000001,
-    'ENCRYPTION':  0b00000010
-}
+SIGNATURES = {"COMPRESSION": 0b00000001, "ENCRYPTION": 0b00000010}
+
 
 class DataProcessing:
     """
@@ -48,21 +46,26 @@ class DataProcessing:
         self.pre_processing: List[_Process] = []
         self.post_processing: List[_Process] = []
 
-    def add_pre_processing(self, name: str, func: Callable[[bytes], bytes]) -> None:
+    def add_pre_processing(
+        self, binary_signature: bytes, func: Callable[[bytes], bytes]
+    ) -> None:
         """
         Adds a function to the pre-processing list.
 
         Examples:
         >>> dp = DataProcessing()
-        >>> dp.add_pre_processing('add_1', lambda x: x + 1)
+        >>> signature = 0b00000001 # Please use the SIGNATURES dict
+        >>> dp.add_pre_processing(signature, lambda x: x + 1)
         >>> len(dp.pre_processing)
         1
         """
         self.pre_processing.append(
-            _Process(name=name, function=func)
+            _Process(binary_signature=binary_signature, function=func)
         )
 
-    def add_post_processing(self, name: str, func: Callable[[bytes], bytes]) -> None:
+    def add_post_processing(
+        self, binary_signature: bytes, func: Callable[[bytes], bytes]
+    ) -> None:
         """
         Adds a function to the post-processing list.
 
@@ -71,12 +74,13 @@ class DataProcessing:
 
         Examples:
         >>> dp = DataProcessing()
-        >>> dp.add_post_processing('mult_by_2', lambda x: x * 2)
+        >>> signature = 0b00000001 # Please use the SIGNATURES dict
+        >>> dp.add_post_processing(signature, lambda x: x * 2)
         >>> len(dp.post_processing)
         1
         """
         self.post_processing.append(
-            _Process(name=name, function=func)
+            _Process(binary_signature=binary_signature, function=func)
         )
 
     def apply_pre_processing(self, data: bytes) -> bytes:
@@ -91,7 +95,9 @@ class DataProcessing:
 
         Examples:
         >>> dp = DataProcessing()
-        >>> dp.add_pre_processing('add_1', lambda x: x + 1)
+        >>> signature_add = 0b00000001 # Please use the SIGNATURES dict
+        >>> signature_mult = 0b00000010 # Please use the SIGNATURES dict
+        >>> dp.add_pre_processing(SIGNATURES["COMPRESSION"], lambda x: x + 1)
         >>> dp.add_pre_processing('mult_by_2', lambda x: x * 2)
         >>> dp.apply_pre_processing(1)
         4
@@ -112,8 +118,10 @@ class DataProcessing:
 
         Examples:
         >>> dp = DataProcessing()
-        >>> dp.add_post_processing('div_by_2', lambda x: x / 2)
-        >>> dp.add_post_processing('minus_1', lambda x: x - 1)
+        >>> signature_minus = 0b00000001 # Please use the SIGNATURES dict
+        >>> signature_div = 0b00000010 # Please use the SIGNATURES dict
+        >>> dp.add_post_processing(signature_div, lambda x: x / 2)
+        >>> dp.add_post_processing(signature_minus, lambda x: x - 1)
         >>> dp.apply_post_processing(4)
         1.0
         """
