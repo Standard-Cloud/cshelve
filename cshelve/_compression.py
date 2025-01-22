@@ -5,12 +5,13 @@ from functools import partial
 from logging import Logger
 from typing import Dict
 
-from ._data_processing import DataProcessing
+from ._data_processing import DataProcessing, SIGNATURES
 from .exceptions import UnknownCompressionAlgorithmError
 
 
 ALGORITHMS_NAME_KEY = "algorithm"
 COMPRESSION_LEVEL_KEY = "level"
+DATA_PROCESSING_NAME = SIGNATURES["COMPRESSION"]
 
 
 def configure(
@@ -36,8 +37,8 @@ def configure(
     if compression := supported_algorithms.get(algorithm):
         logger.debug(f"Configuring compression algorithm: {algorithm}")
         compression_fct, decompression_fct = compression(config)
-        data_processing.add_pre_processing(compression_fct)
-        data_processing.add_post_processing(decompression_fct)
+        data_processing.add_pre_processing(DATA_PROCESSING_NAME, compression_fct)
+        data_processing.add_post_processing(DATA_PROCESSING_NAME, decompression_fct)
         logger.debug(f"Compression algorithm {algorithm} configured.")
     else:
         raise UnknownCompressionAlgorithmError(

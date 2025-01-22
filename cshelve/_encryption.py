@@ -8,7 +8,7 @@ from functools import partial
 from logging import Logger
 from typing import Dict
 
-from ._data_processing import DataProcessing
+from ._data_processing import DataProcessing, SIGNATURES
 from .exceptions import (
     UnknownEncryptionAlgorithmError,
     MissingEncryptionKeyError,
@@ -21,6 +21,7 @@ ALGORITHMS_NAME_KEY = "algorithm"
 # User can provide the key via the INI file or environment variable.
 KEY_KEY = "key"
 ENVIRONMENT_KEY = "environment_key"
+DATA_PROCESSING_NAME = SIGNATURES["ENCRYPTION"]
 
 
 # Normally the 'tag' uses 16 bytes and the 'nonce' 12 bytes.
@@ -60,8 +61,8 @@ def configure(
         fct, algo_signature = supported_algorithms[algorithm]
         logger.debug(f"Configuring encryption algorithm: {algorithm}")
         crypt_fct, decrypt_fct = fct(algo_signature, config, key)
-        data_processing.add_pre_processing(crypt_fct)
-        data_processing.add_post_processing(decrypt_fct)
+        data_processing.add_pre_processing(DATA_PROCESSING_NAME, crypt_fct)
+        data_processing.add_post_processing(DATA_PROCESSING_NAME, decrypt_fct)
         logger.debug(f"Encryption algorithm {algorithm} configured.")
     else:
         raise UnknownEncryptionAlgorithmError(
