@@ -130,4 +130,4 @@ class DataProcessing:
         return data
 
     def pre_processing_signature(self):
-        return [p.name for p in self.pre_processing]
+        return [p.binary_signature for p in self.pre_processing]
