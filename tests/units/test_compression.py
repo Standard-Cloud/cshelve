@@ -72,7 +72,10 @@ def test_zlib_level(data_processing):
 
     configure(logger, data_processing, config)
 
-    assert data_processing.pre_processing[0].function.keywords["level"] == compression_level
+    assert (
+        data_processing.pre_processing[0].function.keywords["level"]
+        == compression_level
+    )
 
 
 def test_unknowned_algorithm(data_processing):
