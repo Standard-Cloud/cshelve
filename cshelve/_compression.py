@@ -37,8 +37,7 @@ def configure(
     if compression := supported_algorithms.get(algorithm):
         logger.debug(f"Configuring compression algorithm: {algorithm}")
         compression_fct, decompression_fct = compression(config)
-        data_processing.add_pre_processing(compression_fct, DATA_PROCESSING_NAME)
-        data_processing.add_post_processing(decompression_fct, DATA_PROCESSING_NAME)
+        data_processing.add(compression_fct, decompression_fct, DATA_PROCESSING_NAME)
         logger.debug(f"Compression algorithm {algorithm} configured.")
     else:
         raise UnknownCompressionAlgorithmError(

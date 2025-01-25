@@ -13,7 +13,7 @@ from cshelve._data_processing import DataProcessing
 
 @pytest.fixture
 def data_processing():
-    return DataProcessing()
+    return DataProcessing(Mock())
 
 
 def test_no_compression(data_processing):
@@ -59,7 +59,7 @@ def test_default_zlib_config(data_processing):
     assert len(data_processing.pre_processing) == 2
     # Ensure the order is respected.
     assert first_pre_processing_applied == id(data_processing.pre_processing[0])
-    assert first_post_processing_applied == id(data_processing.post_processing[0])
+    assert first_post_processing_applied == id(data_processing.post_processing[-1])
 
 
 def test_zlib_level(data_processing):

@@ -22,8 +22,9 @@ from .exceptions import (
     AuthTypeError,
     CanNotCreateDBError,
     ConfigurationError,
-    EncryptedDataCorruptionError,
+    DataProcessingSignatureError,
     DBDoesNotExistsError,
+    EncryptedDataCorruptionError,
     KeyNotFoundError,
     MissingEncryptionKeyError,
     ReadOnlyError,
@@ -38,8 +39,9 @@ __all__ = [
     "AuthTypeError",
     "CanNotCreateDBError",
     "ConfigurationError",
-    "EncryptedDataCorruptionError",
+    "DataProcessingSignatureError",
     "DBDoesNotExistsError",
+    "EncryptedDataCorruptionError",
     "KeyNotFoundError",
     "MissingEncryptionKeyError",
     "open",
@@ -79,7 +81,7 @@ class CloudShelf(shelve.Shelf):
         provider_interface.set_provider_params(provider_params)
 
         # Data processing object used to apply pre and post processing to the data.
-        data_processing = DataProcessing()
+        data_processing = DataProcessing(logger)
         _configure_compression(logger, data_processing, config.compression)
         _configure_encryption(logger, data_processing, config.encryption)
 

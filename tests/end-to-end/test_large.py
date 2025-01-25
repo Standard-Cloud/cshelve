@@ -16,6 +16,8 @@ CONFIG_FILES = [
     "tests/configurations/in-memory/encryption.ini",
     "tests/configurations/in-memory/compression.ini",
     "tests/configurations/azure-blob/compression.ini",
+    "tests/configurations/in-memory/encryption-and-compression.ini",
+    "tests/configurations/azure-blob/encryption-and-compression.ini",
 ]
 
 

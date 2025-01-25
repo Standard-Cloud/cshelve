@@ -61,8 +61,7 @@ def configure(
         fct, algo_signature = supported_algorithms[algorithm]
         logger.debug(f"Configuring encryption algorithm: {algorithm}")
         crypt_fct, decrypt_fct = fct(algo_signature, config, key)
-        data_processing.add_pre_processing(crypt_fct, DATA_PROCESSING_NAME)
-        data_processing.add_post_processing(decrypt_fct, DATA_PROCESSING_NAME)
+        data_processing.add(crypt_fct, decrypt_fct, DATA_PROCESSING_NAME)
         logger.debug(f"Encryption algorithm {algorithm} configured.")
     else:
         raise UnknownEncryptionAlgorithmError(
