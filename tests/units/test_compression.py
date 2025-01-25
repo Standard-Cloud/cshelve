@@ -41,13 +41,13 @@ def test_default_zlib_config(data_processing):
 
     assert len(data_processing.post_processing) == 1
     assert len(data_processing.pre_processing) == 1
-    assert data_processing.pre_processing[0].function.func == zlib.compress
-    assert data_processing.post_processing[0].function.func == zlib.decompress
+    assert data_processing.pre_processing[0].func == zlib.compress
+    assert data_processing.post_processing[0].func == zlib.decompress
     assert (
-        data_processing.pre_processing[0].function.keywords["level"]
+        data_processing.pre_processing[0].keywords["level"]
         == zlib.Z_DEFAULT_COMPRESSION
     )
-    assert data_processing.post_processing[0].function.keywords == {}
+    assert data_processing.post_processing[0].keywords == {}
 
     first_pre_processing_applied = id(data_processing.pre_processing[0])
     first_post_processing_applied = id(data_processing.post_processing[0])
@@ -72,10 +72,7 @@ def test_zlib_level(data_processing):
 
     configure(logger, data_processing, config)
 
-    assert (
-        data_processing.pre_processing[0].function.keywords["level"]
-        == compression_level
-    )
+    assert data_processing.pre_processing[0].keywords["level"] == compression_level
 
 
 def test_unknowned_algorithm(data_processing):

@@ -48,7 +48,8 @@ class DataProcessing:
         The signature is used to generate the signature of the data. If the processing functions don't interact with the data, it should be set to None.
         """
         self.pre_processing.append(pre_processing)
-        self.post_processing.insert(post_processing)
+        # Add to the beginning of the list to ensure the order is correct.
+        self.post_processing.insert(0, post_processing)
         self.post_processing_signature = signature + self.post_processing_signature
 
     def apply_pre_processing(self, data: bytes) -> bytes:
@@ -56,7 +57,7 @@ class DataProcessing:
         Applies all pre-processing functions to the data.
         """
         for fct in self.pre_processing:
-            data = fct.function(data)
+            data = fct(data)
 
         len_data_proc_signature = len(self.post_processing_signature)
         len_data = len(data)
@@ -99,5 +100,5 @@ class DataProcessing:
 
         data = data_processing.data
         for fct in self.post_processing:
-            data = fct.function(data)
+            data = fct(data)
         return data
