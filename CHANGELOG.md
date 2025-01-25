@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.0] - 2024-
+### Breaking change
+- Add metadata to object to improve compatibility between versions.
+
 ## [0.9.0] - 2024-12-22
 ### Added
 - Allow data encryption
