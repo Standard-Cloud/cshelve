@@ -1,7 +1,6 @@
 """
 Ensure the library can handle large data.
 """
-import os
 import pytest
 import numpy as np
 import pandas as pd
@@ -15,6 +14,8 @@ CONFIG_FILES = [
     "tests/configurations/in-memory/persisted.ini",
     "tests/configurations/azure-blob/encryption.ini",
     "tests/configurations/in-memory/encryption.ini",
+    "tests/configurations/in-memory/compression.ini",
+    "tests/configurations/azure-blob/compression.ini",
 ]
 
 
