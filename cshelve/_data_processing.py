@@ -14,7 +14,6 @@ from typing import Callable, List
 from .exceptions import DataProcessingSignatureError
 
 
-_Process = namedtuple("Process", ["signature", "function"])
 _DataProcessing = namedtuple("DataProcessing", ["post_processes", "data"])
 _DataProcessingMetadata = namedtuple(
     "DataProcessingMetadata", ["len_post_processes", "len_data", "data_processing"]
@@ -34,8 +33,8 @@ class DataProcessing:
         Initializes the DataProcessing class.
         """
         self.logger = logger
-        self.pre_processing: List[_Process] = []
-        self.post_processing: List[_Process] = []
+        self.pre_processing: List[Callable[[bytes], bytes]] = []
+        self.post_processing: List[Callable[[bytes], bytes]] = []
         self.post_processing_signature = b""
 
     def add(
@@ -48,20 +47,16 @@ class DataProcessing:
         Adds functions for processing.
         The signature is used to generate the signature of the data. If the processing functions don't interact with the data, it should be set to None.
         """
-        self.pre_processing.append(
-            _Process(signature=signature, function=pre_processing)
-        )
-        self.post_processing.insert(
-            0, _Process(signature=signature, function=post_processing)
-        )
+        self.pre_processing.append(pre_processing)
+        self.post_processing.insert(post_processing)
         self.post_processing_signature = signature + self.post_processing_signature
 
     def apply_pre_processing(self, data: bytes) -> bytes:
         """
         Applies all pre-processing functions to the data.
         """
-        for p in self.pre_processing:
-            data = p.function(data)
+        for fct in self.pre_processing:
+            data = fct.function(data)
 
         len_data_proc_signature = len(self.post_processing_signature)
         len_data = len(data)
@@ -103,6 +98,6 @@ class DataProcessing:
             raise DataProcessingSignatureError("Wrong data processing signature.")
 
         data = data_processing.data
-        for p in self.post_processing:
-            data = p.function(data)
+        for fct in self.post_processing:
+            data = fct.function(data)
         return data
