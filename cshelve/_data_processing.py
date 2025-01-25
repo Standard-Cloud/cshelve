@@ -14,9 +14,9 @@ from typing import Callable, List
 from .exceptions import DataProcessingSignatureError
 
 
-_DataProcessing = namedtuple("DataProcessing", ["post_processes", "data"])
+_DataProcessing = namedtuple("DataProcessing", ["signature", "data"])
 _DataProcessingMetadata = namedtuple(
-    "DataProcessingMetadata", ["len_post_processes", "len_data", "data_processing"]
+    "DataProcessingMetadata", ["len_signature", "len_data", "data_processing"]
 )
 
 # Algorithm signatures to applied to the data.
@@ -35,7 +35,9 @@ class DataProcessing:
         self.logger = logger
         self.pre_processing: List[Callable[[bytes], bytes]] = []
         self.post_processing: List[Callable[[bytes], bytes]] = []
-        self.post_processing_signature = b""
+        # The signature of the data processing.
+        # It is used to ensure the data processing is applied in the correct order.
+        self.signature = b""
 
     def add(
         self,
@@ -50,7 +52,8 @@ class DataProcessing:
         self.pre_processing.append(pre_processing)
         # Add to the beginning of the list to ensure the order is correct.
         self.post_processing.insert(0, post_processing)
-        self.post_processing_signature = signature + self.post_processing_signature
+        # Add the signature to the beginning of the list to ensure the order is correct.
+        self.signature = signature + self.signature
 
     def apply_pre_processing(self, data: bytes) -> bytes:
         """
@@ -59,12 +62,12 @@ class DataProcessing:
         for fct in self.pre_processing:
             data = fct(data)
 
-        len_data_proc_signature = len(self.post_processing_signature)
+        len_data_proc_signature = len(self.signature)
         len_data = len(data)
 
         data_processing = struct.pack(
             f"<{len_data_proc_signature}s{len_data}s",
-            self.post_processing_signature,
+            self.signature,
             data,
         )
         # We are using unsigned long long due to the potential size of the data.
@@ -85,16 +88,16 @@ class DataProcessing:
         )
         data_processing = _DataProcessing._make(
             struct.unpack(
-                f"<{metadata.len_post_processes}s{metadata.len_data}s",
+                f"<{metadata.len_signature}s{metadata.len_data}s",
                 metadata.data_processing,
             )
         )
 
-        if data_processing.post_processes != self.post_processing_signature:
+        if data_processing.signature != self.signature:
             self.logger.error(
                 "Data processing signature: %s, expected: %s",
-                data_processing.post_processes,
-                self.post_processing_signature,
+                data_processing.signature,
+                self.signature,
             )
             raise DataProcessingSignatureError("Wrong data processing signature.")
 
