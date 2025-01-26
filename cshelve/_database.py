@@ -3,9 +3,11 @@ MutableMapping interface for the database.
 
 The term _Database is used to follow the naming convention of the Python Shelve module, even though it is not mandatory.
 """
+from collections import namedtuple
 from logging import Logger
 from collections.abc import MutableMapping
 from concurrent.futures import ThreadPoolExecutor
+import struct
 
 from ._data_processing import DataProcessing
 from .provider_interface import ProviderInterface
@@ -14,10 +16,17 @@ from .exceptions import (
     CanNotCreateDBError,
     DBDoesNotExistsError,
     DBDoesNotExistsError,
+    VersionMismatch,
 )
 
 
 __all__ = ["_Database"]
+
+
+# Version of the record structure.
+# This version must evolve if the record structure changes to ensure backward compatibility and allow migration scripts.
+VERSION = 0
+_Record = namedtuple("Record", ["version", "data"])
 
 
 class _Database(MutableMapping):
@@ -43,15 +52,20 @@ class _Database(MutableMapping):
         Retrieve the value associated with the key from the database.
         """
         value = self.db.get(key)
-        return self.data_processing.apply_post_processing(value)
+        record = _Record._make(struct.unpack(f"<B{len(value) - 1}s", value))
+        if record.version != VERSION:
+            self.logger.critical(f"Version mismatch: {record.version} != {VERSION}")
+            raise VersionMismatch("Version mismatch.")
+        return self.data_processing.apply_post_processing(record.data)
 
     @can_write
     def __setitem__(self, key: bytes, value: bytes) -> None:
         """
         Set the value associated with the key in the database.
         """
-        value = self.data_processing.apply_pre_processing(value)
-        self.db.set(key, value)
+        value_processed = self.data_processing.apply_pre_processing(value)
+        record = struct.pack(f"<B{len(value_processed)}s", VERSION, value_processed)
+        self.db.set(key, record)
 
     @can_write
     def __delitem__(self, key: bytes) -> None:

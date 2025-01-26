@@ -116,7 +116,7 @@ def _crypt(signature, AES, key: bytes, data: bytes) -> bytes:
     )
 
     return struct.pack(
-        f"<bbb{len(md.ciphered_message)}s",
+        f"<BBB{len(md.ciphered_message)}s",
         md.algorithm,
         md.len_tag,
         md.len_nonce,
@@ -134,7 +134,7 @@ def _extract_message_details(signature, data: bytes) -> MessageDetails:
     message_len = len(data) - 3  # 3 bytes for the MessageInformation structure (b)
 
     if message_len > 1:
-        md = MessageDetails._make(struct.unpack(f"<bbb{message_len}s", data))
+        md = MessageDetails._make(struct.unpack(f"<BBB{message_len}s", data))
 
         if md.algorithm != signature:
             raise EncryptedDataCorruptionError(

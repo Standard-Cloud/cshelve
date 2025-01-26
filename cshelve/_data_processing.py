@@ -72,7 +72,7 @@ class DataProcessing:
         )
         # We are using unsigned long long due to the potential size of the data.
         metadata = struct.pack(
-            f"<QQ{len_data_proc_signature + len_data}s",
+            f"<BQ{len_data_proc_signature + len_data}s",
             len_data_proc_signature,
             len_data,
             data_processing,
@@ -84,7 +84,7 @@ class DataProcessing:
         Applies all post-processing functions to the data.
         """
         metadata = _DataProcessingMetadata._make(
-            struct.unpack(f"<QQ{len(data) - 2 * 8}s", data)
+            struct.unpack(f"<BQ{len(data) - 1 - 8}s", data)
         )
         data_processing = _DataProcessing._make(
             struct.unpack(

@@ -196,16 +196,20 @@ def test_read_only():
     """
     logger = Mock()
     data_processing = DataProcessing(logger)
-    flag = "r"
+    flag_r, flag_w = "r", "w"
     key, value = b"key", b"value"
     new_key, new_value = b"key-new", b"value-new"
 
     provider_db = InMemory(logger)
-    provider_db.configure_default({"exists": "True"})
+    provider_db.configure_default({"exists": "True", "persist-key": "test_read_only"})
 
-    provider_db.set(key, data_processing.apply_pre_processing(value))
+    # Write data to the provider.
+    db = _Database(logger, provider_db, flag_w, data_processing)
+    db._init()
+    db[key] = value
 
-    db = _Database(logger, provider_db, flag, data_processing)
+    # Read data from the provider.
+    db = _Database(logger, provider_db, flag_r, data_processing)
     db._init()
 
     with pytest.raises(ReadOnlyError) as _:

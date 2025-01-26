@@ -31,6 +31,7 @@ def test_encryption():
     """
     Ensure the data is encrypted.
     """
+    wrapper_size = 17  # Database Record + Data Processing Metadata
     standard_configuration = "tests/configurations/in-memory/not-persisted.ini"
     encryption_configuration = "tests/configurations/in-memory/encryption.ini"
     key_pattern = unique_key + "test_encryption"
@@ -40,11 +41,13 @@ def test_encryption():
     with cshelve.open(standard_configuration) as db:
         db[key_pattern] = data
 
-        assert data == pickle.loads(db.dict.db.db[key_pattern.encode()][16:])
+        assert data == pickle.loads(db.dict.db.db[key_pattern.encode()][wrapper_size:])
 
     # Ensure the data is encrypted.
     with cshelve.open(encryption_configuration) as db:
         db[key_pattern] = data
 
         with pytest.raises(Exception):
-            assert data != pickle.loads(db.dict.db.db[key_pattern.encode()][16:])
+            assert data != pickle.loads(
+                db.dict.db.db[key_pattern.encode()][wrapper_size:]
+            )
