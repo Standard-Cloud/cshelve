@@ -47,7 +47,7 @@ class DataProcessing:
     ):
         """
         Adds functions for processing.
-        The signature is used to generate the signature of the data. If the processing functions don't interact with the data, it should be set to None.
+        The signature is used to generate the signature of the data.
         """
         self.pre_processing.append(pre_processing)
         # Add to the beginning of the list to ensure the order is correct.
