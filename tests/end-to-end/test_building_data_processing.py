@@ -31,7 +31,7 @@ def test_encryption():
     """
     Ensure the data is encrypted.
     """
-    wrapper_size = 17  # Database Record + Data Processing Metadata
+    wrapper_size = 10  # Database Record + Data Processing Metadata
     standard_configuration = "tests/configurations/in-memory/not-persisted.ini"
     encryption_configuration = "tests/configurations/in-memory/encryption.ini"
     key_pattern = unique_key + "test_encryption"

@@ -46,6 +46,7 @@ def test_large(config_file):
     assert new_df.equals(df)
 
 
+@pytest.mark.azure
 @pytest.mark.parametrize(
     "config_file",
     CONFIG_FILES,

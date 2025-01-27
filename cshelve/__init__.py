@@ -53,6 +53,11 @@ __all__ = [
 ]
 
 
+# CShelve uses the following pickle protocol instead of the default one used by shelve to support
+# very large objects and improve performance (https://docs.python.org/3/library/pickle.html#data-stream-format).
+DEFAULT_PICKLE_PROTOCOL = 5
+
+
 class CloudShelf(shelve.Shelf):
     """
     A cloud shelf is a shelf that is stored in the cloud. It is a subclass of `shelve.Shelf` and is used to store data in the cloud.
@@ -97,7 +102,7 @@ class CloudShelf(shelve.Shelf):
 def open(
     filename,
     flag="c",
-    protocol=None,
+    protocol=DEFAULT_PICKLE_PROTOCOL,
     writeback=False,
     config_loader=_config_loader,
     factory=_factory,
