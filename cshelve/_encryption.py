@@ -61,8 +61,7 @@ def configure(
         fct, algo_signature = supported_algorithms[algorithm]
         logger.debug(f"Configuring encryption algorithm: {algorithm}")
         crypt_fct, decrypt_fct = fct(algo_signature, config, key)
-        data_processing.add_pre_processing(DATA_PROCESSING_NAME, crypt_fct)
-        data_processing.add_post_processing(DATA_PROCESSING_NAME, decrypt_fct)
+        data_processing.add(crypt_fct, decrypt_fct, DATA_PROCESSING_NAME)
         logger.debug(f"Encryption algorithm {algorithm} configured.")
     else:
         raise UnknownEncryptionAlgorithmError(
@@ -117,7 +116,7 @@ def _crypt(signature, AES, key: bytes, data: bytes) -> bytes:
     )
 
     return struct.pack(
-        f"<bbb{len(md.ciphered_message)}s",
+        f"<BBB{len(md.ciphered_message)}s",
         md.algorithm,
         md.len_tag,
         md.len_nonce,
@@ -135,7 +134,7 @@ def _extract_message_details(signature, data: bytes) -> MessageDetails:
     message_len = len(data) - 3  # 3 bytes for the MessageInformation structure (b)
 
     if message_len > 1:
-        md = MessageDetails._make(struct.unpack(f"<bbb{message_len}s", data))
+        md = MessageDetails._make(struct.unpack(f"<BBB{message_len}s", data))
 
         if md.algorithm != signature:
             raise EncryptedDataCorruptionError(

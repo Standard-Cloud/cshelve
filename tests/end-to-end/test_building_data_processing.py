@@ -22,22 +22,32 @@ def test_compression():
     with cshelve.open(compressed_configuration) as db:
         db[key_pattern] = data
 
-        assert (
-            pickle.loads(zlib.decompress(db.dict.db.db[key_pattern.encode()])) == data
-        )
+        # Data must be compressed so it should be smaller than the original data (+ metadata).
+        assert len(db) < len(data)
+        assert data == db[key_pattern]
 
 
 def test_encryption():
     """
     Ensure the data is encrypted.
     """
+    wrapper_size = 10  # Database Record + Data Processing Metadata
+    standard_configuration = "tests/configurations/in-memory/not-persisted.ini"
     encryption_configuration = "tests/configurations/in-memory/encryption.ini"
     key_pattern = unique_key + "test_encryption"
     data = "this must be encrypted"
 
+    # Ensure the data is not encrypted.
+    with cshelve.open(standard_configuration) as db:
+        db[key_pattern] = data
+
+        assert data == pickle.loads(db.dict.db.db[key_pattern.encode()][wrapper_size:])
+
+    # Ensure the data is encrypted.
     with cshelve.open(encryption_configuration) as db:
         db[key_pattern] = data
 
         with pytest.raises(Exception):
-            # Can't unpickled an encrypted data.
-            pickle.loads(db.dict.db.db[key_pattern.encode()])
+            assert data != pickle.loads(
+                db.dict.db.db[key_pattern.encode()][wrapper_size:]
+            )

@@ -1,50 +1,84 @@
-from cshelve import DataProcessing
+import pickle
+from unittest.mock import Mock
+
+import pytest
+from cshelve import DataProcessing, DataProcessingSignatureError
 
 
-def test_add_pre_processing():
-    binary_signature = 0b00000001
-    dp = DataProcessing()
-    dp.add_pre_processing(binary_signature, lambda x: x + 1)
-    assert len(dp.pre_processing) == 1
-    assert dp.pre_processing[0].binary_signature == binary_signature
-    assert dp.pre_processing[0].function(1) == 2
+def add_one(x):
+    return pickle.dumps(pickle.loads(x) + 1)
 
 
-def test_add_post_processing():
-    binary_signature = 0b00000010
-    dp = DataProcessing()
-    dp.add_post_processing(binary_signature, lambda x: x * 2)
-    assert len(dp.post_processing) == 1
-    assert dp.post_processing[0].binary_signature == binary_signature
-    assert dp.post_processing[0].function(2) == 4
+def minus_one(x):
+    return pickle.dumps(pickle.loads(x) - 1)
 
 
-def test_apply_pre_processing():
-    dp = DataProcessing()
-    dp.add_pre_processing(0b00000001, lambda x: x + 1)
-    dp.add_pre_processing(0b00000010, lambda x: x * 2)
-    result = dp.apply_pre_processing(1)
-    assert result == 4  # (1 + 1) * 2
+def add_one_dict(x):
+    return pickle.dumps({k: v + 1 for k, v in pickle.loads(x).items()})
 
 
-def test_apply_post_processing():
-    dp = DataProcessing()
-    dp.add_post_processing(0b00000001, lambda x: x / 2)
-    dp.add_post_processing(0b00000010, lambda x: x - 1)
-    result = dp.apply_post_processing(4)
-    assert result == 1  # (4 / 2) - 1
+def minus_one_dict(x):
+    return pickle.dumps({k: v - 1 for k, v in pickle.loads(x).items()})
 
 
-def test_full_processing():
-    dp = DataProcessing()
-    dp.add_pre_processing(0b00000001, lambda x: x + 1)
-    dp.add_pre_processing(0b00000010, lambda x: x * 2)
-    dp.add_post_processing(0b00000100, lambda x: x / 2)
-    dp.add_post_processing(0b00001000, lambda x: x - 1)
+def test_processing():
+    """
+    Test the processing of data.
+    """
+    dp = DataProcessing(Mock())
+    dp.add(add_one, minus_one, b"a")
+    run_int_processing(dp)
 
-    data = 1
-    pre_processed_data = dp.apply_pre_processing(data)
-    final_data = dp.apply_post_processing(pre_processed_data)
+    dp = DataProcessing(Mock())
+    dp.add(add_one, minus_one, b"a")
+    dp.add(minus_one, add_one, b"b")
+    run_int_processing(dp)
 
-    assert pre_processed_data == 4  # (1 + 1) * 2
-    assert final_data == 1  # (4 / 2) - 1
+    dp = DataProcessing(Mock())
+    dp.add(add_one_dict, minus_one_dict, b"a")
+    run_dict_processing(dp)
+
+    dp = DataProcessing(Mock())
+    dp.add(add_one_dict, minus_one_dict, b"a")
+    dp.add(minus_one_dict, add_one_dict, b"b")
+    run_dict_processing(dp)
+
+
+def test_wrong_processing():
+    """
+    Test that the signature is checked before post processing.
+    """
+    dp = DataProcessing(Mock())
+    dp.add(add_one, minus_one, b"a")
+
+    data = pickle.dumps(1)
+
+    data_pre_processed = dp.apply_pre_processing(data)
+
+    dp.add(add_one, minus_one, b"a")
+    with pytest.raises(DataProcessingSignatureError):
+        dp.apply_post_processing(data_pre_processed)
+
+
+def run_int_processing(dp):
+    for i in (-100_000, -100, 1, 100, 100_000):
+        data = pickle.dumps(i)
+
+        data_pre_processed = dp.apply_pre_processing(data)
+        data_post_processed = dp.apply_post_processing(data_pre_processed)
+
+        assert i == pickle.loads(data_post_processed)
+
+
+def run_dict_processing(dp):
+    for i in (
+        {"a": 1, "b": 2},
+        {"a": 1, "b": 2, "c": 3},
+        {"a": 1, "b": 2, "c": 3, "d": 4},
+    ):
+        data = pickle.dumps(i)
+
+        data_pre_processed = dp.apply_pre_processing(data)
+        data_post_processed = dp.apply_post_processing(data_pre_processed)
+
+        assert i == pickle.loads(data_post_processed)

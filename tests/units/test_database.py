@@ -12,20 +12,10 @@ def database() -> _Database:
     flag = "c"
     logger = Mock()
     provider_db = InMemory(logger)
-    data_processing = DataProcessing()
+    data_processing = DataProcessing(Mock())
     db = _Database(logger, provider_db, flag, data_processing)
     db._init()
     return db
-
-
-def test_setitem(database):
-    """
-    Ensure that the __setitem__ method returns the value associated with the key from the database.
-    """
-    key, value = b"key", b"value"
-    database[key] = value
-
-    assert value == database.db.get(key)
 
 
 def test_getitem(database):
@@ -33,7 +23,7 @@ def test_getitem(database):
     Ensure that the __getitem__ method returns the value associated with the key from the database.
     """
     key, value = b"key", b"value"
-    database.db.set(key, value)
+    database[key] = value
 
     assert value == database[key]
 
@@ -104,7 +94,7 @@ def test_doesnt_create_database_if_exists():
 
     assert provider_db._created == False
 
-    db = _Database(logger, provider_db, flag, DataProcessing())
+    db = _Database(logger, provider_db, flag, DataProcessing(logger))
     db._init()
 
     assert provider_db._created == False
@@ -121,7 +111,7 @@ def test_create_database_if_not_exists():
     assert provider_db._created == False
     assert provider_db._exists == False
 
-    db = _Database(logger, provider_db, flag, DataProcessing())
+    db = _Database(logger, provider_db, flag, DataProcessing(logger))
     db._init()
 
     assert provider_db._created == True
@@ -140,7 +130,7 @@ def test_cant_create_database_if_not_exists_and_not_allowed():
         assert provider_db._created == False
         assert provider_db._exists == False
 
-        db = _Database(logger, provider_db, flag, DataProcessing())
+        db = _Database(logger, provider_db, flag, DataProcessing(logger))
 
         with pytest.raises(DBDoesNotExistsError) as _:
             db._init()
@@ -156,7 +146,7 @@ def test_error_database_creation():
 
     provider_db.exists.return_value = False
     provider_db.create.side_effect = Exception
-    db = _Database(logger, provider_db, flag, DataProcessing())
+    db = _Database(logger, provider_db, flag, DataProcessing(logger))
 
     with pytest.raises(CanNotCreateDBError) as _:
         db._init()
@@ -175,7 +165,7 @@ def test_database_clear_if_asked():
     provider_db.set("key2", "value2")
 
     assert provider_db.len() == 2
-    db = _Database(logger, provider_db, flag, DataProcessing())
+    db = _Database(logger, provider_db, flag, DataProcessing(logger))
     db._init()
     assert provider_db.len() == 0
 
@@ -195,7 +185,7 @@ def test_do_not_clear_database():
         provider_db.set("key2", "value2")
 
         assert provider_db.len() == 2
-        db = _Database(logger, provider_db, flag, DataProcessing())
+        db = _Database(logger, provider_db, flag, DataProcessing(logger))
         db._init()
         assert provider_db.len() == 2
 
@@ -205,16 +195,21 @@ def test_read_only():
     Ensure the database is not cleared if the flag doesn't allow it.
     """
     logger = Mock()
-    flag = "r"
+    data_processing = DataProcessing(logger)
+    flag_r, flag_w = "r", "w"
     key, value = b"key", b"value"
     new_key, new_value = b"key-new", b"value-new"
 
     provider_db = InMemory(logger)
-    provider_db.configure_default({"exists": "True"})
+    provider_db.configure_default({"exists": "True", "persist-key": "test_read_only"})
 
-    provider_db.set(key, value)
+    # Write data to the provider.
+    db = _Database(logger, provider_db, flag_w, data_processing)
+    db._init()
+    db[key] = value
 
-    db = _Database(logger, provider_db, flag, DataProcessing())
+    # Read data from the provider.
+    db = _Database(logger, provider_db, flag_r, data_processing)
     db._init()
 
     with pytest.raises(ReadOnlyError) as _:

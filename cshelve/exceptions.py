@@ -6,6 +6,22 @@ Consequently, we are creating custom exceptions to handle the errors.
 from typing import Type
 
 
+class VersionMismatch(RuntimeError):
+    """
+    Raised when the version of the record is not the expected one.
+    """
+
+    pass
+
+
+class DataProcessingSignatureError(RuntimeError):
+    """
+    Raised when the signature of the data processing is incorrect.
+    """
+
+    pass
+
+
 class UnknownProviderError(RuntimeError):
     """
     Raised when an unknown cloud provider is specified in the configuration.

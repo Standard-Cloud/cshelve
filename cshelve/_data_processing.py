@@ -2,29 +2,25 @@
 This module provides the DataProcessing class, which handles pre-processing and post-processing of data.
 
 Examples:
-    >>> dp = DataProcessing()
-    >>> dp.add_pre_processing('add_1', lambda x: x + b'1')
-    >>> dp.add_post_processing('add_2', lambda x: x + b'2')
-    >>> pre_processed = dp.apply_pre_processing(b'0')
-    >>> pre_processed
-    b'01'
-    >>> post_processed = dp.apply_post_processing(pre_processed)
-    >>> post_processed
-    b'012'
+    >>> dp = DataProcessing(logger=None)
+    >>> dp.add(lambda x: x + b'1', lambda x: x[:-1], 'a')
+    >>> dp.add(lambda x: x + b'2', lambda x: x[:-1], 'b')
+    >>> assert b'42' == dp.apply_post_processing(dp.apply_pre_processing(b'42'))
 """
 from collections import namedtuple
+import struct
 from typing import Callable, List
 
+from .exceptions import DataProcessingSignatureError
 
-_Process = namedtuple(
-    "_Process",
-    ["binary_signature", "function"],
+
+_DataProcessing = namedtuple("DataProcessing", ["signature", "data"])
+_DataProcessingMetadata = namedtuple(
+    "DataProcessingMetadata", ["len_signature", "len_data", "data_processing"]
 )
 
-
 # Algorithm signatures to applied to the data.
-# Used with a XOR to ensure that the data is processed correctly.
-SIGNATURES = {"COMPRESSION": 0b00000001, "ENCRYPTION": 0b00000010}
+SIGNATURES = {"COMPRESSION": b"c", "ENCRYPTION": b"e"}
 
 
 class DataProcessing:
@@ -32,102 +28,80 @@ class DataProcessing:
     A class to handle pre-processing and post-processing of data.
     """
 
-    def __init__(self):
+    def __init__(self, logger):
         """
         Initializes the DataProcessing class.
-
-        Examples:
-        >>> dp = DataProcessing()
-        >>> dp.pre_processing
-        []
-        >>> dp.post_processing
-        []
         """
-        self.pre_processing: List[_Process] = []
-        self.post_processing: List[_Process] = []
+        self.logger = logger
+        self.pre_processing: List[Callable[[bytes], bytes]] = []
+        self.post_processing: List[Callable[[bytes], bytes]] = []
+        # The signature of the data processing.
+        # It is used to ensure the data processing is applied in the correct order.
+        self.signature = b""
 
-    def add_pre_processing(
-        self, binary_signature: bytes, func: Callable[[bytes], bytes]
-    ) -> None:
+    def add(
+        self,
+        pre_processing: Callable[[bytes], bytes],
+        post_processing: Callable[[bytes], bytes],
+        signature: bytes,
+    ):
         """
-        Adds a function to the pre-processing list.
-
-        Examples:
-        >>> dp = DataProcessing()
-        >>> signature = 0b00000001 # Please use the SIGNATURES dict
-        >>> dp.add_pre_processing(signature, lambda x: x + 1)
-        >>> len(dp.pre_processing)
-        1
+        Adds functions for processing.
+        The signature is used to generate the signature of the data.
         """
-        self.pre_processing.append(
-            _Process(binary_signature=binary_signature, function=func)
-        )
-
-    def add_post_processing(
-        self, binary_signature: bytes, func: Callable[[bytes], bytes]
-    ) -> None:
-        """
-        Adds a function to the post-processing list.
-
-        Args:
-        func (function): A function to add to the post-processing list.
-
-        Examples:
-        >>> dp = DataProcessing()
-        >>> signature = 0b00000001 # Please use the SIGNATURES dict
-        >>> dp.add_post_processing(signature, lambda x: x * 2)
-        >>> len(dp.post_processing)
-        1
-        """
-        self.post_processing.append(
-            _Process(binary_signature=binary_signature, function=func)
-        )
+        self.pre_processing.append(pre_processing)
+        # Add to the beginning of the list to ensure the order is correct.
+        self.post_processing.insert(0, post_processing)
+        # Add the signature to the beginning of the list to ensure the order is correct.
+        self.signature = signature + self.signature
 
     def apply_pre_processing(self, data: bytes) -> bytes:
         """
         Applies all pre-processing functions to the data.
-
-        Args:
-        data: The data to process.
-
-        Returns:
-        The processed data.
-
-        Examples:
-        >>> dp = DataProcessing()
-        >>> signature_add = 0b00000001 # Please use the SIGNATURES dict
-        >>> signature_mult = 0b00000010 # Please use the SIGNATURES dict
-        >>> dp.add_pre_processing(SIGNATURES["COMPRESSION"], lambda x: x + 1)
-        >>> dp.add_pre_processing('mult_by_2', lambda x: x * 2)
-        >>> dp.apply_pre_processing(1)
-        4
         """
-        for p in self.pre_processing:
-            data = p.function(data)
-        return data
+        for fct in self.pre_processing:
+            data = fct(data)
+
+        len_data_proc_signature = len(self.signature)
+        len_data = len(data)
+
+        data_processing = struct.pack(
+            f"<{len_data_proc_signature}s{len_data}s",
+            self.signature,
+            data,
+        )
+        # We are using unsigned long long due to the potential size of the data.
+        metadata = struct.pack(
+            f"<BQ{len_data_proc_signature + len_data}s",
+            len_data_proc_signature,
+            len_data,
+            data_processing,
+        )
+        return metadata
 
     def apply_post_processing(self, data: bytes) -> bytes:
         """
         Applies all post-processing functions to the data.
-
-        Args:
-        data: The data to process.
-
-        Returns:
-        The processed data.
-
-        Examples:
-        >>> dp = DataProcessing()
-        >>> signature_minus = 0b00000001 # Please use the SIGNATURES dict
-        >>> signature_div = 0b00000010 # Please use the SIGNATURES dict
-        >>> dp.add_post_processing(signature_div, lambda x: x / 2)
-        >>> dp.add_post_processing(signature_minus, lambda x: x - 1)
-        >>> dp.apply_post_processing(4)
-        1.0
         """
-        for p in self.post_processing:
-            data = p.function(data)
-        return data
+        metadata = _DataProcessingMetadata._make(
+            struct.unpack(f"<BQ{len(data) - 1 - 8}s", data)
+        )
+        data_processing = _DataProcessing._make(
+            struct.unpack(
+                f"<{metadata.len_signature}s{metadata.len_data}s",
+                metadata.data_processing,
+            )
+        )
 
-    def pre_processing_signature(self):
-        return [p.binary_signature for p in self.pre_processing]
+        if data_processing.signature != self.signature:
+            self.logger.error(
+                "Data processing signature: %s, expected: %s",
+                data_processing.signature,
+                self.signature,
+            )
+            raise DataProcessingSignatureError("Wrong data processing signature.")
+
+        data = data_processing.data
+        for fct in self.post_processing:
+            data = fct(data)
+        return data

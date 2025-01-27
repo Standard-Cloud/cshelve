@@ -22,8 +22,9 @@ from .exceptions import (
     AuthTypeError,
     CanNotCreateDBError,
     ConfigurationError,
-    EncryptedDataCorruptionError,
+    DataProcessingSignatureError,
     DBDoesNotExistsError,
+    EncryptedDataCorruptionError,
     KeyNotFoundError,
     MissingEncryptionKeyError,
     ReadOnlyError,
@@ -38,8 +39,9 @@ __all__ = [
     "AuthTypeError",
     "CanNotCreateDBError",
     "ConfigurationError",
-    "EncryptedDataCorruptionError",
+    "DataProcessingSignatureError",
     "DBDoesNotExistsError",
+    "EncryptedDataCorruptionError",
     "KeyNotFoundError",
     "MissingEncryptionKeyError",
     "open",
@@ -49,6 +51,11 @@ __all__ = [
     "UnknownEncryptionAlgorithmError",
     "UnknownProviderError",
 ]
+
+
+# CShelve uses the following pickle protocol instead of the default one used by shelve to support
+# very large objects and improve performance (https://docs.python.org/3/library/pickle.html#data-stream-format).
+DEFAULT_PICKLE_PROTOCOL = 5
 
 
 class CloudShelf(shelve.Shelf):
@@ -79,7 +86,7 @@ class CloudShelf(shelve.Shelf):
         provider_interface.set_provider_params(provider_params)
 
         # Data processing object used to apply pre and post processing to the data.
-        data_processing = DataProcessing()
+        data_processing = DataProcessing(logger)
         _configure_compression(logger, data_processing, config.compression)
         _configure_encryption(logger, data_processing, config.encryption)
 
@@ -95,7 +102,7 @@ class CloudShelf(shelve.Shelf):
 def open(
     filename,
     flag="c",
-    protocol=None,
+    protocol=DEFAULT_PICKLE_PROTOCOL,
     writeback=False,
     config_loader=_config_loader,
     factory=_factory,
