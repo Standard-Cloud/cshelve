@@ -6,7 +6,8 @@
 Install `cshelve` via pip:
 
 ```bash
-pip install cshelve
+pip install cshelve # For testing purposes
+pip install cshelve[azure-blob]  # For Azure Blob Storage
 ```
 
 ## Usage
