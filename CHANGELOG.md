@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.10.0] - 2024-
+## [0.10.0] - 2024-01-30
 ### Breaking change
 - Add metadata to object to improve compatibility between versions.
 
