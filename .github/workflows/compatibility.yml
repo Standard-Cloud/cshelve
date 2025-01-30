@@ -72,7 +72,7 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Install package.
-      working-directory: performances
+      working-directory: compatibility
       run: |
         pip install cshelve[azure-blob] == ${{ matrix.cshelve-version }}
 
@@ -106,7 +106,7 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Install package.
-      working-directory: performances
+      working-directory: compatibility
       run: |
         pip install cshelve[azure-blob] == ${{ matrix.cshelve-version }}
 
@@ -145,14 +145,14 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: cshelve-${{ github.sha }}
-        path: performances/dist
+        path: compatibility/dist
 
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Install package.
-      working-directory: performances
+      working-directory: compatibility
       run: |
         pip install ./dist/${{ env.WHEEL }}[azure-blob]
 
