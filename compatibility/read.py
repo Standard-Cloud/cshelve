@@ -8,6 +8,6 @@ python_version = sys.argv[2]
 
 with cshelve.open("./azure-passwordless.ini") as db:
     assert (
-        db[f"compatibility-{version}"]
+        f"compatibility-{cshelve_version}-{python_version}"
         == f"my complex data from cshelve version {cshelve_version} and python {python_version}"
     )
