@@ -1,0 +1,162 @@
+# Compatbility workflow.
+#
+# Ensure the compatibility between cshelve version
+
+name: Compatibility
+
+on:
+  push:
+    # branches:
+    #   - main
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  WHEEL: cshelve-1.0.0-py3-none-any.whl
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.9"]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    environment: azure
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+
+    - name: Install the project
+      run: uv build
+
+    - name: Upload the package
+      uses: actions/upload-artifact@v4
+      with:
+        name: cshelve-${{ github.sha }}
+        path: dist/*.whl
+        retention-days: 10
+        if-no-files-found: error
+        overwrite: false
+
+  write:
+    strategy:
+      matrix:
+        # Examples do not run on Windows.
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        cshelve-version: ["0.9.0"]
+      max-parallel: 1
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    environment: azure
+
+    steps:
+    # An Azure storage account is used for reality.
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Install package.
+      working-directory: performances
+      run: |
+        pip install cshelve[azure-blob] == ${{ matrix.cshelve-version }}
+
+    - name: Write
+      working-directory: compatibility
+      run: |
+        python3 write.py ${{ matrix.cshelve-version }}
+
+  versions:
+    needs: write
+
+    strategy:
+      matrix:
+        # Examples do not run on Windows.
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        cshelve-version: ["0.9.0"]
+      max-parallel: 1
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    environment: azure
+
+    steps:
+    # An Azure storage account is used for reality.
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Install package.
+      working-directory: performances
+      run: |
+        pip install cshelve[azure-blob] == ${{ matrix.cshelve-version }}
+
+    - name: Read
+      working-directory: compatibility
+      run: |
+        python3 read.py ${{ matrix.cshelve-version }}
+
+  latest:
+    needs: build
+
+    strategy:
+      matrix:
+        # Examples do not run on Windows.
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+      max-parallel: 1
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    environment: azure
+
+    steps:
+    # An Azure storage account is used for reality.
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download the wheel.
+      uses: actions/download-artifact@v4
+      with:
+        name: cshelve-${{ github.sha }}
+        path: performances/dist
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install package.
+      working-directory: performances
+      run: |
+        pip install ./dist/${{ env.WHEEL }}[azure-blob]
+
+    - name: Read
+      working-directory: compatibility
+      run: |
+        python3 read.py ${{ matrix.cshelve-version }}
