@@ -58,7 +58,11 @@ def test_wrong_processing():
     data_pre_processed = dp.apply_pre_processing(data)
 
     # Change the signature to an incorrect one.
-    dp.signature = b"bca"
+    dp = DataProcessing(Mock())
+    dp.add(add_one, minus_one, b"a")
+    dp.add(add_one, minus_one, b"c")
+    dp.add(add_one, minus_one, b"b")
+
     with pytest.raises(DataProcessingSignatureError):
         dp.apply_post_processing(data_pre_processed)
 
@@ -74,6 +78,8 @@ def test_signature_compatible():
 
     data_pre_processed = dp.apply_pre_processing(data)
 
+    dp = DataProcessing(Mock())
+    dp.add(add_one, minus_one, b"a")
     dp.add(add_one, minus_one, b"b")
     dp.apply_post_processing(data_pre_processed)
 
@@ -86,6 +92,9 @@ def test_signature_compatible():
 
     data_pre_processed = dp.apply_pre_processing(data)
 
+    dp = DataProcessing(Mock())
+    dp.add(add_one, minus_one, b"a")
+    dp.add(add_one, minus_one, b"b")
     dp.add(add_one, minus_one, b"c")
     dp.apply_post_processing(data_pre_processed)
 
