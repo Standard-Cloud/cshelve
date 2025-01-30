@@ -76,7 +76,7 @@ jobs:
     - name: Install package.
       working-directory: compatibility
       run: |
-        pip install cshelve[azure-blob] == ${{ matrix.cshelve-version }}
+        pip install "cshelve[azure-blob] == ${{ matrix.cshelve-version }}"
 
     - name: Write
       working-directory: compatibility
@@ -112,7 +112,7 @@ jobs:
     - name: Install package.
       working-directory: compatibility
       run: |
-        pip install cshelve[azure-blob] == ${{ matrix.cshelve-version }}
+        pip install "cshelve[azure-blob] == ${{ matrix.cshelve-version }}"
 
     - name: Read
       working-directory: compatibility
