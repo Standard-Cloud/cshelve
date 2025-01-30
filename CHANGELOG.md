@@ -1,8 +1,9 @@
 # Changelog
 
 ## [0.10.0] - 2024-01-30
-### Breaking change
+### Added
 - Add metadata to object to improve compatibility between versions.
+- Allow transparent migration from older version to 1.0.0.
 
 ## [0.9.0] - 2024-12-22
 ### Added
