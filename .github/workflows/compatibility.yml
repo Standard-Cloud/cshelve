@@ -52,10 +52,9 @@ jobs:
   write:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [windows-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         cshelve-version: ["0.9.0"]
-      max-parallel: 1
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
@@ -81,7 +80,7 @@ jobs:
     - name: Write
       working-directory: compatibility
       run: |
-        python3 write.py ${{ matrix.cshelve-version }}
+        python3 write.py "${{ matrix.cshelve-version }}" "${{ matrix.python-version }}"
 
   versions:
     needs: write
@@ -117,7 +116,11 @@ jobs:
     - name: Read
       working-directory: compatibility
       run: |
-        python3 read.py ${{ matrix.cshelve-version }}
+        python3 read.py "${{ matrix.cshelve-version }}" "3.9"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.10"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.11"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.12"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.13"
 
   latest:
     needs: build
@@ -126,6 +129,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        cshelve-version: ["0.9.0"]
       max-parallel: 1
 
     runs-on: ${{ matrix.os }}
@@ -162,4 +166,8 @@ jobs:
     - name: Read
       working-directory: compatibility
       run: |
-        python3 read.py ${{ matrix.cshelve-version }}
+        python3 read.py "${{ matrix.cshelve-version }}" "3.9"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.10"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.11"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.12"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.13"
