@@ -1,8 +1,10 @@
 # Changelog
 
-## [0.10.0] - 2024-
-### Breaking change
+## [0.10.0] - 2024-01-31
+### Added
 - Add metadata to object to improve compatibility between versions.
+- Allow transparent migration from older version to 1.0.0.
+- Tests for compatibility between versions, os and python versions.
 
 ## [0.9.0] - 2024-12-22
 ### Added

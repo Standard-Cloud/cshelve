@@ -53,9 +53,15 @@ class _Database(MutableMapping):
         """
         value = self.db.get(key)
         record = _Record._make(struct.unpack(f"<B{len(value) - 1}s", value))
-        if record.version != VERSION:
-            self.logger.critical(f"Version mismatch: {record.version} != {VERSION}")
-            raise VersionMismatch("Version mismatch.")
+
+        if record.version > VERSION:
+            # If the version is greater than the current version, its a raw pickle from earlier cshelve versions.
+            self.logger.warning(
+                f"Version mismatch: {record.version} != {VERSION}. Migrating..."
+            )
+            value = DataProcessing.encapsulate(value)
+            record = _Record(VERSION, value)
+            self.logger.warning(f"Migration successful.")
         return self.data_processing.apply_post_processing(record.data)
 
     @can_write

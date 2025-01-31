@@ -46,7 +46,30 @@ def test_processing():
 
 def test_wrong_processing():
     """
-    Test that the signature is checked before post processing.
+    Test that the signature must be in the correct order.
+    """
+    dp = DataProcessing(Mock())
+    dp.add(add_one, minus_one, b"a")
+    dp.add(add_one, minus_one, b"b")
+    dp.add(add_one, minus_one, b"c")
+
+    data = pickle.dumps(1)
+
+    data_pre_processed = dp.apply_pre_processing(data)
+
+    # Change the signature to an incorrect one.
+    dp = DataProcessing(Mock())
+    dp.add(add_one, minus_one, b"a")
+    dp.add(add_one, minus_one, b"c")
+    dp.add(add_one, minus_one, b"b")
+
+    with pytest.raises(DataProcessingSignatureError):
+        dp.apply_post_processing(data_pre_processed)
+
+
+def test_signature_compatible():
+    """
+    Signature are compatibles when the signature that must be applied is a subset of the current signature in the correct order.
     """
     dp = DataProcessing(Mock())
     dp.add(add_one, minus_one, b"a")
@@ -55,9 +78,25 @@ def test_wrong_processing():
 
     data_pre_processed = dp.apply_pre_processing(data)
 
+    dp = DataProcessing(Mock())
     dp.add(add_one, minus_one, b"a")
-    with pytest.raises(DataProcessingSignatureError):
-        dp.apply_post_processing(data_pre_processed)
+    dp.add(add_one, minus_one, b"b")
+    dp.apply_post_processing(data_pre_processed)
+
+    # With a longer signature.
+    dp = DataProcessing(Mock())
+    dp.add(add_one, minus_one, b"a")
+    dp.add(add_one, minus_one, b"b")
+
+    data = pickle.dumps(1)
+
+    data_pre_processed = dp.apply_pre_processing(data)
+
+    dp = DataProcessing(Mock())
+    dp.add(add_one, minus_one, b"a")
+    dp.add(add_one, minus_one, b"b")
+    dp.add(add_one, minus_one, b"c")
+    dp.apply_post_processing(data_pre_processed)
 
 
 def run_int_processing(dp):

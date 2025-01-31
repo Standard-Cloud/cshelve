@@ -1,0 +1,181 @@
+# Compatbility workflow.
+#
+# Ensure the compatibility between cshelve version, Python version and OS.
+
+name: Compatibility
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  WHEEL: cshelve-1.0.0-py3-none-any.whl
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.9"]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    environment: azure
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+
+    - name: Install the project
+      run: uv build
+
+    - name: Upload the package
+      uses: actions/upload-artifact@v4
+      with:
+        name: cshelve-${{ github.sha }}
+        path: dist/*.whl
+        retention-days: 10
+        if-no-files-found: error
+        overwrite: false
+
+  write:
+    strategy:
+      matrix:
+        os: [windows-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        cshelve-version: ["0.9.0"]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    environment: azure
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # An Azure storage account is used for reality.
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Install package.
+      working-directory: compatibility
+      run: |
+        pip install "cshelve[azure-blob] == ${{ matrix.cshelve-version }}"
+
+    - name: Write
+      working-directory: compatibility
+      run: |
+        python3 write.py "${{ matrix.cshelve-version }}" "${{ matrix.python-version }}"
+
+  versions:
+    needs: write
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        cshelve-version: ["0.9.0"]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    environment: azure
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # An Azure storage account is used for reality.
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Install package on Unix like.
+      if: runner.os != 'Windows'
+      working-directory: compatibility
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install "cshelve[azure-blob] == ${{ matrix.cshelve-version }}"
+        python read.py "${{ matrix.cshelve-version }}" "3.9"
+        python read.py "${{ matrix.cshelve-version }}" "3.10"
+        python read.py "${{ matrix.cshelve-version }}" "3.11"
+        python read.py "${{ matrix.cshelve-version }}" "3.12"
+        python read.py "${{ matrix.cshelve-version }}" "3.13"
+
+    - name: Install package on Windows.
+      if: runner.os == 'Windows'
+      working-directory: compatibility
+      run: |
+        pip install "cshelve[azure-blob] == ${{ matrix.cshelve-version }}"
+        python read.py "${{ matrix.cshelve-version }}" "3.9"
+        python read.py "${{ matrix.cshelve-version }}" "3.10"
+        python read.py "${{ matrix.cshelve-version }}" "3.11"
+        python read.py "${{ matrix.cshelve-version }}" "3.12"
+        python read.py "${{ matrix.cshelve-version }}" "3.13"
+
+  latest:
+    needs: build
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        cshelve-version: ["0.9.0"]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    environment: azure
+
+    steps:
+    # An Azure storage account is used for reality.
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download the wheel.
+      uses: actions/download-artifact@v4
+      with:
+        name: cshelve-${{ github.sha }}
+        path: compatibility/dist
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install package.
+      working-directory: compatibility
+      run: |
+        pip install ./dist/${{ env.WHEEL }}[azure-blob]
+
+    - name: Read
+      working-directory: compatibility
+      run: |
+        python3 read.py "${{ matrix.cshelve-version }}" "3.9"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.10"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.11"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.12"
+        python3 read.py "${{ matrix.cshelve-version }}" "3.13"

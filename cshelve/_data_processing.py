@@ -21,6 +21,8 @@ _DataProcessingMetadata = namedtuple(
 
 # Algorithm signatures to applied to the data.
 SIGNATURES = {"COMPRESSION": b"c", "ENCRYPTION": b"e"}
+# Default signature, when no processing is applied.
+EMPTY_SIGNATURE = b""
 
 
 class DataProcessing:
@@ -37,7 +39,7 @@ class DataProcessing:
         self.post_processing: List[Callable[[bytes], bytes]] = []
         # The signature of the data processing.
         # It is used to ensure the data processing is applied in the correct order.
-        self.signature = b""
+        self.signature = EMPTY_SIGNATURE
 
     def add(
         self,
@@ -62,22 +64,7 @@ class DataProcessing:
         for fct in self.pre_processing:
             data = fct(data)
 
-        len_data_proc_signature = len(self.signature)
-        len_data = len(data)
-
-        data_processing = struct.pack(
-            f"<{len_data_proc_signature}s{len_data}s",
-            self.signature,
-            data,
-        )
-        # We are using unsigned long long due to the potential size of the data.
-        metadata = struct.pack(
-            f"<BQ{len_data_proc_signature + len_data}s",
-            len_data_proc_signature,
-            len_data,
-            data_processing,
-        )
-        return metadata
+        return self.encapsulate(data, self.signature)
 
     def apply_post_processing(self, data: bytes) -> bytes:
         """
@@ -93,15 +80,52 @@ class DataProcessing:
             )
         )
 
-        if data_processing.signature != self.signature:
-            self.logger.error(
-                "Data processing signature: %s, expected: %s",
-                data_processing.signature,
-                self.signature,
-            )
-            raise DataProcessingSignatureError("Wrong data processing signature.")
+        result = data_processing.data
+        signature = data_processing.signature
 
-        data = data_processing.data
-        for fct in self.post_processing:
-            data = fct(data)
-        return data
+        # Apply all signatures known from the current signature if possible.
+        for idx, s in enumerate(self.signature):
+            if signature == EMPTY_SIGNATURE:
+                # The signature of the object can be shorter then the signature of the incoming object.
+                break
+            if signature[0] == s:
+                # The transformation must be applied.
+                result = self.post_processing[idx](result)
+                signature = signature[1:]
+        else:
+            # If the signature is not empty, it means at least one transformation of the incoming object
+            # is unknowned of the current process and so the incoming object can't be retrieved.
+            if signature != EMPTY_SIGNATURE:
+                self.logger.error(
+                    "Data processing signature: %s is incompatible with: %s",
+                    data_processing.signature,
+                    self.signature,
+                )
+                raise DataProcessingSignatureError(
+                    f"Following transformation can't be applied: {signature}."
+                )
+
+        return result
+
+    @classmethod
+    def encapsulate(cls, data: bytes, signature: bytes = EMPTY_SIGNATURE) -> bytes:
+        """
+        Wraps the data with the processing metadata.
+        """
+        len_data = len(data)
+        len_data_proc_signature = len(signature)
+
+        data_processing = struct.pack(
+            f"<{len_data_proc_signature}s{len_data}s",
+            signature,
+            data,
+        )
+        # We are using unsigned long long due to the potential size of the data.
+        metadata = struct.pack(
+            f"<BQ{len_data_proc_signature + len_data}s",
+            len_data_proc_signature,
+            len_data,
+            data_processing,
+        )
+
+        return metadata
