@@ -1,13 +1,13 @@
 # Compatbility workflow.
 #
-# Ensure the compatibility between cshelve version
+# Ensure the compatibility between cshelve version, Python version and OS.
 
 name: Compatibility
 
 on:
   push:
-    # branches:
-    #   - main
+    branches:
+      - main
 
 permissions:
   id-token: write
