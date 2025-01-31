@@ -107,18 +107,29 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Install package and run the test.
+    - name: Install package on Unix like.
+      if: runner.os != 'Windows'
       working-directory: compatibility
       run: |
         python -m venv venv
         source venv/bin/activate
         pip install "cshelve[azure-blob] == ${{ matrix.cshelve-version }}"
+        python read.py "${{ matrix.cshelve-version }}" "3.9"
+        python read.py "${{ matrix.cshelve-version }}" "3.10"
+        python read.py "${{ matrix.cshelve-version }}" "3.11"
+        python read.py "${{ matrix.cshelve-version }}" "3.12"
+        python read.py "${{ matrix.cshelve-version }}" "3.13"
 
-        python3 read.py "${{ matrix.cshelve-version }}" "3.9"
-        python3 read.py "${{ matrix.cshelve-version }}" "3.10"
-        python3 read.py "${{ matrix.cshelve-version }}" "3.11"
-        python3 read.py "${{ matrix.cshelve-version }}" "3.12"
-        python3 read.py "${{ matrix.cshelve-version }}" "3.13"
+    - name: Install package on Windows.
+      if: runner.os == 'Windows'
+      working-directory: compatibility
+      run: |
+        pip install "cshelve[azure-blob] == ${{ matrix.cshelve-version }}"
+        python read.py "${{ matrix.cshelve-version }}" "3.9"
+        python read.py "${{ matrix.cshelve-version }}" "3.10"
+        python read.py "${{ matrix.cshelve-version }}" "3.11"
+        python read.py "${{ matrix.cshelve-version }}" "3.12"
+        python read.py "${{ matrix.cshelve-version }}" "3.13"
 
   latest:
     needs: build
