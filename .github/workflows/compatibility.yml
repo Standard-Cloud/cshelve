@@ -90,7 +90,6 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         cshelve-version: ["0.9.0"]
-      max-parallel: 1
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
@@ -108,14 +107,13 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Install package.
+    - name: Install package and run the test.
       working-directory: compatibility
       run: |
+        python -m venv venv
+        source venv/bin/activate
         pip install "cshelve[azure-blob] == ${{ matrix.cshelve-version }}"
 
-    - name: Read
-      working-directory: compatibility
-      run: |
         python3 read.py "${{ matrix.cshelve-version }}" "3.9"
         python3 read.py "${{ matrix.cshelve-version }}" "3.10"
         python3 read.py "${{ matrix.cshelve-version }}" "3.11"
@@ -130,7 +128,6 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         cshelve-version: ["0.9.0"]
-      max-parallel: 1
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
