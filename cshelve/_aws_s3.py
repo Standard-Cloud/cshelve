@@ -1,7 +1,10 @@
 import os
-import boto3
-from botocore.exceptions import NoCredentialsError, ClientError
 from typing import Dict, Iterator
+
+import boto3
+from botocore.exceptions import ClientError
+
+from .exceptions import key_access
 from .provider_interface import ProviderInterface
 
 
@@ -45,6 +48,7 @@ class AwsS3(ProviderInterface):
         self.s3.create_bucket(Bucket=self.bucket_name)
 
     def delete(self, key: bytes) -> None:
+        # Silently ignore if the key does not exist.
         self.s3.delete_object(Bucket=self.bucket_name, Key=key.decode("utf-8"))
 
     def exists(self) -> bool:
@@ -54,6 +58,7 @@ class AwsS3(ProviderInterface):
         except ClientError:
             return False
 
+    @key_access(ClientError)
     def get(self, key: bytes) -> bytes:
         response = self.s3.get_object(Bucket=self.bucket_name, Key=key.decode("utf-8"))
         return response["Body"].read()
@@ -66,10 +71,10 @@ class AwsS3(ProviderInterface):
 
     def len(self) -> int:
         paginator = self.s3.get_paginator("list_objects_v2")
-        count = 0
-        for page in paginator.paginate(Bucket=self.bucket_name):
-            count += len(page.get("Contents", []))
-        return count
+        return sum(
+            len(page.get("Contents", []))
+            for page in paginator.paginate(Bucket=self.bucket_name)
+        )
 
     def set(self, key: bytes, value: bytes) -> None:
         self.s3.put_object(Bucket=self.bucket_name, Key=key.decode("utf-8"), Body=value)
