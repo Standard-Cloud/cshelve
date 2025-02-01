@@ -11,31 +11,38 @@ from helpers import write_data, unique_key, del_data
 
 
 CONFIG_FILES = [
-    "tests/configurations/azure-blob/standard.ini",
-    "tests/configurations/in-memory/persisted.ini",
     "tests/configurations/azure-blob/compression.ini",
-    "tests/configurations/in-memory/compression.ini",
     "tests/configurations/azure-blob/encryption.ini",
+    "tests/configurations/azure-blob/standard.ini",
+    "tests/configurations/in-memory/compression.ini",
     "tests/configurations/in-memory/encryption.ini",
+    "tests/configurations/in-memory/persisted.ini",
+    "tests/configurations/aws-s3/compression.ini",
+    "tests/configurations/aws-s3/encryption.ini",
+    "tests/configurations/aws-s3/standard.ini",
 ]
 
 CONFIG_FILES_ITER = [
     "tests/configurations/azure-blob/iter.ini",
+    "tests/configurations/aws-s3/iter.ini",
     "tests/configurations/in-memory/iter.ini",
 ]
 
 CONFIG_FILES_LEN = [
     "tests/configurations/azure-blob/len.ini",
+    "tests/configurations/aws-s3/len.ini",
     "tests/configurations/in-memory/len.ini",
 ]
 
 CONFIG_FILES_DEL = [
+    "tests/configurations/aws-s3/del.ini",
     "tests/configurations/azure-blob/del.ini",
     "tests/configurations/in-memory/del.ini",
 ]
 
 CONFIG_FILES_FLAG_N = [
     "tests/configurations/azure-blob/flag-n.ini",
+    "tests/configurations/aws-s3/flag-n.ini",
     "tests/configurations/in-memory/flag-n.ini",
 ]
 
@@ -49,7 +56,7 @@ def test_write_then_read(config_file: str):
     Ensure we can read and write data to the DB.
     """
     with cshelve.open(config_file) as db:
-        key_pattern = unique_key + "test_write_and_read"
+        key_pattern = f"{unique_key}-test_write_and_read-{config_file}"
         data_pattern = "test_write_and_read"
 
         for i in range(10):
@@ -73,7 +80,7 @@ def test_read_after_reopening(config_file: str):
     """
     Ensure the data is still present after reopening the DB.
     """
-    key_pattern = unique_key + "test_read_after_reopening"
+    key_pattern = f"{unique_key}-test_read_after_reopening-{config_file}"
     data_pattern = "test_read_after_reopening"
 
     def read_data():
@@ -98,7 +105,7 @@ def test_update_on_operator(config_file: str):
     """
     Ensure operator interface works as expected.
     """
-    key_pattern = unique_key + "test_update_on_operator"
+    key_pattern = f"{unique_key}-test_update_on_operator-{config_file}"
     str_data_pattern = "test_update_on_operator"
     list_data_pattern = [1]
 
@@ -152,7 +159,7 @@ def test_contains(config_file: str):
     """
     db = cshelve.open(config_file)
 
-    key_pattern = unique_key + "test_contains"
+    key_pattern = f"{unique_key}-test_contains-{config_file}"
     data_pattern = "test_contains"
 
     db[key_pattern] = data_pattern
