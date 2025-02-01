@@ -10,14 +10,18 @@ import cshelve
 from helpers import unique_key
 
 CONFIG_FILES = [
-    "tests/configurations/azure-blob/standard.ini",
-    "tests/configurations/in-memory/persisted.ini",
-    "tests/configurations/azure-blob/encryption.ini",
-    "tests/configurations/in-memory/encryption.ini",
-    "tests/configurations/in-memory/compression.ini",
+    "tests/configurations/aws-s3/compression.ini",
+    "tests/configurations/aws-s3/encryption-and-compression.ini",
+    "tests/configurations/aws-s3/encryption.ini",
+    "tests/configurations/aws-s3/standard.ini",
     "tests/configurations/azure-blob/compression.ini",
-    "tests/configurations/in-memory/encryption-and-compression.ini",
     "tests/configurations/azure-blob/encryption-and-compression.ini",
+    "tests/configurations/azure-blob/encryption.ini",
+    "tests/configurations/azure-blob/standard.ini",
+    "tests/configurations/in-memory/compression.ini",
+    "tests/configurations/in-memory/encryption-and-compression.ini",
+    "tests/configurations/in-memory/encryption.ini",
+    "tests/configurations/in-memory/persisted.ini",
 ]
 
 
@@ -46,7 +50,6 @@ def test_large(config_file):
     assert new_df.equals(df)
 
 
-@pytest.mark.azure
 @pytest.mark.parametrize(
     "config_file",
     CONFIG_FILES,
