@@ -11,26 +11,26 @@ from helpers import write_data, unique_key, del_data
 
 
 CONFIG_FILES = [
+    "tests/configurations/aws-s3/compression.ini",
+    "tests/configurations/aws-s3/encryption.ini",
+    "tests/configurations/aws-s3/standard.ini",
     "tests/configurations/azure-blob/compression.ini",
     "tests/configurations/azure-blob/encryption.ini",
     "tests/configurations/azure-blob/standard.ini",
     "tests/configurations/in-memory/compression.ini",
     "tests/configurations/in-memory/encryption.ini",
     "tests/configurations/in-memory/persisted.ini",
-    "tests/configurations/aws-s3/compression.ini",
-    "tests/configurations/aws-s3/encryption.ini",
-    "tests/configurations/aws-s3/standard.ini",
 ]
 
 CONFIG_FILES_ITER = [
-    "tests/configurations/azure-blob/iter.ini",
     "tests/configurations/aws-s3/iter.ini",
+    "tests/configurations/azure-blob/iter.ini",
     "tests/configurations/in-memory/iter.ini",
 ]
 
 CONFIG_FILES_LEN = [
-    "tests/configurations/azure-blob/len.ini",
     "tests/configurations/aws-s3/len.ini",
+    "tests/configurations/azure-blob/len.ini",
     "tests/configurations/in-memory/len.ini",
 ]
 
@@ -41,8 +41,8 @@ CONFIG_FILES_DEL = [
 ]
 
 CONFIG_FILES_FLAG_N = [
-    "tests/configurations/azure-blob/flag-n.ini",
     "tests/configurations/aws-s3/flag-n.ini",
+    "tests/configurations/azure-blob/flag-n.ini",
     "tests/configurations/in-memory/flag-n.ini",
 ]
 
