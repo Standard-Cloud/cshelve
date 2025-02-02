@@ -57,6 +57,8 @@ jobs:
       run: uv run --python ${{ matrix.python-version }} pytest -m "azure" tests/end-to-end
       env:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        AWS_ENVIRONMENT_KEY: ${{ secrets.AWS_ENVIRONMENT_KEY }}
+        AWS_ENVIRONMENT_SECRET: ${{ secrets.AWS_ENVIRONMENT_SECRET }}
         ENCRYPTION_KEY: "Sixteen byte key"
         AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
 
@@ -69,3 +71,5 @@ jobs:
       env:
         AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
         ENCRYPTION_KEY: "Sixteen byte key"
+        AWS_ENVIRONMENT_KEY: ${{ secrets.AWS_ENVIRONMENT_KEY }}
+        AWS_ENVIRONMENT_SECRET: ${{ secrets.AWS_ENVIRONMENT_SECRET }}
