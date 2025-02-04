@@ -31,10 +31,6 @@ jobs:
       with:
         node-version: 18
 
-    - name: Install Azureit to emulate Azure Storage Account locally.
-      run: |
-        npm install -g azurite
-
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -53,8 +49,8 @@ jobs:
     - name: Run tests without dependencies
       run: uv run pytest tests/units
 
-    - name: Run end-to-end tests interracting with Azure
-      run: uv run --python ${{ matrix.python-version }} pytest -m "azure" tests/end-to-end
+    - name: Run end-to-end tests interracting with Azure and AWS
+      run: uv run --python ${{ matrix.python-version }} pytest -m "azure and aws" tests/end-to-end
       env:
         AWS_KEY_ID: ${{ secrets.AWS_ENVIRONMENT_KEY }}
         AWS_KEY_SECRET: ${{ secrets.AWS_ENVIRONMENT_SECRET }}
@@ -66,10 +62,13 @@ jobs:
       run: |
         # Start Azureit.
         azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
+        # Start minio.
+        server /data --console-address ":9001" &
         # Run tests
-        uv run --python ${{ matrix.python-version }} pytest -m "not azure" tests/end-to-end
+        uv run --python ${{ matrix.python-version }} pytest -m "not azure and not aws" tests/end-to-end
       env:
-        AWS_KEY_ID: ${{ secrets.AWS_ENVIRONMENT_KEY }}
-        AWS_KEY_SECRET: ${{ secrets.AWS_ENVIRONMENT_SECRET }}
+        AWS_ENDPOINT_URL: "http://127.0.0.1:9000"
+        AWS_KEY_ID: "minio"
+        AWS_KEY_SECRET: "minio123"
         AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
         ENCRYPTION_KEY: "Sixteen byte key"

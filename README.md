@@ -40,7 +40,7 @@ To configure remote cloud storage, you need to provide an INI file containing yo
 
 #### Example AWS S3 Configuration
 
-First, install the Azure Blob Storage provider:
+First, install the AWS S3 provider:
 ```bash
 pip install cshelve[aws-s3]
 ```
@@ -52,11 +52,11 @@ $ cat aws-s3.ini
 provider            = aws-s3
 bucket_name         = cshelve
 auth_type           = access_key
-environment_key     = AWS_KEY_ID
-environment_secret  = AWS_KEY_SECRET
+environment_key     = $AWS_KEY_ID
+environment_secret  = $AWS_KEY_SECRET
 ```
 
-And export the environment variables:
+Next, export the environment variables:
 ```bash
 export AWS_KEY_ID=your_access_key_id
 export AWS_KEY_SECRET=your_secret_access_key
@@ -167,7 +167,7 @@ More configuration examples for other cloud providers can be found [here](./test
 Provider: `aws-s3`
 Installation: `pip install cshelve[aws-s3]`
 
-The AWS S3 provider uses an [AWS S3 Bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html) as a remote storage.
+The AWS S3 provider uses an [AWS S3 Bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html) as remote storage.
 
 | Option              | Description                                                                 | Required           | Default Value |
 |---------------------|-----------------------------------------------------------------------------|--------------------|---------------|
