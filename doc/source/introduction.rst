@@ -184,8 +184,36 @@ Not all Python versions support the `Pathlib` module with `shelve`, but `cshelve
 Advanced Usage
 ##############
 
-The `provider_params` parameter allows users to pass custom parameters to the underlying storage provider.
+Environment variable in TOML
+############################
+
+Nativelly, TOML doesn't allow the replacement of string by environment variable.
+Because it's a frequent use case, `cshelve` defined its convention to do so.
+Consequently, string starting by `$` are considered as passed via environment variable.
+
+Examples:
+
+In the following example, `cshelve` retrieve the `ACCOUNT_ID` and the `CONTAINER` from environment variables.
+If they are not defined, an exception is raised.
+
+.. code-block:: console
+
+    $ cat azure-blob.ini
+    [default]
+    provider        = azure-blob
+    account_url     = $ACCOUNT_ID
+    auth_type       = passwordless
+    container_name  = $CONTAINER
+
+
+Custom parameters for the provider
+##################################
+
+The `provider_params` parameter allows users to pass custom parameters to the underlying storage provider via code or TOML.
 This can be useful for configuring specific provider options that are not covered by the default configuration.
+
+Using code
+**********
 
 For example, when using the `azure-blob` provider, you can pass parameters like `secondary_hostname`, `max_block_size`, or `use_byte_buffer`.
 
@@ -195,6 +223,39 @@ For example, when using the `azure-blob` provider, you can pass parameters like 
 
     provider_params = {
         'secondary_hostname': 'https://secondary.blob.core.windows.net',
+        'max_block_size': 4 * 1024 * 1024,  # 4 MB
+        'use_byte_buffer': True
+    }
+
+    with cshelve.open('azure-blob.ini', provider_params=provider_params) as db:
+        ...
+
+
+Using TOML
+**********
+
+String can be passed via TOML by defining the `provider_params` section.
+When code and TOML are defined, the TOML override the code configuration.
+
+.. code-block:: console
+
+    $ cat azure-blob.ini
+    [default]
+    provider        = azure-blob
+    account_url     = https://myaccount.blob.core.windows.net
+    auth_type       = passwordless
+    container_name  = mycontainer
+
+    [provider_params]
+    secondary_hostname = 'https://secondary.blob.core.windows.net
+
+
+.. code-block:: python
+
+    import cshelve
+
+    provider_params = {
+        'secondary_hostname': 'Override by the TOML',
         'max_block_size': 4 * 1024 * 1024,  # 4 MB
         'use_byte_buffer': True
     }

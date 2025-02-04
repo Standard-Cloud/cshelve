@@ -1,5 +1,4 @@
-import os
-from typing import Dict, Iterator
+from typing import Any, Dict, Iterator
 
 import boto3
 from botocore.exceptions import ClientError
@@ -13,6 +12,8 @@ class AwsS3(ProviderInterface):
         self.logger = logger
         self.bucket_name = None
         self.s3 = None
+        self.aws_access_key_id = None
+        self.aws_secret_access_key = None
 
     def close(self) -> None:
         # No specific close operation needed for boto3 client
@@ -20,22 +21,22 @@ class AwsS3(ProviderInterface):
 
     def configure_default(self, config: Dict[str, str]) -> None:
         # Example configuration, can be extended as needed
-        self.bucket_name = config.get("bucket_name", self.bucket_name)
-        aws_access_key_id = os.environ.get(config.get("environment_key"))
-        aws_secret_access_key = os.environ.get(config.get("environment_secret"))
-        self.s3 = boto3.client(
-            "s3",
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-        )
+        self.bucket_name = config.get("bucket_name")
+        self.aws_access_key_id = config.get("key_id")
+        self.aws_secret_access_key = config.get("key_secret")
 
     def configure_logging(self, config: Dict[str, str]) -> None:
         # Configure logging if needed
         pass
 
-    def set_provider_params(self, provider_params) -> None:
+    def set_provider_params(self, provider_params: Dict[str, Any]) -> None:
         # Set any additional parameters if needed
-        pass
+        self.s3 = boto3.client(
+            "s3",
+            aws_access_key_id=self.aws_access_key_id,
+            aws_secret_access_key=self.aws_secret_access_key,
+            **provider_params,
+        )
 
     def contains(self, key: bytes) -> bool:
         try:

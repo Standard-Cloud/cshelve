@@ -16,7 +16,6 @@ from .exceptions import (
     CanNotCreateDBError,
     DBDoesNotExistsError,
     DBDoesNotExistsError,
-    VersionMismatch,
 )
 
 
