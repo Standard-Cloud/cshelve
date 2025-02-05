@@ -43,10 +43,8 @@ jobs:
     - name: Install and start Minio and Azurite on MacOS
       if: runner.os == 'macOS'
       run: |
-        brew install qemu
         brew install podman
         podman machine init
-        podman machine start
         podman compose -f .devcontainer/docker-compose.yml up -d azurite minio
         # npm install -g azurite
         # azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
