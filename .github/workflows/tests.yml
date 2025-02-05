@@ -43,10 +43,10 @@ jobs:
     - name: Install and start Minio and Azurite on MacOS
       if: runner.os == 'macOS'
       run: |
-        brew install minio/stable/minio
-        MINIO_CONFIG_ENV_FILE=/etc/default/minio minio server &
-        npm install -g azurite
-        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
+        brew install podman
+        podman compose -f .devcontainer/docker-compose.yml up -d azurite minio
+        # npm install -g azurite
+        # azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
       env:
         MINIO_ACCESS_KEY: "minio"
         MINIO_SECRET_KEY: "minio123"
