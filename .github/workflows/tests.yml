@@ -40,6 +40,10 @@ jobs:
         enable-cache: true
         cache-dependency-glob: "uv.lock"
 
+    - name: Run azureit and minio
+      run: |
+        docker compose -f .devcontainer/docker-compose.yml up -d azurite minio
+
     - name: Set up Python ${{ matrix.python-version }}
       run: uv python install ${{ matrix.python-version }}
 
