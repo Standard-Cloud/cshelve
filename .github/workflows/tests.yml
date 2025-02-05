@@ -40,7 +40,7 @@ jobs:
         enable-cache: true
         cache-dependency-glob: "uv.lock"
 
-    - name: Run minio
+    - name: Install and start Minio and Azurite
       if: runner.os == 'macOS'
       run: |
         brew install minio/stable/minio
@@ -51,7 +51,7 @@ jobs:
         MINIO_ACCESS_KEY: "minio"
         MINIO_SECRET_KEY: "minio123"
 
-    - name: Run azureit and minio
+    - name: Run Minio and Azurite
       if: runner.os != 'macOS'
       run: |
         docker compose -f .devcontainer/docker-compose.yml up -d azurite minio
@@ -77,7 +77,7 @@ jobs:
     - name: Run end-to-end tests supporting Azurite
       run: |
         # Run tests
-        uv run --python ${{ matrix.python-version }} pytest -m "not azure and not aws" tests/end-to-end
+        uv run --python ${{ matrix.python-version }} pytest -m "(not azure) and (not aws)" tests/end-to-end
       env:
         AWS_ENDPOINT_URL: "http://127.0.0.1:9000"
         AWS_KEY_ID: "minio"
