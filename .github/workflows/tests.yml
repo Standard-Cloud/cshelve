@@ -40,17 +40,14 @@ jobs:
         enable-cache: true
         cache-dependency-glob: "uv.lock"
 
-    # - name: Run minio
-    #   if: runner.os == 'macOS'
-    #   run: |
-    #     brew install minio/stable/minio
-    #     minio server /data --console-address ":9001"
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+    - name: Run minio
+      if: runner.os == 'macOS'
+      run: |
+        brew install minio/stable/minio
+        minio server /data --console-address ":9001"
 
     - name: Run azureit and minio
+      if: runner.os != 'macOS'
       run: |
         docker compose -f .devcontainer/docker-compose.yml up -d azurite minio
 
