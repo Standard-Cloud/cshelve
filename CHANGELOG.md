@@ -1,6 +1,12 @@
 # Changelog
 
-## [0.10.0] - 2024-01-31
+## [1.1.0] - 2024-01-31
+### Added
+- AWS S3 support.
+- TOML support of provider_params.
+- In TOML, replace variable starting by "$" by the environment variable.
+
+## [1.0.0] - 2024-01-31
 ### Added
 - Add metadata to object to improve compatibility between versions.
 - Allow transparent migration from older version to 1.0.0.
