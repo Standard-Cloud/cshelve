@@ -43,6 +43,7 @@ jobs:
     - name: Install and start Minio and Azurite on MacOS
       if: runner.os == 'macOS'
       run: |
+        brew install qemu
         brew install podman
         podman machine init
         podman machine start
