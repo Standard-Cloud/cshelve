@@ -44,7 +44,7 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         brew install minio/stable/minio
-        minio server --console-address ":9001" &
+        MINIO_CONFIG_ENV_FILE=/etc/default/minio minio server --console-address ":9001" &
         npm install -g azurite
         azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
       env:
