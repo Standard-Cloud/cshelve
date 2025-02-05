@@ -44,7 +44,7 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         brew install minio/stable/minio
-        minio server --console-address ":9001"
+        MINIO_ACCESS_KEY=minio MINIO_SECRET_KEY=minio123 minio server --console-address ":9001" &
 
     - name: Run azureit and minio
       if: runner.os != 'macOS'
