@@ -12,7 +12,7 @@ from helpers import unique_key
 @pytest.mark.parametrize(
     "config_file",
     [
-        "tests/configurations/aws-s3/access-key.ini",
+        "tests/configurations/aws-s3/auth.ini",
     ],
 )
 def test_aws_authentication(config_file):
