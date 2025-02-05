@@ -43,8 +43,9 @@ jobs:
     - name: Install and start Minio and Azurite on MacOS
       if: runner.os == 'macOS'
       run: |
-        brew install docker
-        docker compose -f .devcontainer/docker-compose.yml up -d azurite minio
+        brew install minio/stable/minio
+        export MINIO_CONFIG_ENV_FILE=/etc/default/minio
+        minio server --console-address :9001 &
         # npm install -g azurite
         # azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
       env:
