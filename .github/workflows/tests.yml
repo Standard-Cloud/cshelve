@@ -44,6 +44,8 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         brew install podman
+        podman machine init
+        podman machine start
         podman compose -f .devcontainer/docker-compose.yml up -d azurite minio
         # npm install -g azurite
         # azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
