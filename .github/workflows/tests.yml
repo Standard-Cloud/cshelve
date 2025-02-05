@@ -44,7 +44,12 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         brew install minio/stable/minio
-        MINIO_ACCESS_KEY=minio MINIO_SECRET_KEY=minio123 minio server --console-address ":9001" &
+        minio server --console-address ":9001" &
+        npm install -g azurite
+        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
+      env:
+        MINIO_ACCESS_KEY: "minio"
+        MINIO_SECRET_KEY: "minio123"
 
     - name: Run azureit and minio
       if: runner.os != 'macOS'
@@ -71,10 +76,6 @@ jobs:
 
     - name: Run end-to-end tests supporting Azurite
       run: |
-        # Start Azureit.
-        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
-        # Start minio.
-        server /data --console-address ":9001" &
         # Run tests
         uv run --python ${{ matrix.python-version }} pytest -m "not azure and not aws" tests/end-to-end
       env:
