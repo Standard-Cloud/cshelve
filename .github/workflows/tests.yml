@@ -45,7 +45,7 @@ jobs:
       run: |
         brew install minio/stable/minio
         export MINIO_CONFIG_ENV_FILE=/etc/default/minio
-        minio server --console-address :9001 &
+        minio server &
         # npm install -g azurite
         # azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
       env:
