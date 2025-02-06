@@ -1,4 +1,4 @@
-# Following tests are using Azure services to ensure the quality of the project.
+# Following tests are using Cloud services to ensure the quality of the project.
 
 name: End to end tests
 on: [pull_request]
@@ -40,33 +40,41 @@ jobs:
         enable-cache: true
         cache-dependency-glob: "uv.lock"
 
-    - name: Install and start Minio and Azurite on MacOS
-      if: runner.os == 'macOS'
-      run: |
-        brew install minio/stable/minio
-        export MINIO_CONFIG_ENV_FILE=/etc/default/minio
-        minio server &
-        # npm install -g azurite
-        # azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
-      env:
-        MINIO_ACCESS_KEY: "minio"
-        MINIO_SECRET_KEY: "minio123"
+    # - name: Install and start Minio and Azurite on MacOS
+    #   if: runner.os == 'macOS'
+    #   run: |
+    #     brew install minio/stable/minio
+    #     export MINIO_CONFIG_ENV_FILE=/etc/default/minio
+    #     minio server &
+    #     # npm install -g azurite
+    #     # azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
+    #   env:
+    #     MINIO_ACCESS_KEY: "minio"
+    #     MINIO_SECRET_KEY: "minio123"
 
-    - name: Install and start Minio and Azurite on Windows
-      if: runner.os == 'Windows'
+    # - name: Install and start Minio and Azurite on Windows
+    #   if: runner.os == 'Windows'
+    #   run: |
+    #     curl https://dl.min.io/server/minio/release/windows-amd64/minio.exe -o minio.exe
+    #     ./minio.exe server --console-address ":9001" &
+    #     npm install -g azurite
+    #     azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
+    #   env:
+    #     MINIO_ACCESS_KEY: "minio"
+    #     MINIO_SECRET_KEY: "minio123"
+
+    # - name: Run Minio and Azurite on Linux
+    #   if: runner.os == 'Linux'
+    #   run: |
+    #     docker compose -f .devcontainer/docker-compose.yml up -d azurite minio
+
+    - name: Install Azureit to emulate Azure Storage Account locally.
       run: |
-        curl https://dl.min.io/server/minio/release/windows-amd64/minio.exe -o minio.exe
-        ./minio.exe server --console-address ":9001" &
+        pip install moto[server]
         npm install -g azurite
-        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
-      env:
-        MINIO_ACCESS_KEY: "minio"
-        MINIO_SECRET_KEY: "minio123"
 
-    - name: Run Minio and Azurite on Linux
-      if: runner.os == 'Linux'
-      run: |
-        docker compose -f .devcontainer/docker-compose.yml up -d azurite minio
+        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
+        moto_server -p9000 &
 
     - name: Set up Python ${{ matrix.python-version }}
       run: uv python install ${{ matrix.python-version }}
