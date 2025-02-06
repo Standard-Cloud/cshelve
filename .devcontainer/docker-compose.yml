@@ -6,15 +6,12 @@ services:
       - "10001:10001"
       - "10002:10002"
 
-  minio:
-    image: quay.io/minio/minio
+  motoserver:
+    image: motoserver/moto:latest
     ports:
       - "9000:9000"
-      - "9001:9001"
     environment:
-      MINIO_ACCESS_KEY: "minio"
-      MINIO_SECRET_KEY: "minio123"
-    command: server /data --console-address ":9001"
+      - MOTO_PORT=9000
 
   cshelve:
     user: "1000:1000"
@@ -33,6 +30,6 @@ services:
 
     depends_on:
       - azurite
-      - minio
+      - motoserver
 
     command: sleep infinity
