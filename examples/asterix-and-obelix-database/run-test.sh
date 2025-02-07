@@ -71,5 +71,8 @@ run_test $DB
 DB=./azure-compression.ini
 run_test $DB
 
+DB=./aws.ini
+run_test $DB
+
 echo "All tests passed."
 exit 0
