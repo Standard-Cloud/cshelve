@@ -49,11 +49,11 @@ Then, create an INI file with the following configuration:
 ```bash
 $ cat aws-s3.ini
 [default]
-provider            = aws-s3
-bucket_name         = cshelve
-auth_type           = access_key
-environment_key     = $AWS_KEY_ID
-environment_secret  = $AWS_KEY_SECRET
+provider    = aws-s3
+bucket_name = cshelve
+auth_type   = access_key
+key_id      = $AWS_KEY_ID
+key_secret  = $AWS_KEY_SECRET
 ```
 
 Next, export the environment variables:
@@ -173,8 +173,8 @@ The AWS S3 provider uses an [AWS S3 Bucket](https://docs.aws.amazon.com/AmazonS3
 |---------------------|-----------------------------------------------------------------------------|--------------------|---------------|
 | `bucket_name`       | The name of the S3 bucket.                                                  | :white_check_mark: |               |
 | `auth_type`         | The authentication method to use: `access_key`.                             | :white_check_mark: |               |
-| `environment_key`   | The environment variable for the AWS access key ID.                         | :white_check_mark: |               |
-| `environment_secret`| The environment variable for the AWS secret access key.                     | :white_check_mark: |               |
+| `key_id`   | The environment variable for the AWS access key ID.                         | :white_check_mark: |               |
+| `key_secret`| The environment variable for the AWS secret access key.                     | :white_check_mark: |               |
 
 Depending on the `open` flag, the permissions required by `cshelve` for S3 storage vary.
 

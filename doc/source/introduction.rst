@@ -255,7 +255,7 @@ When code and TOML are defined, the TOML override the code configuration.
     import cshelve
 
     provider_params = {
-        'secondary_hostname': 'Override by the TOML',
+        'secondary_hostname': 'Overridden by the TOML',
         'max_block_size': 4 * 1024 * 1024,  # 4 MB
         'use_byte_buffer': True
     }

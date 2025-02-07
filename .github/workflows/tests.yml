@@ -63,8 +63,9 @@ jobs:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
         ENCRYPTION_KEY: "Sixteen byte key"
 
-    - name: Run end-to-end tests supporting Azurite
+    - name: Run end-to-end tests with simulator
       run: |
+        # Start dependencies
         azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
         moto_server -p9000 &
 
@@ -72,7 +73,7 @@ jobs:
         uv run --python ${{ matrix.python-version }} pytest -m "(not azure) and (not aws)" tests/end-to-end
       env:
         AWS_ENDPOINT_URL: "http://127.0.0.1:9000"
-        AWS_KEY_ID: "minio"
-        AWS_KEY_SECRET: "minio123"
+        AWS_KEY_ID: "moto"
+        AWS_KEY_SECRET: "moto"
         AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
         ENCRYPTION_KEY: "Sixteen byte key"
