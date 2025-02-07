@@ -83,7 +83,9 @@ class CloudShelf(shelve.Shelf):
         provider_interface = factory(logger, config.provider)
         provider_interface.configure_logging(config.logging)
         provider_interface.configure_default(config.default)
-        provider_interface.set_provider_params(provider_params)
+        provider_interface.set_provider_params(
+            {**provider_params, **config.provider_params}
+        )
 
         # Data processing object used to apply pre and post processing to the data.
         data_processing = DataProcessing(logger)

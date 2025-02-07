@@ -16,7 +16,7 @@ def test_factory_usage():
     filename = "does_not_exists.ini"
     provider = "fake"
     config = {42: 42}
-    compression, encryption = {}, {}
+    compression, encryption, provider_params = {}, {}, {}
     flag = "c"
     protocol = pickle.HIGHEST_PROTOCOL
     writeback = False
@@ -26,7 +26,9 @@ def test_factory_usage():
     loader = Mock()
     logger = Mock()
 
-    loader.return_value = Config(provider, config, config, compression, encryption)
+    loader.return_value = Config(
+        provider, config, config, compression, encryption, provider_params
+    )
     factory.return_value = cloud_database
     cloud_database.exists.return_value = False
 
@@ -54,7 +56,7 @@ def test_loader_usage():
     filename = "does_not_exists.ini"
     provider = "fake"
     config = {42: 42}
-    compression, encryption = {}, {}
+    compression, encryption, provider_params = {}, {}, {}
     flag = "c"
     protocol = pickle.HIGHEST_PROTOCOL
     writeback = False
@@ -64,7 +66,9 @@ def test_loader_usage():
     loader = Mock()
     logger = Mock()
 
-    loader.return_value = Config(provider, config, config, compression, encryption)
+    loader.return_value = Config(
+        provider, config, config, compression, encryption, provider_params
+    )
     factory.return_value = cloud_database
     cloud_database.exists.return_value = False
 

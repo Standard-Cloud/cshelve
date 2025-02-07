@@ -34,9 +34,51 @@ print(d['my_key'])  # Output: my_data
 d.close()
 ```
 
-### Cloud Storage Example (e.g., Azure)
+### Cloud Storage Example (e.g., AWS, Azure)
 
 To configure remote cloud storage, you need to provide an INI file containing your cloud provider's configuration. The file should have a `.ini` extension. Remote storage also requires the installation of optional dependencies for the cloud provider you want to use.
+
+#### Example AWS S3 Configuration
+
+First, install the AWS S3 provider:
+```bash
+pip install cshelve[aws-s3]
+```
+
+Then, create an INI file with the following configuration:
+```bash
+$ cat aws-s3.ini
+[default]
+provider    = aws-s3
+bucket_name = cshelve
+auth_type   = access_key
+key_id      = $AWS_KEY_ID
+key_secret  = $AWS_KEY_SECRET
+```
+
+Next, export the environment variables:
+```bash
+export AWS_KEY_ID=your_access_key_id
+export AWS_KEY_SECRET=your_secret_access_key
+```
+
+Once the INI file is ready, you can interact with remote storage the same way as with local storage. Here's an example using AWS:
+
+```python
+import cshelve
+
+# Open using the remote storage configuration
+d = cshelve.open('aws-s3.ini')
+
+# Store data
+d['my_key'] = 'my_data'
+
+# Retrieve data
+print(d['my_key'])  # Output: my_data
+
+# Close the connection to the remote storage
+d.close()
+```
 
 #### Example Azure Blob Configuration
 
@@ -120,18 +162,28 @@ print(retrieved_df)
 More configuration examples for other cloud providers can be found [here](./tests/configurations/).
 
 ### Providers configuration
+#### AWS S3
 
-#### In Memory
+Provider: `aws-s3`
+Installation: `pip install cshelve[aws-s3]`
 
-Provider: `in-memory`
-Installation: No additional installation required.
+The AWS S3 provider uses an [AWS S3 Bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html) as remote storage.
 
-The In-Memory provider uses an in-memory data structure to simulate storage. This is useful for testing and development purposes.
+| Option              | Description                                                                 | Required           | Default Value |
+|---------------------|-----------------------------------------------------------------------------|--------------------|---------------|
+| `bucket_name`       | The name of the S3 bucket.                                                  | :white_check_mark: |               |
+| `auth_type`         | The authentication method to use: `access_key`.                             | :white_check_mark: |               |
+| `key_id`   | The environment variable for the AWS access key ID.                         | :white_check_mark: |               |
+| `key_secret`| The environment variable for the AWS secret access key.                     | :white_check_mark: |               |
 
-| Option         | Description                                                                  | Required | Default Value |
-|----------------|------------------------------------------------------------------------------|----------|---------------|
-| `persist-key`  | If set, its value will be conserved and reused during the program execution. | :x:      | None          |
-| `exists`       | If True, the database exists; otherwise, it will be created.                 | :x:      | False         |
+Depending on the `open` flag, the permissions required by `cshelve` for S3 storage vary.
+
+| Flag | Description | Permissions Needed |
+|------|-------------|--------------------|
+| `r`  | Open an existing S3 bucket for reading only. | [AmazonS3ReadOnlyAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonS3ReadOnlyAccess.html) |
+| `w`  | Open an existing S3 bucket for reading and writing. | [AmazonS3ReadAndWriteAccess](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_examples_s3_rw-bucket.html) |
+| `c`  | Open an S3 bucket for reading and writing, creating it if it doesn't exist. | [AmazonS3FullAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonS3FullAccess.html) |
+| `n`  | Purge the S3 bucket before using it. | [AmazonS3FullAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonS3FullAccess.html) |
 
 #### Azure Blob
 
@@ -164,6 +216,18 @@ Authentication type supported:
 | Anonymous         | No authentication for anonymous access on public blob storage. | No configuration or credentials needed. | Read-only access. | [Example](./tests/configurations/azure-integration/anonymous.ini) |
 | Connection String | Uses a connection string for authentication. Credentials are provided directly in the string. | Fast startup as no additional credential retrieval is needed. | Credentials need to be securely managed and provided. | [Example](./tests/configurations/azure-integration/connection-string.ini) |
 | Passwordless      | Uses passwordless authentication methods such as Managed Identity. | Recommended for better security and easier credential management. | May impact startup time due to the need to retrieve authentication credentials. | [Example](./tests/configurations/azure-integration/standard.ini) |
+
+#### In Memory
+
+Provider: `in-memory`
+Installation: No additional installation required.
+
+The In-Memory provider uses an in-memory data structure to simulate storage. This is useful for testing and development purposes.
+
+| Option         | Description                                                                  | Required | Default Value |
+|----------------|------------------------------------------------------------------------------|----------|---------------|
+| `persist-key`  | If set, its value will be conserved and reused during the program execution. | :x:      | None          |
+| `exists`       | If True, the database exists; otherwise, it will be created.                 | :x:      | False         |
 
 ## Contributing
 

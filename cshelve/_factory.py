@@ -23,6 +23,10 @@ def _factory(logger: Logger, provider: str):
         from ._azure_blob_storage import AzureBlobStorage
 
         return AzureBlobStorage(logger)
+    if provider == "aws-s3":
+        from ._aws_s3 import AwsS3
+
+        return AwsS3(logger)
     elif provider == "in-memory":
         from ._in_memory import InMemory
 

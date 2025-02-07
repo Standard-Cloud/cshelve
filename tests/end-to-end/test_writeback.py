@@ -9,10 +9,12 @@ import cshelve
 from helpers import unique_key
 
 CONFIG_FILES = [
-    "tests/configurations/azure-blob/standard.ini",
-    "tests/configurations/in-memory/persisted.ini",
+    "tests/configurations/aws-s3/encryption.ini",
+    "tests/configurations/aws-s3/standard.ini",
     "tests/configurations/azure-blob/encryption.ini",
+    "tests/configurations/azure-blob/standard.ini",
     "tests/configurations/in-memory/encryption.ini",
+    "tests/configurations/in-memory/persisted.ini",
 ]
 
 
@@ -21,7 +23,7 @@ def test_writeback(config_file):
     """
     Ensure the writeback functionality works as expected.
     """
-    key_pattern = unique_key + "test_writeback"
+    key_pattern = f"{unique_key}-test_writeback-{config_file}"
     data_pattern = [1]
 
     def _write_data():

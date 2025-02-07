@@ -95,17 +95,23 @@ jobs:
     - name: Install package.
       working-directory: performances
       run: |
-        pip install ./dist/${{ env.WHEEL }}[azure-blob]
+        pip install ./dist/${{ env.WHEEL }}[azure-blob, aws-s3]
 
     - name: Run asterix-and-obelix-database
       working-directory: examples/asterix-and-obelix-database
       run: |
         bash run-test.sh
+      env:
+        AWS_KEY_ID: ${{ secrets.AWS_ENVIRONMENT_KEY }}
+        AWS_KEY_SECRET: ${{ secrets.AWS_ENVIRONMENT_SECRET }}
 
     - name: Run asterix-and-obelix-friends
       working-directory: examples/asterix-and-obelix-friends
       run: |
         bash run-test.sh
+      env:
+        AWS_KEY_ID: ${{ secrets.AWS_ENVIRONMENT_KEY }}
+        AWS_KEY_SECRET: ${{ secrets.AWS_ENVIRONMENT_SECRET }}
 
 
   performance-tests:

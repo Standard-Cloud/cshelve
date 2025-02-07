@@ -11,6 +11,7 @@ from helpers import write_data, del_data, unique_key
 
 
 CONFIG_FILES = [
+    "tests/configurations/aws-s3/flag.ini",
     "tests/configurations/azure-blob/flag.ini",
     "tests/configurations/in-memory/persisted.ini",
 ]
@@ -47,7 +48,7 @@ def test_read_only(config_file):
 
 
 @pytest.mark.azure
-def test_container_does_not_exists():
+def test_azure_container_does_not_exists():
     """
     Depending of the flag, the database must already exists otherwise an exception is raised.
     The exception is raised by the implementation of the `dbm` module and not by `shelve` itself, so a custom exception is raised.
@@ -61,5 +62,24 @@ def test_container_does_not_exists():
     with pytest.raises(cshelve.DBDoesNotExistsError):
         cshelve.open(
             "tests/configurations/azure-blob/container-does-not-exists.ini",
+            "r",
+        )
+
+
+@pytest.mark.aws
+def test_aws_container_does_not_exists():
+    """
+    Depending of the flag, the database must already exists otherwise an exception is raised.
+    The exception is raised by the implementation of the `dbm` module and not by `shelve` itself, so a custom exception is raised.
+    """
+    with pytest.raises(cshelve.DBDoesNotExistsError):
+        cshelve.open(
+            "tests/configurations/aws-s3/bucket-does-not-exists.ini",
+            "w",
+        )
+
+    with pytest.raises(cshelve.DBDoesNotExistsError):
+        cshelve.open(
+            "tests/configurations/aws-s3/bucket-does-not-exists.ini",
             "r",
         )

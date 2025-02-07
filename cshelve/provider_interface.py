@@ -3,7 +3,7 @@ This Interface defines the interface for storage provider supporting the `Mutabl
 This class is used by the `Shelf` class to interact with the cloud storage provider.
 """
 from abc import abstractmethod
-from typing import Dict, Iterator
+from typing import Any, Dict, Iterator
 
 
 __all__ = ["ProviderInterface"]
@@ -40,7 +40,7 @@ class ProviderInterface:
         raise NotImplementedError
 
     @abstractmethod
-    def set_provider_params(self, provider_params) -> None:
+    def set_provider_params(self, provider_params: Dict[str, Any]) -> None:
         """
         This method allows the user to specify custom parameters that can't be included in the config.
         """

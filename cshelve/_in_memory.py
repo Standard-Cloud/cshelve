@@ -1,7 +1,7 @@
 """
 In-memory storage implementation. Mainly for testing purposes.
 """
-from typing import Dict, Iterator
+from typing import Any, Dict, Iterator
 
 from .provider_interface import ProviderInterface
 from .exceptions import key_access
@@ -53,7 +53,7 @@ class InMemory(ProviderInterface):
         """
         self._logging = config
 
-    def set_provider_params(self, provider_params) -> None:
+    def set_provider_params(self, provider_params: Dict[str, Any]) -> None:
         """
         This method allows the user to specify custom parameters that can't be included in the config.
         """

@@ -14,7 +14,7 @@ Operations such as iteration and length are performed using the container API.
 import functools
 import io
 import os
-from typing import Dict, Iterator, Optional
+from typing import Any, Dict, Iterator, Optional
 
 try:
     from azure.core.exceptions import ResourceNotFoundError
@@ -93,7 +93,7 @@ class AzureBlobStorage(ProviderInterface):
         if self.container_name is None:
             raise ConfigurationError("Missing container_name in the configuration file")
 
-    def set_provider_params(self, provider_params):
+    def set_provider_params(self, provider_params: Dict[str, Any]):
         """
         This method allows the user to specify custom parameters that can't be included in the config.
         """

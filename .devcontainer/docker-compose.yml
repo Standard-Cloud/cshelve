@@ -6,6 +6,13 @@ services:
       - "10001:10001"
       - "10002:10002"
 
+  motoserver:
+    image: motoserver/moto:latest
+    ports:
+      - "9000:9000"
+    environment:
+      - MOTO_PORT=9000
+
   cshelve:
     user: "1000:1000"
     build:
@@ -23,5 +30,6 @@ services:
 
     depends_on:
       - azurite
+      - motoserver
 
     command: sleep infinity

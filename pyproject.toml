@@ -23,16 +23,17 @@ documentation = "https://github.com/Standard-Cloud/cshelve"
 dev-dependencies = [
     "azure-identity>=1.19.0",
     "azure-storage-blob>=12.23.1",
+    "boto3>=1.36",
     "furo>=2024.8.6",
     "pandas>=1.4",
     "pre-commit>=4.0.1",
+    "pycryptodome>=3.21.0",
     "pytest-cov>=6.0.0",
     "pytest-xdist>=3.6.1",
     "pytest>=8.3.3",
     "ruff>=0.6.9",
     "sphinx-autobuild>=2024.10.3",
     "sphinx>=7.4.7",
-    "pycryptodome>=3.21.0",
 ]
 
 [tool.uv.sources]
@@ -43,6 +44,7 @@ pythonpath = ["."]
 markers = [
     "sequential: marks tests that can only run in sequential (deselect with '-m \"not sequential\"')",
     "azure: marks tests that can only run with an Azure connection (deselect with '-m \"not azure\"')",
+    "aws: marks tests that can only run with an AWS connection (deselect with '-m \"not aws\"')",
 ]
 addopts = "--doctest-modules"
 
@@ -53,4 +55,7 @@ azure-blob = [
 ]
 encryption = [
     "pycryptodome>=3.21.0",
+]
+aws-s3 = [
+    "boto3>=1.36",
 ]
