@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.1.0] - 2024-01-31
+## [1.1.0] - 2024-02-07
 ### Added
 - AWS S3 support.
 - TOML support of provider_params.

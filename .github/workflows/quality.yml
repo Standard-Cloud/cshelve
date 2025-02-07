@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 env:
-  WHEEL: cshelve-1.0.0-py3-none-any.whl
+  WHEEL: cshelve-1.1.0-py3-none-any.whl
 
 jobs:
   build:
@@ -95,7 +95,7 @@ jobs:
     - name: Install package.
       working-directory: performances
       run: |
-        pip install ./dist/${{ env.WHEEL }}[azure-blob, aws-s3]
+        pip install ./dist/${{ env.WHEEL }}[azure-blob,aws-s3]
 
     - name: Run asterix-and-obelix-database
       working-directory: examples/asterix-and-obelix-database
