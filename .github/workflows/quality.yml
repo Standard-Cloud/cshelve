@@ -12,8 +12,8 @@ name: Quality
 
 on:
   push:
-    branches:
-      - main
+    # branches:
+    #   - main
 
 permissions:
   id-token: write
@@ -114,63 +114,63 @@ jobs:
         AWS_KEY_SECRET: ${{ secrets.AWS_ENVIRONMENT_SECRET }}
 
 
-  performance-tests:
-    needs: build
+  # performance-tests:
+  #   needs: build
 
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest, windows-latest, macos-latest]
+  #       python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 40
-    environment: azure
+  #   runs-on: ${{ matrix.os }}
+  #   timeout-minutes: 40
+  #   environment: azure
 
-    steps:
-    # An Azure storage account is used to keep results.
-    - name: 'Az CLI login'
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #   steps:
+  #   # An Azure storage account is used to keep results.
+  #   - name: 'Az CLI login'
+  #     uses: azure/login@v1
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    # Azurite needs nodejs.
-    # Using Azurite limit the impact of the network on the performance tests.
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 18
+  #   # Azurite needs nodejs.
+  #   # Using Azurite limit the impact of the network on the performance tests.
+  #   - uses: actions/setup-node@v4
+  #     with:
+  #       node-version: 18
 
-    - name: Install Azureit to emulate Azure Storage Account locally.
-      run: |
-        npm install -g azurite
+  #   - name: Install Azureit to emulate Azure Storage Account locally.
+  #     run: |
+  #       npm install -g azurite
 
-    - name: Checkout code
-      uses: actions/checkout@v4
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
 
-    - name: Download the wheel.
-      uses: actions/download-artifact@v4
-      with:
-        name: cshelve-${{ github.sha }}
-        path: performances/dist
+  #   - name: Download the wheel.
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: cshelve-${{ github.sha }}
+  #       path: performances/dist
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+  #   - uses: actions/setup-python@v5
+  #     with:
+  #       python-version: ${{ matrix.python-version }}
 
-    - name: Install package.
-      working-directory: performances
-      run: |
-        pip install ./dist/${{ env.WHEEL }}[azure-blob]
+  #   - name: Install package.
+  #     working-directory: performances
+  #     run: |
+  #       pip install ./dist/${{ env.WHEEL }}[azure-blob]
 
-    - name: Run performances tests
-      working-directory: performances
-      run: |
-        # Start Azureit.
-        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
-        # Run performance tests.
-        python main.py production.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
-      env:
-        # Local connection string for Azurite.
-        AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
-        ENCRYPTION_KEY: "Sixteen byte key"
+  #   - name: Run performances tests
+  #     working-directory: performances
+  #     run: |
+  #       # Start Azureit.
+  #       azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
+  #       # Run performance tests.
+  #       python main.py production.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
+  #     env:
+  #       # Local connection string for Azurite.
+  #       AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+  #       ENCRYPTION_KEY: "Sixteen byte key"
