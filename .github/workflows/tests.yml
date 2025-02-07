@@ -45,9 +45,6 @@ jobs:
         pip install moto[server]
         npm install -g azurite
 
-        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
-        moto_server -p9000 &
-
     - name: Set up Python ${{ matrix.python-version }}
       run: uv python install ${{ matrix.python-version }}
 
@@ -68,6 +65,9 @@ jobs:
 
     - name: Run end-to-end tests supporting Azurite
       run: |
+        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
+        moto_server -p9000 &
+
         # Run tests
         uv run --python ${{ matrix.python-version }} pytest -m "(not azure) and (not aws)" tests/end-to-end
       env:
