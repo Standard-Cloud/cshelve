@@ -3,6 +3,7 @@ MutableMapping interface for the database.
 
 The term _Database is used to follow the naming convention of the Python Shelve module, even though it is not mandatory.
 """
+from abc import abstractmethod
 from collections import namedtuple
 from logging import Logger
 from collections.abc import MutableMapping
@@ -33,12 +34,25 @@ class _Database(MutableMapping):
     Wrapper around the ProviderInterface to provide a MutableMapping interface with the Shelf business logic.
     """
 
+    def __new__(
+        cls,
+        logger: Logger,
+        db: ProviderInterface,
+        flag: str,
+        data_processing: DataProcessing,
+        versionned: bool,
+    ):
+        if versionned:
+            return super(_Database, cls).__new__(_VersionedDatabase)
+        return super(_Database, cls).__new__(_RawDatabase)
+
     def __init__(
         self,
         logger: Logger,
         db: ProviderInterface,
         flag: str,
         data_processing: DataProcessing,
+        versionned: bool,
     ) -> None:
         super().__init__()
         self.data_processing = data_processing
@@ -46,31 +60,20 @@ class _Database(MutableMapping):
         self.flag = flag
         self.logger = logger
 
+    @abstractmethod
     def __getitem__(self, key: bytes) -> bytes:
         """
         Retrieve the value associated with the key from the database.
         """
-        value = self.db.get(key)
-        record = _Record._make(struct.unpack(f"<B{len(value) - 1}s", value))
+        ...
 
-        if record.version > VERSION:
-            # If the version is greater than the current version, its a raw pickle from earlier cshelve versions.
-            self.logger.warning(
-                f"Version mismatch: {record.version} != {VERSION}. Migrating..."
-            )
-            value = self.data_processing.encapsulate(value)
-            record = _Record(VERSION, value)
-            self.logger.warning(f"Migration successful.")
-        return self.data_processing.apply_post_processing(record.data)
-
+    @abstractmethod
     @can_write
     def __setitem__(self, key: bytes, value: bytes) -> None:
         """
         Set the value associated with the key in the database.
         """
-        value_processed = self.data_processing.apply_pre_processing(value)
-        record = struct.pack(f"<B{len(value_processed)}s", VERSION, value_processed)
-        self.db.set(key, record)
+        ...
 
     @can_write
     def __delitem__(self, key: bytes) -> None:
@@ -131,3 +134,48 @@ class _Database(MutableMapping):
                 with ThreadPoolExecutor() as executor:
                     list(executor.map(self.db.delete, self.db.iter()))
                 self.logger.info(f"Database purged.")
+
+
+class _VersionedDatabase(_Database):
+    def __getitem__(self, key: bytes) -> bytes:
+        """
+        Retrieve the value associated with the key from the database.
+        """
+        value = self.db.get(key)
+        record = _Record._make(struct.unpack(f"<B{len(value) - 1}s", value))
+
+        if record.version > VERSION:
+            # If the version is greater than the current version, its a raw pickle from earlier cshelve versions.
+            self.logger.warning(
+                f"Version mismatch: {record.version} != {VERSION}. Migrating..."
+            )
+            value = self.data_processing.encapsulate(value)
+            record = _Record(VERSION, value)
+            self.logger.warning(f"Migration successful.")
+        return self.data_processing.apply_post_processing(record.data)
+
+    @can_write
+    def __setitem__(self, key: bytes, value: bytes) -> None:
+        """
+        Set the value associated with the key in the database.
+        """
+        value_processed = self.data_processing.apply_pre_processing(value)
+        record = struct.pack(f"<B{len(value_processed)}s", VERSION, value_processed)
+        self.db.set(key, record)
+
+
+class _RawDatabase(_Database):
+    def __getitem__(self, key: bytes) -> bytes:
+        """
+        Retrieve the value associated with the key from the database.
+        """
+        value = self.db.get(key)
+        return self.data_processing.apply_post_processing(value)
+
+    @can_write
+    def __setitem__(self, key: bytes, value: bytes) -> None:
+        """
+        Set the value associated with the key in the database.
+        """
+        value_processed = self.data_processing.apply_pre_processing(value)
+        self.db.set(key, value_processed)

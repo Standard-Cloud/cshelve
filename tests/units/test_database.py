@@ -13,7 +13,7 @@ def database() -> _Database:
     logger = Mock()
     provider_db = InMemory(logger)
     data_processing = DataProcessing(Mock(), True)
-    db = _Database(logger, provider_db, flag, data_processing)
+    db = _Database(logger, provider_db, flag, data_processing, True)
     db._init()
     return db
 
@@ -94,7 +94,7 @@ def test_doesnt_create_database_if_exists():
 
     assert provider_db._created == False
 
-    db = _Database(logger, provider_db, flag, DataProcessing(logger, True))
+    db = _Database(logger, provider_db, flag, DataProcessing(logger, True), True)
     db._init()
 
     assert provider_db._created == False
@@ -111,7 +111,7 @@ def test_create_database_if_not_exists():
     assert provider_db._created == False
     assert provider_db._exists == False
 
-    db = _Database(logger, provider_db, flag, DataProcessing(logger, True))
+    db = _Database(logger, provider_db, flag, DataProcessing(logger, True), True)
     db._init()
 
     assert provider_db._created == True
@@ -130,7 +130,7 @@ def test_cant_create_database_if_not_exists_and_not_allowed():
         assert provider_db._created == False
         assert provider_db._exists == False
 
-        db = _Database(logger, provider_db, flag, DataProcessing(logger, True))
+        db = _Database(logger, provider_db, flag, DataProcessing(logger, True), True)
 
         with pytest.raises(DBDoesNotExistsError) as _:
             db._init()
@@ -146,7 +146,7 @@ def test_error_database_creation():
 
     provider_db.exists.return_value = False
     provider_db.create.side_effect = Exception
-    db = _Database(logger, provider_db, flag, DataProcessing(logger, True))
+    db = _Database(logger, provider_db, flag, DataProcessing(logger, True), True)
 
     with pytest.raises(CanNotCreateDBError) as _:
         db._init()
@@ -165,9 +165,33 @@ def test_database_clear_if_asked():
     provider_db.set("key2", "value2")
 
     assert provider_db.len() == 2
-    db = _Database(logger, provider_db, flag, DataProcessing(logger, True))
+    db = _Database(logger, provider_db, flag, DataProcessing(logger, True), True)
     db._init()
     assert provider_db.len() == 0
+
+
+def test_database_factory():
+    """
+    Ensure the good database is loaded.
+    """
+    logger = Mock()
+    flag = "n"
+    key = "key"
+    data = "data".encode()
+    provider_db = InMemory(logger)
+
+    # Test for the Raw Database
+    db = _Database(logger, provider_db, flag, DataProcessing(logger, False), False)
+    db._init()
+    db[key] = data
+    assert provider_db.get(key) == data
+
+    # Test for the Versionned Database
+    db = _Database(logger, provider_db, flag, DataProcessing(logger, False), True)
+    db._init()
+
+    db[key] = data
+    assert provider_db.get(key) != data
 
 
 def test_do_not_clear_database():
@@ -185,7 +209,7 @@ def test_do_not_clear_database():
         provider_db.set("key2", "value2")
 
         assert provider_db.len() == 2
-        db = _Database(logger, provider_db, flag, DataProcessing(logger, True))
+        db = _Database(logger, provider_db, flag, DataProcessing(logger, True), True)
         db._init()
         assert provider_db.len() == 2
 
@@ -204,12 +228,12 @@ def test_read_only():
     provider_db.configure_default({"exists": "True", "persist-key": "test_read_only"})
 
     # Write data to the provider.
-    db = _Database(logger, provider_db, flag_w, data_processing)
+    db = _Database(logger, provider_db, flag_w, data_processing, True)
     db._init()
     db[key] = value
 
     # Read data from the provider.
-    db = _Database(logger, provider_db, flag_r, data_processing)
+    db = _Database(logger, provider_db, flag_r, data_processing, True)
     db._init()
 
     with pytest.raises(ReadOnlyError) as _:

@@ -94,7 +94,7 @@ class CloudShelf(shelve.Shelf):
 
         # The CloudDatabase object is the class that interacts with the cloud storage backend.
         # This class doesn't perform or respect the shelve.Shelf logic and interface so we need to wrap it.
-        database = _Database(logger, provider_interface, flag, data_processing)
+        database = _Database(logger, provider_interface, flag, data_processing, True)
         database._init()
 
         # Let the standard shelve.Shelf class handle the rest.
