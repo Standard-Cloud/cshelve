@@ -25,30 +25,34 @@ def test_processing():
     """
     Test the processing of data.
     """
-    dp = DataProcessing(Mock())
-    dp.add(add_one, minus_one, b"a")
-    run_int_processing(dp)
+    dp_factory_signed = lambda: DataProcessing(Mock(), True)
+    dp_factory_unsigned = lambda: DataProcessing(Mock(), False)
 
-    dp = DataProcessing(Mock())
-    dp.add(add_one, minus_one, b"a")
-    dp.add(minus_one, add_one, b"b")
-    run_int_processing(dp)
+    for factory in (dp_factory_signed, dp_factory_unsigned):
+        dp = factory()
+        dp.add(add_one, minus_one, b"a")
+        run_int_processing(dp)
 
-    dp = DataProcessing(Mock())
-    dp.add(add_one_dict, minus_one_dict, b"a")
-    run_dict_processing(dp)
+        dp = factory()
+        dp.add(add_one, minus_one, b"a")
+        dp.add(minus_one, add_one, b"b")
+        run_int_processing(dp)
 
-    dp = DataProcessing(Mock())
-    dp.add(add_one_dict, minus_one_dict, b"a")
-    dp.add(minus_one_dict, add_one_dict, b"b")
-    run_dict_processing(dp)
+        dp = factory()
+        dp.add(add_one_dict, minus_one_dict, b"a")
+        run_dict_processing(dp)
+
+        dp = factory()
+        dp.add(add_one_dict, minus_one_dict, b"a")
+        dp.add(minus_one_dict, add_one_dict, b"b")
+        run_dict_processing(dp)
 
 
 def test_wrong_processing():
     """
     Test that the signature must be in the correct order.
     """
-    dp = DataProcessing(Mock())
+    dp = DataProcessing(Mock(), True)
     dp.add(add_one, minus_one, b"a")
     dp.add(add_one, minus_one, b"b")
     dp.add(add_one, minus_one, b"c")
@@ -58,7 +62,7 @@ def test_wrong_processing():
     data_pre_processed = dp.apply_pre_processing(data)
 
     # Change the signature to an incorrect one.
-    dp = DataProcessing(Mock())
+    dp = DataProcessing(Mock(), True)
     dp.add(add_one, minus_one, b"a")
     dp.add(add_one, minus_one, b"c")
     dp.add(add_one, minus_one, b"b")
@@ -67,24 +71,47 @@ def test_wrong_processing():
         dp.apply_post_processing(data_pre_processed)
 
 
+def test_signature_ignored():
+    """
+    Test that the signature is ignored and all changed are procceded.
+    """
+    dp = DataProcessing(Mock(), False)
+    dp.add(add_one, minus_one, b"a")
+    dp.add(add_one, minus_one, b"b")
+    dp.add(add_one, minus_one, b"c")
+
+    value = 1
+    data = pickle.dumps(value)
+
+    data_pre_processed = dp.apply_pre_processing(data)
+
+    dp = DataProcessing(Mock(), False)
+    dp.add(add_one, minus_one, b"a")
+    dp.add(add_one, minus_one, b"c")
+    dp.add(add_one, minus_one, b"b")
+
+    data = pickle.loads(dp.apply_post_processing(data_pre_processed))
+    assert value == data
+
+
 def test_signature_compatible():
     """
     Signature are compatibles when the signature that must be applied is a subset of the current signature in the correct order.
     """
-    dp = DataProcessing(Mock())
+    dp = DataProcessing(Mock(), True)
     dp.add(add_one, minus_one, b"a")
 
     data = pickle.dumps(1)
 
     data_pre_processed = dp.apply_pre_processing(data)
 
-    dp = DataProcessing(Mock())
+    dp = DataProcessing(Mock(), True)
     dp.add(add_one, minus_one, b"a")
     dp.add(add_one, minus_one, b"b")
     dp.apply_post_processing(data_pre_processed)
 
     # With a longer signature.
-    dp = DataProcessing(Mock())
+    dp = DataProcessing(Mock(), True)
     dp.add(add_one, minus_one, b"a")
     dp.add(add_one, minus_one, b"b")
 
@@ -92,7 +119,7 @@ def test_signature_compatible():
 
     data_pre_processed = dp.apply_pre_processing(data)
 
-    dp = DataProcessing(Mock())
+    dp = DataProcessing(Mock(), True)
     dp.add(add_one, minus_one, b"a")
     dp.add(add_one, minus_one, b"b")
     dp.add(add_one, minus_one, b"c")

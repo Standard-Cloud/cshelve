@@ -58,7 +58,7 @@ class _Database(MutableMapping):
             self.logger.warning(
                 f"Version mismatch: {record.version} != {VERSION}. Migrating..."
             )
-            value = DataProcessing.encapsulate(value)
+            value = self.data_processing.encapsulate(value)
             record = _Record(VERSION, value)
             self.logger.warning(f"Migration successful.")
         return self.data_processing.apply_post_processing(record.data)

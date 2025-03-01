@@ -88,7 +88,7 @@ class CloudShelf(shelve.Shelf):
         )
 
         # Data processing object used to apply pre and post processing to the data.
-        data_processing = DataProcessing(logger)
+        data_processing = DataProcessing(logger, True)
         _configure_compression(logger, data_processing, config.compression)
         _configure_encryption(logger, data_processing, config.encryption)
 
