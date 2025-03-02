@@ -1,6 +1,8 @@
 """
 Ensure the standard behavior of the API works as expected in real scenarios.
 """
+import json
+
 import pytest
 
 import cshelve
@@ -29,16 +31,18 @@ def test_raw(config_file: str):
 
         for i in range(10):
             key = f"{key_pattern}{i}"
-            data = {
-                "my_value": f"{data_pattern}{i}",
-            }
+            data = json.dumps(
+                {
+                    "my_value": f"{data_pattern}{i}",
+                }
+            )
 
             # Write data to the DB.
             db[key] = data
             # Data must be present in the DB.
             assert db[key] == data
             # Ensure data doesn't contains any processing.
-            assert db.dict.db.get(key.encode()) == data
+            assert db.dict.db.get(key.encode()) == data.encode()
             # Delete the data from the DB.
             del db[key]
 

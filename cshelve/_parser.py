@@ -19,6 +19,10 @@ from ._config import from_env
 DEFAULT_CONFIG_STORE = "default"
 # Key containing the provider name.
 PROVIDER_KEY = "provider"
+# Key containing the mode.
+MODE_KEY = "mode"
+# Raw mode.
+MODE_RAW_VALUE = "raw"
 # Logging configuration section.
 LOGGING_KEY_STORE = "logging"
 # Compression configuration section.
@@ -31,7 +35,15 @@ PROVIDER_PARAMS = "provider_params"
 # Tuple containing the provider name and its configuration.
 Config = namedtuple(
     "Config",
-    ["provider", "default", "logging", "compression", "encryption", "provider_params"],
+    [
+        "provider",
+        "mode_raw",
+        "default",
+        "logging",
+        "compression",
+        "encryption",
+        "provider_params",
+    ],
 )
 
 
@@ -42,7 +54,7 @@ def use_local_shelf(filename: Path) -> bool:
     return not filename.suffix == ".ini"
 
 
-def load(logger: Logger, filename: Path) -> Tuple[str, Dict[str, str]]:
+def load(logger: Logger, filename: Path) -> Config:
     """
     Load the configuration file and return it as a dictionary.
     """
@@ -63,6 +75,7 @@ def load(logger: Logger, filename: Path) -> Tuple[str, Dict[str, str]]:
     logger.debug(f"Configuration file '{filename}' loaded.")
     return Config(
         provider=c[PROVIDER_KEY],
+        mode_raw=c.get(MODE_KEY, "").lower() == MODE_RAW_VALUE,
         default=from_env(dict(c)),
         logging=from_env(dict(logging_config)),
         compression=from_env(dict(compression_config)),
