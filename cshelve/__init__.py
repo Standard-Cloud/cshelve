@@ -66,10 +66,24 @@ class CloudShelf(shelve.Shelf):
     """
 
     def __new__(
-        cls, flag, protocol, writeback, config: Config, factory, logger, provider_params
+        cls,
+        flag,
+        protocol,
+        writeback,
+        config: Config,
+        factory,
+        logger,
+        provider_params,
     ):
+        """
+        Depending on the configuration, the CloudShelf object can be a BytesShelf or a CloudShelf.
+        A BytesShelf is simply a CloudShelf that doesn't use the Pickle protocol.
+        """
         if config.mode_raw:
-            return super(CloudShelf, cls).__new__(RawCloudShelf)
+            logger.debug(
+                "Creating a BytesShelf as the configuration is set to raw mode."
+            )
+            return super(CloudShelf, cls).__new__(BytesShelf)
         return super(CloudShelf, cls).__new__(CloudShelf)
 
     def __init__(
@@ -109,21 +123,26 @@ class CloudShelf(shelve.Shelf):
         super().__init__(database, protocol, writeback)
 
 
-class RawCloudShelf(CloudShelf):
-    def __getitem__(self, key: str):
+class BytesShelf(CloudShelf):
+    """
+    BytesShelf is a subclass of CloudShelf that provides methods for
+    getting and setting items overriding the behaviours of the Shelf class.
+    This overriding is necessary to remove the Pickle conversion.
+    """
+
+    def __getitem__(self, key: str) -> bytes:
         try:
             value = self.cache[key]
         except KeyError:
             value = self.dict[key.encode(self.keyencoding)]
             if self.writeback:
                 self.cache[key] = value
-        return value.decode()
+        return value
 
-    def __setitem__(self, key: str, value: str):
-        _value = value.encode()
+    def __setitem__(self, key: str, value: bytes):
         if self.writeback:
-            self.cache[key] = _value
-        self.dict[key.encode(self.keyencoding)] = _value
+            self.cache[key] = value
+        self.dict[key.encode(self.keyencoding)] = value
 
 
 def open(

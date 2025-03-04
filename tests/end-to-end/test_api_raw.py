@@ -35,14 +35,14 @@ def test_raw(config_file: str):
                 {
                     "my_value": f"{data_pattern}{i}",
                 }
-            )
+            ).encode()
 
             # Write data to the DB.
             db[key] = data
             # Data must be present in the DB.
             assert db[key] == data
             # Ensure data doesn't contains any processing.
-            assert db.dict.db.get(key.encode()) == data.encode()
+            assert db.dict.db.get(key.encode()) == data
             # Delete the data from the DB.
             del db[key]
 
