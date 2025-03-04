@@ -11,9 +11,9 @@ from helpers import write_data, unique_key, del_data
 
 
 CONFIG_FILES_RAW = [
-    "tests/configurations/aws-s3/raw.ini",
-    "tests/configurations/azure-blob/raw.ini",
-    "tests/configurations/in-memory/raw.ini",
+    "tests/configurations/aws-s3/no_pickle.ini",
+    "tests/configurations/azure-blob/no_pickle.ini",
+    "tests/configurations/in-memory/no_pickle.ini",
 ]
 
 

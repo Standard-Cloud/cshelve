@@ -19,10 +19,8 @@ from ._config import from_env
 DEFAULT_CONFIG_STORE = "default"
 # Key containing the provider name.
 PROVIDER_KEY = "provider"
-# Key containing the mode.
-MODE_KEY = "mode"
-# Raw mode.
-MODE_RAW_VALUE = "raw"
+# Key indicating if the usage of pickle is activated (True by default).
+USE_PICKLE = "use_pickle"
 # Logging configuration section.
 LOGGING_KEY_STORE = "logging"
 # Compression configuration section.
@@ -37,7 +35,7 @@ Config = namedtuple(
     "Config",
     [
         "provider",
-        "mode_raw",
+        "use_pickle",
         "default",
         "logging",
         "compression",
@@ -75,7 +73,8 @@ def load(logger: Logger, filename: Path) -> Config:
     logger.debug(f"Configuration file '{filename}' loaded.")
     return Config(
         provider=c[PROVIDER_KEY],
-        mode_raw=c.get(MODE_KEY, "").lower() == MODE_RAW_VALUE,
+        # This configuration is checked here to avoid redundant checks.
+        use_pickle=c.get(USE_PICKLE, "true").lower() == "true",
         default=from_env(dict(c)),
         logging=from_env(dict(logging_config)),
         compression=from_env(dict(compression_config)),

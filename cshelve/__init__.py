@@ -79,10 +79,8 @@ class CloudShelf(shelve.Shelf):
         Depending on the configuration, the CloudShelf object can be a BytesShelf or a CloudShelf.
         A BytesShelf is simply a CloudShelf that doesn't use the Pickle protocol.
         """
-        if config.mode_raw:
-            logger.debug(
-                "Creating a BytesShelf as the configuration is set to raw mode."
-            )
+        if config.use_pickle:
+            logger.info("Using BytesShelf as the Pickle format is not required.")
             return super(CloudShelf, cls).__new__(BytesShelf)
         return super(CloudShelf, cls).__new__(CloudShelf)
 
@@ -104,8 +102,10 @@ class CloudShelf(shelve.Shelf):
             {**provider_params, **config.provider_params}
         )
 
-        # If the configuration is 'raw', the data must stay as provided without cshelve metadata.
-        data_signed_or_versionned = not config.mode_raw
+        # If Pickle is not used, the data is neither signed nor versioned.
+        # Consequently, the user takes responsibility for the format of the data in the storage.
+        # This also allows the user to use the cloud shelf as a simple wrapper around cloud storage.
+        data_signed_or_versionned = not config.use_pickle
 
         # Data processing object used to apply pre and post processing to the data.
         data_processing = DataProcessing(logger, data_signed_or_versionned)
