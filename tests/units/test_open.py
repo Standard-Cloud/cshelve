@@ -37,7 +37,8 @@ def test_load_cloud_shelf_config():
     factory.return_value = cloud_database
     loader.return_value = Config(
         provider,
-        "standard",
+        True,
+        True,
         default_config,
         logging_config,
         compression_config,

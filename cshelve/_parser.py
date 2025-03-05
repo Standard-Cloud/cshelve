@@ -21,6 +21,8 @@ DEFAULT_CONFIG_STORE = "default"
 PROVIDER_KEY = "provider"
 # Key indicating if the usage of pickle is activated (True by default).
 USE_PICKLE = "use_pickle"
+# Key indicating if the usage of the versionning is activated (True by default).
+USE_VERSIONNING = "use_versionning"
 # Logging configuration section.
 LOGGING_KEY_STORE = "logging"
 # Compression configuration section.
@@ -36,6 +38,7 @@ Config = namedtuple(
     [
         "provider",
         "use_pickle",
+        "use_versionning",
         "default",
         "logging",
         "compression",
@@ -73,11 +76,12 @@ def load(logger: Logger, filename: Path) -> Config:
     logger.debug(f"Configuration file '{filename}' loaded.")
     return Config(
         provider=c[PROVIDER_KEY],
-        # This configuration is checked here to avoid redundant checks.
-        use_pickle=c.get(USE_PICKLE, "true").lower() == "true",
         default=from_env(dict(c)),
         logging=from_env(dict(logging_config)),
         compression=from_env(dict(compression_config)),
         encryption=from_env(dict(encryption_config)),
         provider_params=from_env(dict(provider_params)),
+        # These configurations is checked here to avoid redundant checks.
+        use_pickle=c.get(USE_PICKLE, "true").lower() == "true",
+        use_versionning=c.get(USE_VERSIONNING, "true").lower() == "true",
     )

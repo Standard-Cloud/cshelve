@@ -81,8 +81,8 @@ class CloudShelf(shelve.Shelf):
         """
         if config.use_pickle:
             logger.info("Using BytesShelf as the Pickle format is not required.")
-            return super(CloudShelf, cls).__new__(BytesShelf)
-        return super(CloudShelf, cls).__new__(CloudShelf)
+            return super(CloudShelf, cls).__new__(CloudShelf)
+        return super(CloudShelf, cls).__new__(BytesShelf)
 
     def __init__(
         self,
@@ -105,7 +105,7 @@ class CloudShelf(shelve.Shelf):
         # If Pickle is not used, the data is neither signed nor versioned.
         # Consequently, the user takes responsibility for the format of the data in the storage.
         # This also allows the user to use the cloud shelf as a simple wrapper around cloud storage.
-        data_signed_or_versionned = not config.use_pickle
+        data_signed_or_versionned = config.use_versionning
 
         # Data processing object used to apply pre and post processing to the data.
         data_processing = DataProcessing(logger, data_signed_or_versionned)
