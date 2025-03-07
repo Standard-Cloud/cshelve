@@ -17,6 +17,7 @@ Table of contents
 .. toctree::
    :maxdepth: 1
 
+   aws-s3
    azure-blob
    compression
    encryption
