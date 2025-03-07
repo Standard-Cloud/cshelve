@@ -198,49 +198,49 @@ print(my_data)
 ### Providers configuration
 #### AWS S3
 
-Provider: aws-s3
-Installation: pip install cshelve[aws-s3]
+Provider: `aws-s3`
+Installation: `pip install cshelve[aws-s3]`
 
 The AWS S3 provider uses an [AWS S3 Bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html) as remote storage.
 
 | Option              | Description                                                                 | Required           | Default Value |
 |---------------------|-----------------------------------------------------------------------------|--------------------|---------------|
-| bucket_name       | The name of the S3 bucket.                                                  | :white_check_mark: |               |
-| auth_type         | The authentication method to use: access_key.                             | :white_check_mark: |               |
-| key_id   | The environment variable for the AWS access key ID.                         | :white_check_mark: |               |
-| key_secret| The environment variable for the AWS secret access key.                     | :white_check_mark: |               |
+| `bucket_name`       | The name of the S3 bucket.                                                  | :white_check_mark: |               |
+| `auth_type`         | The authentication method to use: `access_key`.                             | :white_check_mark: |               |
+| `key_id`   | The environment variable for the AWS access key ID.                         | :white_check_mark: |               |
+| `key_secret`| The environment variable for the AWS secret access key.                     | :white_check_mark: |               |
 
-Depending on the open flag, the permissions required by cshelve for S3 storage vary.
+Depending on the `open` flag, the permissions required by `cshelve` for S3 storage vary.
 
 | Flag | Description | Permissions Needed |
 |------|-------------|--------------------|
-| r  | Open an existing S3 bucket for reading only. | [AmazonS3ReadOnlyAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonS3ReadOnlyAccess.html) |
-| w  | Open an existing S3 bucket for reading and writing. | [AmazonS3ReadAndWriteAccess](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_examples_s3_rw-bucket.html) |
-| c  | Open an S3 bucket for reading and writing, creating it if it doesn't exist. | [AmazonS3FullAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonS3FullAccess.html) |
-| n  | Purge the S3 bucket before using it. | [AmazonS3FullAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonS3FullAccess.html) |
+| `r`  | Open an existing S3 bucket for reading only. | [AmazonS3ReadOnlyAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonS3ReadOnlyAccess.html) |
+| `w`  | Open an existing S3 bucket for reading and writing. | [AmazonS3ReadAndWriteAccess](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_examples_s3_rw-bucket.html) |
+| `c`  | Open an S3 bucket for reading and writing, creating it if it doesn't exist. | [AmazonS3FullAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonS3FullAccess.html) |
+| `n`  | Purge the S3 bucket before using it. | [AmazonS3FullAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonS3FullAccess.html) |
 
 #### Azure Blob
 
-Provider: azure-blob
-Installation: pip install cshelve[azure-blob]
+Provider: `azure-blob`
+Installation: `pip install cshelve[azure-blob]`
 
 The Azure provider uses [Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction) as remote storage.
-The module considers the provided container as dedicated to the application. The impact might be significant. For example, if the flag n is provided to the open function, the entire container will be purged, aligning with the [official interface](https://docs.python.org/3/library/shelve.html#shelve.open).
+The module considers the provided container as dedicated to the application. The impact might be significant. For example, if the flag `n` is provided to the `open` function, the entire container will be purged, aligning with the [official interface](https://docs.python.org/3/library/shelve.html#shelve.open).
 
 | Option                           | Description                                                                                                                                                  | Required           | Default Value |
 |----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|---------------|
-| account_url                    | The URL of your Azure storage account.                                                                                                                       | :x:                |               |
-| auth_type                      | The authentication method to use: access_key, passwordless, connection_string or anonymous.                                                                               | :white_check_mark:                |               |
-| container_name                 | The name of the container in your Azure storage account.                                                                                                     | :white_check_mark:                |               |
+| `account_url`                    | The URL of your Azure storage account.                                                                                                                       | :x:                |               |
+| `auth_type`                      | The authentication method to use: `access_key`, `passwordless`, `connection_string` or `anonymous`.                                                                               | :white_check_mark:                |               |
+| `container_name`                 | The name of the container in your Azure storage account.                                                                                                     | :white_check_mark:                |               |
 
-Depending on the open flag, the permissions required by cshelve for blob storage vary.
+Depending on the `open` flag, the permissions required by `cshelve` for blob storage vary.
 
 | Flag | Description | Permissions Needed |
 |------|-------------|--------------------|
-| r  | Open an existing blob storage container for reading only. | [Storage Blob Data Reader](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) |
-| w  | Open an existing blob storage container for reading and writing. | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) |
-| c  | Open a blob storage container for reading and writing, creating it if it doesn't exist. | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) |
-| n  | Purge the blob storage container before using it. | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) |
+| `r`  | Open an existing blob storage container for reading only. | [Storage Blob Data Reader](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) |
+| `w`  | Open an existing blob storage container for reading and writing. | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) |
+| `c`  | Open a blob storage container for reading and writing, creating it if it doesn't exist. | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) |
+| `n`  | Purge the blob storage container before using it. | [Storage Blob Data Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) |
 
 Authentication type supported:
 
@@ -253,15 +253,15 @@ Authentication type supported:
 
 #### In Memory
 
-Provider: in-memory
+Provider: `in-memory`
 Installation: No additional installation required.
 
 The In-Memory provider uses an in-memory data structure to simulate storage. This is useful for testing and development purposes.
 
 | Option         | Description                                                                  | Required | Default Value |
 |----------------|------------------------------------------------------------------------------|----------|---------------|
-| persist-key  | If set, its value will be conserved and reused during the program execution. | :x:      | None          |
-| exists       | If True, the database exists; otherwise, it will be created.                 | :x:      | False         |
+| `persist-key`  | If set, its value will be conserved and reused during the program execution. | :x:      | None          |
+| `exists`       | If True, the database exists; otherwise, it will be created.                 | :x:      | False         |
 
 ## Contributing
 
