@@ -17,7 +17,7 @@ def test_migration_to_v1():
     db = {key: pickle.dumps(value)}
 
     logger = Mock()
-    data_processing = DataProcessing(logger)
-    database = _Database(logger, db, "c", data_processing)
+    data_processing = DataProcessing(logger, True)
+    database = _Database(logger, db, "c", data_processing, True)
 
     assert pickle.loads(database[key]) == value

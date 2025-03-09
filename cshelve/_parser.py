@@ -19,6 +19,10 @@ from ._config import from_env
 DEFAULT_CONFIG_STORE = "default"
 # Key containing the provider name.
 PROVIDER_KEY = "provider"
+# Key indicating if the usage of pickle is activated (True by default).
+USE_PICKLE = "use_pickle"
+# Key indicating if the usage of the versionning is activated (True by default).
+USE_VERSIONNING = "use_versionning"
 # Logging configuration section.
 LOGGING_KEY_STORE = "logging"
 # Compression configuration section.
@@ -31,7 +35,16 @@ PROVIDER_PARAMS = "provider_params"
 # Tuple containing the provider name and its configuration.
 Config = namedtuple(
     "Config",
-    ["provider", "default", "logging", "compression", "encryption", "provider_params"],
+    [
+        "provider",
+        "use_pickle",
+        "use_versionning",
+        "default",
+        "logging",
+        "compression",
+        "encryption",
+        "provider_params",
+    ],
 )
 
 
@@ -42,7 +55,7 @@ def use_local_shelf(filename: Path) -> bool:
     return not filename.suffix == ".ini"
 
 
-def load(logger: Logger, filename: Path) -> Tuple[str, Dict[str, str]]:
+def load(logger: Logger, filename: Path) -> Config:
     """
     Load the configuration file and return it as a dictionary.
     """
@@ -68,4 +81,7 @@ def load(logger: Logger, filename: Path) -> Tuple[str, Dict[str, str]]:
         compression=from_env(dict(compression_config)),
         encryption=from_env(dict(encryption_config)),
         provider_params=from_env(dict(provider_params)),
+        # These configurations is checked here to avoid redundant checks.
+        use_pickle=c.get(USE_PICKLE, "true").lower() == "true",
+        use_versionning=c.get(USE_VERSIONNING, "true").lower() == "true",
     )

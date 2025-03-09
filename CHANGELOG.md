@@ -1,10 +1,15 @@
 # Changelog
 
+## [1.2.0] - 2024-02-07
+### Added
+- Ability to save non-pickle objects.
+- Option to disable versioning.
+
 ## [1.1.0] - 2024-02-07
 ### Added
 - AWS S3 support.
-- TOML support of provider_params.
-- In TOML, replace variable starting by "$" by the environment variable.
+- TOML support for `provider_params`.
+- In TOML, replace variables starting with "$" with the corresponding environment variable.
 
 ## [1.0.0] - 2024-01-31
 ### Added

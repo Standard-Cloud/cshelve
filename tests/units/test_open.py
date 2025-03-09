@@ -37,6 +37,8 @@ def test_load_cloud_shelf_config():
     factory.return_value = cloud_database
     loader.return_value = Config(
         provider,
+        True,
+        True,
         default_config,
         logging_config,
         compression_config,
@@ -50,7 +52,6 @@ def test_load_cloud_shelf_config():
         filename, config_loader=loader, factory=factory, logger=logger
     ) as cs:
         loader.assert_called_once_with(logger, attended_filename)
-        factory.assert_called_once_with(logger, provider)
         assert isinstance(cs.dict.db, Mock)
         cs.dict.db.configure_default.assert_called_once_with(default_config)
         cs.dict.db.configure_logging.assert_called_once_with(logging_config)

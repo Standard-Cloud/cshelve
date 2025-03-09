@@ -13,7 +13,7 @@ from cshelve._data_processing import DataProcessing
 
 @pytest.fixture
 def data_processing():
-    return DataProcessing(Mock())
+    return DataProcessing(Mock(), True)
 
 
 def test_no_compression(data_processing):
