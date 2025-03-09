@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.2.0] - 2024-02-07
+## [1.2.0] - 2024-02-09
 ### Added
 - Ability to save non-pickle objects.
 - Option to disable versioning.
