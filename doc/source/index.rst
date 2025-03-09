@@ -24,6 +24,7 @@ Table of contents
    in-memory
    introduction
    logging
+   storage-options
    tutorial
    writeback
 

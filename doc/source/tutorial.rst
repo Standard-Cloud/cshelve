@@ -1,5 +1,5 @@
-Tutorial: Getting Started with *cshelve*
-========================================
+Getting Started with *cshelve*
+==============================
 
 Because the *cshelve* follows the *shelve* interface, a good getting started of the *cshelve* is the *shelve* `tutorial <https://docs.python.org/3/library/shelve.html>`_.
 
