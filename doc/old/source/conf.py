@@ -14,7 +14,10 @@ release = "1.2.0"
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.autosectionlabel"]
+extensions = [
+    "sphinx.ext.autosectionlabel",
+    "myst_parser"
+]
 
 templates_path = ["_templates"]
 exclude_patterns = []
@@ -25,3 +28,9 @@ exclude_patterns = []
 
 html_theme = "furo"
 html_static_path = ["_static"]
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.txt': 'markdown',
+    '.md': 'markdown',
+}
