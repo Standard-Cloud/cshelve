@@ -4,7 +4,7 @@ ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-# Install uv
+# Install dependencies
 RUN apt-get update && apt-get install -y python3-pip git nodejs npm && pip3 install uv pre-commit --break-system-packages
 
 # Create the vscode user and group
@@ -19,5 +19,5 @@ RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 USER $USERNAME
 
-# # Create the virtual environment
+# Create the virtual environment
 RUN uv venv --python 3.9 /build/package/venv
