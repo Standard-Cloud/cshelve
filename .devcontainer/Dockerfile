@@ -5,7 +5,7 @@ ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
 # Install uv
-RUN apt-get update && apt-get install -y python3-pip git nodejs npm && pip3 install uv --break-system-packages
+RUN apt-get update && apt-get install -y python3-pip git nodejs npm && pip3 install uv pre-commit --break-system-packages
 
 # Create the vscode user and group
 RUN groupadd --gid $USER_GID $USERNAME \
