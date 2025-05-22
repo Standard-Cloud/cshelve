@@ -6,7 +6,8 @@
 	"runServices": ["cshelve"],
 	"service": "cshelve",
 	"workspaceFolder": "/workspaces/package",
-
+	"postStartCommand": "bash ./.devcontainer/startup.sh",
+	"containerUser": "vscode",
 	"remoteEnv": {
 		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
 	},
@@ -17,7 +18,7 @@
 				"ms-python.debugpy"
 			],
 			"settings": {
-                "python.defaultInterpreterPath": "/build/package/.venv/bin/python"
+				"python.defaultInterpreterPath": "/build/package/venv/bin/python"
             }
 		}
 	}
