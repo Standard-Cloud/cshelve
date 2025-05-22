@@ -1,0 +1,5 @@
+FROM node
+
+RUN npm install -g azurite
+
+CMD azurite --debug /azurite/debug.log --inMemoryPersistence --blobHost 0.0.0.0
