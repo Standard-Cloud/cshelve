@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  azure-test:
+  tests:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -36,11 +36,8 @@ jobs:
 
     - name: Install uv
       uses: astral-sh/setup-uv@v3
-      with:
-        enable-cache: true
-        cache-dependency-glob: "uv.lock"
 
-    - name: Install Azureit to emulate Azure Storage Account locally.
+    - name: Install Azureit to emulate Azure Storage Account locally and moto to emulate AWS S3.
       run: |
         pip install moto[server]
         npm install -g azurite

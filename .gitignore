@@ -12,3 +12,6 @@ wheels/
 # Secrets
 .env
 .coverage
+
+# This is a library, we don't want to include the uv.lock
+uv.lock
