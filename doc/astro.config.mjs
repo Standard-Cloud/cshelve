@@ -6,7 +6,7 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
 	integrations: [
 		starlight({
-			title: 'Cshelve',
+			title: 'Cloud Shelve',
 			social: {
 				github: 'https://github.com/standard-cloud/cshelve',
 			},
