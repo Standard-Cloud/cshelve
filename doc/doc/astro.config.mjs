@@ -10,7 +10,38 @@ export default defineConfig({
 			social: {
 				github: 'https://github.com/withastro/starlight',
 			},
-			sidebar: [],
+			sidebar: [
+				{
+					label: 'Advanced Usage',
+					items: [
+						{ label: 'Writeback', link: './writeback' },
+					],
+				},
+				{
+					label: 'Configuration',
+					items: [
+						{ label: 'Compression', link: './compression' },
+						{ label: 'Encryption', link: './encryption' },
+						{ label: 'Logging', link: './logging' },
+						{ label: 'Storage Options', link: './storage-options' },
+					],
+				},
+				{
+					label: 'Providers',
+					items: [
+						{ label: 'AWS S3 Provider', link: './aws-s3' },
+						{ label: 'Azure Blob Storage', link: './azure-blob' },
+						{ label: 'In-Memory Provider', link: './in-memory' },
+					],
+				},
+				{
+					label: 'Tutorials',
+					items: [
+						{ label: 'Getting started', link: './tutorial' },
+						{ label: 'Introduction', link: './introduction' },
+					],
+				},
+			],
 		}),
 	],
 	server: { port: 8000, host: true }
