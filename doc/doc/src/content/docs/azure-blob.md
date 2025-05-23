@@ -3,8 +3,7 @@ title: Azure Storage Account
 description: Configure *cshelve* to use Azure Storage Account.
 ---
 
-Azure Blob Storage is a cloud storage solution for data storage and retrieval that is highly available, secure, durable, and scalable.
-*cshelve* can be configured to use Azure Blob Storage as a provider for storing and retrieving data.
+Azure Blob Storage is a cloud storage solution for data storage and retrieval that is highly available, secure, durable, and scalable. *cshelve* can be configured to use Azure Blob Storage as a provider for storing and retrieving data.
 
 ## Installation
 

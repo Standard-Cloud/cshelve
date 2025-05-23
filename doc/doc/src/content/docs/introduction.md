@@ -76,7 +76,7 @@ import cshelve
 
 with cshelve.open('in-memory.ini') as db:
     db['data'] = 'Test data'
-    print(db['data'])  # Output: This is some data
+    print(db['data'])  # Output: Test data
 ```
 
 ## Using Cloud Storage with `cshelve`
@@ -158,7 +158,7 @@ provider        = azure-blob
 container_name  = mycontainer
 
 [provider_params]
-secondary_hostname = 'https://secondary.blob.core.windows.net'
+secondary_hostname = https://secondary.blob.core.windows.net
 ```
 
 Parameters set in the configuration file override those provided through code.

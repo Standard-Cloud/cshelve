@@ -3,8 +3,7 @@ title: AWS S3 Provider
 description: Configure *cshelve* to use AWS S3 Bucket.
 ---
 
-[AWS S3 Bucket](https://aws.amazon.com/s3/) is a cloud storage solution for data storage and retrieval that is highly available, secure, durable, and scalable.
-*cshelve* can be configured to use AWS S3 Bucket as a provider for storing and retrieving data.
+[AWS S3 Bucket](https://aws.amazon.com/s3/) is a cloud storage solution for data storage and retrieval that is highly available, secure, durable, and scalable. *cshelve* can be configured to use AWS S3 Bucket as a provider for storing and retrieving data.
 
 ## Installation
 
@@ -38,8 +37,7 @@ Depending on the `open` flag, the permissions required by *cshelve* for S3 stora
 
 ### Access Key Authentication
 
-Currently, only Access Key authentication is supported.
-The secret can be set as an environment variable, and the key must be defined in the configuration.
+Currently, only Access Key authentication is supported. The secret can be set as an environment variable, and the key must be defined in the configuration.
 
 ```console
 cat access-key.ini
@@ -54,8 +52,7 @@ key_secret      = $AWS_KEY_SECRET
 
 ## Configure the Boto3 Client
 
-Behind the scenes, this provider uses the [Boto3 Client](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/core/session.html).
-Users can pass specific parameters using the `provider_params` parameter of the `cshelve.open` function and in the configuration file.
+Behind the scenes, this provider uses the [Boto3 Client](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/core/session.html). Users can pass specific parameters using the `provider_params` parameter of the `cshelve.open` function and in the configuration file.
 
 Here is an example where `endpoint_url` is specified using `provider_params`:
 

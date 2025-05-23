@@ -49,7 +49,7 @@ In this case, the encryption key is retrieved from the environment variable `ENC
 
 Currently, `cshelve` supports the following encryption algorithm:
 
-- **`aes256`**: A widely-used symmetric encryption standard.
+- `aes256`: Advanced Encryption Standard with a 256-bit key.
 
 ## Example Usage
 

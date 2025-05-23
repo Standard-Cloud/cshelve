@@ -1,9 +1,9 @@
 ---
 title: In-Memory Provider
-description: Configure *cshelve* to save in memory data.
+description: Configure *cshelve* to save in-memory data.
 ---
 
-For testing and development purposes, it is useful to have an in-memory provider. This provider is not persistent and data will be lost when the program ends, but it allows for testing without persistent storage.
+For testing and development purposes, it is useful to have an in-memory provider. This provider is not persistent, and data will be lost when the program ends, but it allows for testing without persistent storage.
 
 ## Configuration Options
 
@@ -22,4 +22,3 @@ exists        = True
 ```
 
 > **Note:** The in-memory provider is included for convenience during development and testing. Data stored is not persistent and will be lost upon program termination.
-
