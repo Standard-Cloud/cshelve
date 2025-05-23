@@ -49,7 +49,7 @@ jobs:
       run: uv python install ${{ matrix.python-version }}
 
     - name: Install the project
-      run: uv sync --all-extras --dev --python ${{ matrix.python-version }}
+      run: uv install --all-extras --dev --python ${{ matrix.python-version }}
 
     - name: Run tests without dependencies
       run: uv run pytest tests/units
