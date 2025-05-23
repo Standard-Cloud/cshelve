@@ -10,7 +10,7 @@ We welcome your feedback, contributions, and support! Feel free to star the proj
 ## Installation
 
 ```console
-$ pip install cshelve
+pip install cshelve
 ```
 
 ## Usage

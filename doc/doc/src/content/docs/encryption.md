@@ -1,6 +1,6 @@
 ---
 title: Encryption
-description: Configure the Encryption.
+description: Configure encryption for *cshelve*.
 ---
 
 The `cshelve` module supports encryption to secure stored data. Encryption reduces data visibility, improving security for sensitive information.
@@ -12,7 +12,7 @@ The `cshelve` module supports encryption to secure stored data. Encryption reduc
 Encryption functionality is not included by default. Install the additional dependencies to enable encryption:
 
 ```console
-$ pip install cshelve[encryption]
+pip install cshelve[encryption]
 ```
 
 ## Configuration File
@@ -38,7 +38,7 @@ For improved security, avoid storing encryption keys directly in configuration f
 [default]
 provider        = in-memory
 
-[compression]
+[encryption]
 algorithm       = aes256
 environment_key = ENCRYPTION_KEY
 ```

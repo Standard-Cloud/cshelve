@@ -3,7 +3,7 @@ title: Azure Storage Account
 description: Configure *cshelve* to use Azure Storage Account.
 ---
 
-Azure Blob Storage is a cloud storage solution for data storage and retrieval that is highly available, secure, durable, and scalable.  
+Azure Blob Storage is a cloud storage solution for data storage and retrieval that is highly available, secure, durable, and scalable.
 *cshelve* can be configured to use Azure Blob Storage as a provider for storing and retrieving data.
 
 ## Installation
@@ -11,7 +11,7 @@ Azure Blob Storage is a cloud storage solution for data storage and retrieval th
 To install the *cshelve* package with Azure Blob support, run the following command:
 
 ```console
-$ pip install cshelve[azure-blob]
+pip install cshelve[azure-blob]
 ```
 
 ## Configuration Options
@@ -41,7 +41,7 @@ The logging configuration allows enabling HTTP logging for blob storage operatio
 ### Example: Passwordless Authentication
 
 ```console
-$ cat passwordless.ini
+cat passwordless.ini
 [default]
 provider        = azure-blob
 account_url     = https://myaccount.blob.core.windows.net
@@ -69,7 +69,7 @@ with cshelve.open('passwordless.ini') as db:
 ### Example: Access Key Authentication
 
 ```console
-$ cat access-key.ini
+cat access-key.ini
 [default]
 provider        = azure-blob
 account_url     = https://myaccount.blob.core.windows.net
@@ -83,7 +83,7 @@ key_secret      = AZURE_STORAGE_KEY_SECRET
 ### Example: Connection String Authentication
 
 ```console
-$ cat connection-string.ini
+cat connection-string.ini
 [default]
 provider        = azure-blob
 auth_type       = connection_string
@@ -94,7 +94,7 @@ container_name  = test-connection-string
 ### Example: Anonymous Authentication
 
 ```console
-$ cat anonymous.ini
+cat anonymous.ini
 [default]
 provider        = azure-blob
 account_url     = https://myaccount.blob.core.windows.net
