@@ -64,4 +64,3 @@ with cshelve.open('azure-blob.ini') as db:
 ```
 
 For detailed logging capabilities, refer to the documentation of your specific cloud storage provider.
-

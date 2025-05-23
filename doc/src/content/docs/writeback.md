@@ -1,5 +1,5 @@
 ---
-title: The **Writeback** Parameter
+title: The Writeback Parameter
 description: What is the Writeback Parameter?
 ---
 
@@ -55,4 +55,3 @@ with cshelve.open('provider.ini', writeback=True) as db:
 - Increased memory usage due to cached objects.
 - Requires manual synchronization or closing to persist changes.
 - Potential for increased memory usage until synchronization occurs.
-
