@@ -16,6 +16,7 @@ services:
 
     ports:
       - "8000:8000"
+      - "4321:4321"
 
     volumes:
       # Forwards the local Docker socket to the container.
