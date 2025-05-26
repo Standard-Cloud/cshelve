@@ -4,6 +4,8 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
+	site: 'https://standard-cloud.github.io',
+	base: '/cshelve',
 	integrations: [
 		starlight({
 			title: 'Cloud Shelve',
