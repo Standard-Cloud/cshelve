@@ -15,7 +15,6 @@ CONFIG_FILES_KEY_NOT_FOUND = [
 CONFIG_FILES_DELETE = [
     "tests/configurations/azure-blob/standard.ini",
     "tests/configurations/in-memory/persisted.ini",
-    #"tests/configurations/aws-s3/standard.ini", Not supported
 ]
 
 CONFIG_FILES_AUTH_ERROR = [
@@ -61,10 +60,7 @@ def test_raise_delete_missing_object(config_file):
     db.close()
 
 
-@pytest.mark.parametrize(
-    "config_file",
-    CONFIG_FILES_AUTH_ERROR
-)
+@pytest.mark.parametrize("config_file", CONFIG_FILES_AUTH_ERROR)
 def test_unknown_auth_type(config_file):
     """
     Ensure exception is raised when auth type is unknown.
