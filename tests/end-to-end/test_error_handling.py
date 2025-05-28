@@ -1,21 +1,34 @@
 """
 Verify error handling in the library.
 """
-import os
 import pytest
 
 import cshelve
 
 
-CONFIG_FILES = [
+CONFIG_FILES_KEY_NOT_FOUND = [
     "tests/configurations/azure-blob/standard.ini",
     "tests/configurations/in-memory/persisted.ini",
+    "tests/configurations/aws-s3/standard.ini",
+]
+
+CONFIG_FILES_DELETE = [
+    "tests/configurations/azure-blob/standard.ini",
+    "tests/configurations/in-memory/persisted.ini",
+]
+
+CONFIG_FILES_AUTH_ERROR = [
+    "tests/configurations/azure-blob/error-handling/unknown-auth-type.ini",
+    "tests/configurations/azure-blob/error-handling/connection-string-without-connection-string.ini",
+    "tests/configurations/azure-blob/error-handling/connection-string-without-env-var.ini",
+    "tests/configurations/aws-s3/error-handling/unknown-auth-type.ini",
+    "tests/configurations/aws-s3/error-handling/access-key-without-secret.ini",
 ]
 
 
 @pytest.mark.parametrize(
     "config_file",
-    CONFIG_FILES,
+    CONFIG_FILES_KEY_NOT_FOUND,
 )
 def test_key_not_found(config_file):
     """
@@ -31,7 +44,7 @@ def test_key_not_found(config_file):
 
 @pytest.mark.parametrize(
     "config_file",
-    CONFIG_FILES,
+    CONFIG_FILES_DELETE,
 )
 def test_raise_delete_missing_object(config_file):
     """
@@ -47,31 +60,10 @@ def test_raise_delete_missing_object(config_file):
     db.close()
 
 
-def test_unknown_auth_type():
+@pytest.mark.parametrize("config_file", CONFIG_FILES_AUTH_ERROR)
+def test_unknown_auth_type(config_file):
     """
     Ensure exception is raised when auth type is unknown.
     """
-    with pytest.raises(cshelve.AuthTypeError):
-        cshelve.open(
-            "tests/configurations/azure-blob/error-handling/unknown-auth-type.ini"
-        )
-
-
-def test_no_connection_string_key_auth_type():
-    """
-    Ensure exception is raised when auth type is unknown.
-    """
-    with pytest.raises(cshelve.AuthArgumentError):
-        cshelve.open(
-            "tests/configurations/azure-blob/error-handling/connection-string-without-connection-string.ini"
-        )
-
-
-def test_no_connection_string_in_env():
-    """
-    Ensure exception is raised when auth type is unknown.
-    """
-    with pytest.raises(cshelve.AuthArgumentError):
-        cshelve.open(
-            "tests/configurations/azure-blob/error-handling/connection-string-without-env-var.ini"
-        )
+    with pytest.raises(cshelve.AuthError):
+        cshelve.open(config_file)

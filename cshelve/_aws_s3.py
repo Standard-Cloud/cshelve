@@ -3,7 +3,7 @@ from typing import Any, Dict, Iterator
 import boto3
 from botocore.exceptions import ClientError
 
-from .exceptions import key_access
+from .exceptions import AuthError, AuthTypeError, key_access
 from .provider_interface import ProviderInterface
 
 
@@ -14,6 +14,7 @@ class AwsS3(ProviderInterface):
         self.s3 = None
         self.aws_access_key_id = None
         self.aws_secret_access_key = None
+        self.auth_type = None
 
     def close(self) -> None:
         # No specific close operation needed for boto3 client
@@ -22,6 +23,7 @@ class AwsS3(ProviderInterface):
     def configure_default(self, config: Dict[str, str]) -> None:
         # Example configuration, can be extended as needed
         self.bucket_name = config.get("bucket_name")
+        self.auth_type = config.get("auth_type")
         self.aws_access_key_id = config.get("key_id")
         self.aws_secret_access_key = config.get("key_secret")
 
@@ -31,12 +33,21 @@ class AwsS3(ProviderInterface):
 
     def set_provider_params(self, provider_params: Dict[str, Any]) -> None:
         # Set any additional parameters if needed
-        self.s3 = boto3.client(
-            "s3",
-            aws_access_key_id=self.aws_access_key_id,
-            aws_secret_access_key=self.aws_secret_access_key,
-            **provider_params,
-        )
+        auth_type = self.auth_type or provider_params.get("auth_type")
+        if "access_key" != auth_type:
+            raise AuthTypeError(
+                f"Invalid auth_type: {auth_type}. Supported value is: access_key"
+            )
+        try:
+            self.s3 = boto3.client(
+                "s3",
+                aws_access_key_id=self.aws_access_key_id,
+                aws_secret_access_key=self.aws_secret_access_key,
+                **provider_params,
+            )
+        except Exception as e:
+            self.logger.error(f"Failed to create S3 client: {e}")
+            raise AuthError() from e
 
     def contains(self, key: bytes) -> bool:
         try:

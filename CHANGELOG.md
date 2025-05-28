@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0] - 2025-05-28
+### Fixed
+- AWS S3 provider now raises `cshelve.KeyNotFoundError` when trying to access a non-existing key.
+
+### Added
+- Raise `cshelve.AuthTypeError` if the authentication type is unknown on AWS S3.
+- Raise `cshelve.AuthError` if the authentication fails on AWS S3.
+
 ## [1.2.0] - 2025-02-09
 ### Added
 - Ability to save non-pickle objects.

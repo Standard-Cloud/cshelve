@@ -86,3 +86,6 @@ import cshelve
 with cshelve.open('aws-s3.ini') as db:
     ...
 ```
+
+## Note
+This provider doesn't raise `cshelve.KeyNotFoundError` when attempting to *delete* a non-existing key. This behavior is consistent with the AWS S3 API, which does not report errors when deleting non-existing objects. Implementing consistent behavior in CShelve to raise `KeyNotFoundError` for non-existing keys would require additional verification before deletion, which would negatively impact performance.

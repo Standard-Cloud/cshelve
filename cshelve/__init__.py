@@ -19,6 +19,7 @@ from ._parser import load as _config_loader, Config
 from ._parser import use_local_shelf
 from .exceptions import (
     AuthArgumentError,
+    AuthError,
     AuthTypeError,
     CanNotCreateDBError,
     ConfigurationError,
@@ -36,6 +37,7 @@ from .exceptions import (
 
 __all__ = [
     "AuthArgumentError",
+    "AuthError",
     "AuthTypeError",
     "CanNotCreateDBError",
     "ConfigurationError",
