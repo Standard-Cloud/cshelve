@@ -8,6 +8,17 @@ services:
       - "10001:10001"
       - "10002:10002"
 
+  sftp-password:
+    image: atmoz/sftp:alpine
+    command: cshelve:cloud-shelve:::upload
+
+  sftp-ssh:
+    image: atmoz/sftp:alpine
+    command: cshelve::::upload
+    volumes:
+      - ../tests/ssh_keys/ssh_key_no_password.example.pub:/home/cshelve/.ssh/ssh_key_no_password.example.pub:ro
+      - ../tests/ssh_keys/ssh_key_test_password.example.pub:/home/cshelve/.ssh/ssh_key_test_password.example.pub:ro
+
   cshelve:
     user: "1000:1000"
     build:
@@ -16,7 +27,6 @@ services:
 
     ports:
       - "8000:8000"
-      - "4321:4321"
 
     volumes:
       # Forwards the local Docker socket to the container.
@@ -27,6 +37,8 @@ services:
     depends_on:
       - azurite
       - motoserver
+      - sftp-password
+      - sftp-ssh
 
     command: sleep infinity
 

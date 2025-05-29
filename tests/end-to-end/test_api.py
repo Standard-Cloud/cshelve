@@ -20,30 +20,37 @@ CONFIG_FILES = [
     "tests/configurations/in-memory/compression.ini",
     "tests/configurations/in-memory/encryption.ini",
     "tests/configurations/in-memory/persisted.ini",
+    "tests/configurations/sftp/compression.ini",
+    "tests/configurations/sftp/encryption.ini",
+    "tests/configurations/sftp/standard.ini",
 ]
 
 CONFIG_FILES_ITER = [
     "tests/configurations/aws-s3/iter.ini",
     "tests/configurations/azure-blob/iter.ini",
     "tests/configurations/in-memory/iter.ini",
+    "tests/configurations/sftp/iter.ini",
 ]
 
 CONFIG_FILES_LEN = [
     "tests/configurations/aws-s3/len.ini",
     "tests/configurations/azure-blob/len.ini",
     "tests/configurations/in-memory/len.ini",
+    "tests/configurations/sftp/len.ini",
 ]
 
 CONFIG_FILES_DEL = [
     "tests/configurations/aws-s3/del.ini",
     "tests/configurations/azure-blob/del.ini",
     "tests/configurations/in-memory/del.ini",
+    "tests/configurations/sftp/del.ini",
 ]
 
 CONFIG_FILES_FLAG_N = [
     "tests/configurations/aws-s3/flag-n.ini",
     "tests/configurations/azure-blob/flag-n.ini",
     "tests/configurations/in-memory/flag-n.ini",
+    "tests/configurations/sftp/flag-n.ini",
 ]
 
 

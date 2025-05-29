@@ -31,6 +31,10 @@ def _factory(logger: Logger, provider: str):
         from ._in_memory import InMemory
 
         return InMemory(logger)
+    elif provider == "sftp":
+        from ._sftp import SFTP
+
+        return SFTP(logger)
 
     logger.critical("Provider not found.")
     raise UnknownProviderError(f"Provider Interface '{provider}' is not supported.")
