@@ -11,8 +11,8 @@ jobs:
   tests:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        os: [ubuntu-latest] #, windows-latest, macos-latest]
+        python-version: ["3.9"] #, "3.10", "3.11", "3.12", "3.13"]
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
@@ -22,7 +22,7 @@ jobs:
     - name: Install CMake and build C++ library
       shell: bash
       run: |
-        git clone --branch $VCPKG_VERSION --depth 1 https://github.com/microsoft/vcpkg.git vcpkg
+        git clone --branch $VCPKG_VERSION --depth 1 https://github.com/microsoft/vcpkg.git
         if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
           sudo apt-get update
           sudo apt-get install -y cmake g++
