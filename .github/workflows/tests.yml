@@ -22,7 +22,7 @@ jobs:
     - name: Install CMake and build C++ library
       shell: bash
       run: |
-        git clone --branch $VCPKG_VERSION --depth 1 https://github.com/microsoft/vcpkg.git
+        git clone --branch 2025.04.09 --depth 1 https://github.com/microsoft/vcpkg.git
         if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
           sudo apt-get update
           sudo apt-get install -y cmake g++
