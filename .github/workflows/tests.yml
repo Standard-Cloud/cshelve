@@ -19,6 +19,9 @@ jobs:
     environment: azure
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
     - name: Install CMake and build C++ library
       shell: bash
       run: |
