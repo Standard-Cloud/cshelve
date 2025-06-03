@@ -15,7 +15,9 @@
 		"vscode": {
 			"extensions": [
 				"ms-python.python",
-				"ms-python.debugpy"
+				"ms-python.debugpy",
+				"ms-vscode.cmake-tools",
+				"ms-vscode.cpptools-themes"
 			],
 			"settings": {
 				"python.defaultInterpreterPath": "/build/package/venv/bin/python"

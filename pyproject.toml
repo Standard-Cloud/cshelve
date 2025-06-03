@@ -62,3 +62,7 @@ aws-s3 = [
 sftp = [
     "paramiko>=3.5.1",
 ]
+
+[tool.cshelve.native]
+# Path to the static SFTP library to link against when building native extensions
+libs = ["./cshelve/sftp/libsftp.so", "./cshelve/sftp/libsftp.dll"]

@@ -19,6 +19,23 @@ jobs:
     environment: azure
 
     steps:
+    - name: Install CMake and build C++ library
+      shell: bash
+      run: |
+        git clone --branch $VCPKG_VERSION --depth 1 https://github.com/microsoft/vcpkg.git vcpkg
+        if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+          sudo apt-get update
+          sudo apt-get install -y cmake g++
+        elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+          brew update
+          brew install cmake
+        elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --yes
+        fi
+        cd cpp_lib
+        cmake --preset ci
+        cmake --build --preset ci
+
     - name: 'Az CLI login'
       uses: azure/login@v1
       with:

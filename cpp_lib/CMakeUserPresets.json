@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "configurePresets": [
+    {
+      "name": "default",
+      "inherits": "vcpkg",
+      "environment": {
+        "VCPKG_ROOT": "/build/vcpkg/"
+      }
+    },
+    {
+      "name": "ci",
+      "inherits": "vcpkg",
+      "environment": {
+        "VCPKG_ROOT": "../vcpkg"
+      }
+    }
+  ]
+}
