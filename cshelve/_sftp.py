@@ -41,6 +41,7 @@ class SFTP(ProviderInterface):
         self.password = None
         self.key_filename = None
         self.remote_path = None
+        self.accept_unknown_host_keys = False
         self._provider_parameters = {}
 
     @property
@@ -48,7 +49,12 @@ class SFTP(ProviderInterface):
         if not self._sftp_client:
             if not self.ssh_client:
                 self.ssh_client = paramiko.client.SSHClient()
-                self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                host_key_policy = (
+                    paramiko.AutoAddPolicy()
+                    if self.accept_unknown_host_keys
+                    else paramiko.RejectPolicy()
+                )
+                self.ssh_client.set_missing_host_key_policy(host_key_policy)
                 self.logger.debug(
                     f"Connecting to SFTP server {self.hostname}:{self.port}"
                 )
@@ -119,6 +125,7 @@ class SFTP(ProviderInterface):
         - password: SFTP password (either password or key_filename must be provided)
         - key_filename: SSH private key path (either password or key_filename must be provided)
         - remote_path: Remote directory path, the default is /home/{username}
+        - accept_unknown_host_keys: Accept unknown host keys (default: False)
         """
         self.hostname = config.get("hostname")
         self.port = int(config.get("port", "22"))
@@ -126,6 +133,9 @@ class SFTP(ProviderInterface):
         self.password = config.get("password")
         self.key_filename = config.get("key_filename")
         self.remote_path = config.get("remote_path")
+        self.accept_unknown_host_keys = (
+            config.get("accept_unknown_host_keys", "False").lower() == "true"
+        )
 
     def configure_logging(self, config: Dict[str, str]) -> None:
         """
