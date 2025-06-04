@@ -8,15 +8,6 @@ from typing import Any, Dict, Iterator
 
 from .exceptions import AuthError, ConfigurationError, key_access
 
-try:
-    import paramiko
-    import paramiko.client
-except ImportError:
-    raise ImportError(
-        "The paramiko package is required to use the SFTP implementation. "
-        "You can install it with `pip install cshelve[sftp]`"
-    )
-
 from .provider_interface import ProviderInterface
 import threading
 
@@ -48,6 +39,9 @@ class SFTP(ProviderInterface):
     def sftp_client(self):
         if not self._sftp_client:
             if not self.ssh_client:
+                # Lazy import paramiko.
+                paramiko = self._paramiko
+
                 self.ssh_client = paramiko.client.SSHClient()
                 host_key_policy = (
                     paramiko.AutoAddPolicy()
@@ -307,3 +301,17 @@ class SFTP(ProviderInterface):
             print("Removing file:", full_path, "-------------")
             # raise Exception(f"removing {full_path}. It may not exist or is not empty.")
             self.sftp_client.remove(full_path)
+
+    @property
+    def _paramiko(self):
+        """
+        Lazy import of paramiko to avoid circular imports.
+        """
+        try:
+            import paramiko
+        except ImportError:
+            raise ImportError(
+                "The paramiko package is required to use the SFTP implementation. "
+                "You can install it with `pip install cshelve[sftp]`"
+            )
+        return paramiko
