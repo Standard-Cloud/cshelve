@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "sftp.h"
 
 sftp_t* sftp_init()
@@ -47,6 +50,8 @@ static size_t _write_callback(void *ptr, size_t size, size_t nmemb, void *userda
 
 data_t* sftp_get(const sftp_t *sftp, const char *remote_path)
 {
+    printf("super cool, %s\n", remote_path);
+    return NULL; // Placeholder for actual implementation
     data_t *data = (data_t *)calloc(1, sizeof(data_t));
 
     if (!data) {

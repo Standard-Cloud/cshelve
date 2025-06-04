@@ -18,7 +18,7 @@ project ("cshelve"
 find_package(CURL REQUIRED)
 
 # Add source to this project's executable.
-add_library(cshelve SHARED "${CMAKE_SOURCE_DIR}/../src")
+add_library(cshelve SHARED "${CMAKE_SOURCE_DIR}/../src/sftp.cpp")
 target_include_directories(cshelve PUBLIC "${CMAKE_SOURCE_DIR}/../include")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
