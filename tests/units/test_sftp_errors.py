@@ -1,0 +1,111 @@
+import importlib
+import sys
+import types
+import pytest
+from cshelve._sftp import SFTP
+
+
+class DummyLogger:
+    def debug(self, msg):
+        pass
+
+    def error(self, msg):
+        pass
+
+    def info(self, msg):
+        pass
+
+
+def test_importerror_when_paramiko_missing(monkeypatch):
+    """
+    Test that ImportError is raised if paramiko is not installed when accessing SFTP._paramiko.
+    This test restores sys.modules after execution to avoid impacting other tests.
+    """
+    # Save and remove paramiko from sys.modules if present
+    paramiko_saved = sys.modules.pop("paramiko", None)
+    # Patch __import__ to raise ImportError for paramiko
+    orig_import = __import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "paramiko":
+            raise ImportError("No module named paramiko")
+        return orig_import(name, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.__import__", fake_import)
+    try:
+        sftp = SFTP(DummyLogger())
+        with pytest.raises(ImportError, match="paramiko"):
+            _ = sftp._paramiko
+    finally:
+        # Restore sys.modules to avoid impacting other tests
+        if paramiko_saved is not None:
+            sys.modules["paramiko"] = paramiko_saved
+        else:
+            sys.modules.pop("paramiko", None)
+
+
+def test_accept_unknown_host_keys_can_be_overridden():
+    """
+    Test that accept_unknown_host_keys can be set to True via configure_default.
+    """
+    default_params = {
+        "hostname": "host",
+        "port": "22",
+        "username": "user",
+        "password": "pass",
+    }
+    sftp = SFTP(DummyLogger())
+    config = {**default_params, "accept_unknown_host_keys": "true"}
+    sftp.configure_default(config)
+    sftp.set_provider_params({})
+    assert sftp.accept_unknown_host_keys is True
+
+    sftp2 = SFTP(DummyLogger())
+    config2 = {**default_params, "accept_unknown_host_keys": "false"}
+    sftp2.configure_default(config2)
+    sftp2.set_provider_params({})
+    assert sftp2.accept_unknown_host_keys is False
+
+
+def test_accept_unknown_host_keys_can_be_overridden_with_set_provider_params():
+    """
+    Test that accept_unknown_host_keys can be set via set_provider_params and that precedence is correct.
+    - If configure_default sets accept_unknown_host_keys, set_provider_params should not override it.
+    - If configure_default does not set accept_unknown_host_keys, set_provider_params should set it if provided.
+    - If neither sets it, default should be False.
+    """
+    default_params = {
+        "hostname": "host",
+        "port": "22",
+        "username": "user",
+        "password": "pass",
+    }
+    # Case 1: configure_default sets to false, set_provider_params tries to set to True (should remain False)
+    sftp = SFTP(DummyLogger())
+    sftp.configure_default({**default_params, "accept_unknown_host_keys": "false"})
+    sftp.set_provider_params({"accept_unknown_host_keys": True, **default_params})
+    assert sftp.accept_unknown_host_keys is False
+
+    # Case 2: configure_default sets to true, set_provider_params tries to set to False (should remain True)
+    sftp2 = SFTP(DummyLogger())
+    sftp2.configure_default({**default_params, "accept_unknown_host_keys": "true"})
+    sftp2.set_provider_params({"accept_unknown_host_keys": False, **default_params})
+    assert sftp2.accept_unknown_host_keys is True
+
+    # Case 3: configure_default does not set, set_provider_params sets to True (should be True)
+    sftp3 = SFTP(DummyLogger())
+    sftp3.configure_default(default_params)
+    sftp3.set_provider_params({"accept_unknown_host_keys": True, **default_params})
+    assert sftp3.accept_unknown_host_keys is True
+
+    # Case 4: configure_default does not set, set_provider_params sets to False (should be False)
+    sftp4 = SFTP(DummyLogger())
+    sftp4.configure_default(default_params)
+    sftp4.set_provider_params({"accept_unknown_host_keys": False, **default_params})
+    assert sftp4.accept_unknown_host_keys is False
+
+    # Case 5: neither sets, should be False
+    sftp5 = SFTP(DummyLogger())
+    sftp5.configure_default(default_params)
+    sftp5.set_provider_params(default_params)
+    assert sftp5.accept_unknown_host_keys is False

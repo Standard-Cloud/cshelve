@@ -127,9 +127,7 @@ class SFTP(ProviderInterface):
         self.password = config.get("password")
         self.key_filename = config.get("key_filename")
         self.remote_path = config.get("remote_path")
-        self.accept_unknown_host_keys = (
-            config.get("accept_unknown_host_keys", "False").lower() == "true"
-        )
+        self.accept_unknown_host_keys = config.get("accept_unknown_host_keys")
 
     def configure_logging(self, config: Dict[str, str]) -> None:
         """
@@ -147,6 +145,16 @@ class SFTP(ProviderInterface):
         self.username = self.username or provider_params.get("username")
         self.password = self.password or provider_params.get("password")
         self.key_filename = self.key_filename or provider_params.get("key_filename")
+
+        # Take the value from the config if it exists, otherwise from the provider_params or default to False.
+        if self.accept_unknown_host_keys is None:
+            self.accept_unknown_host_keys = provider_params.get(
+                "accept_unknown_host_keys", False
+            )
+        else:
+            self.accept_unknown_host_keys = (
+                self.accept_unknown_host_keys.lower() == "true"
+            )
 
         # If remote_path is not provided, use the default path based on the username.
         self.remote_path = self.remote_path or provider_params.get("remote_path", "")
