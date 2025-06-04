@@ -46,7 +46,9 @@ class SFTP(ProviderInterface):
             if not self.ssh_client:
                 self.ssh_client = paramiko.client.SSHClient()
                 self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                self.logger.debug(f"Connecting to SFTP server {self.hostname}:{self.port}")
+                self.logger.debug(
+                    f"Connecting to SFTP server {self.hostname}:{self.port}"
+                )
                 try:
                     self.ssh_client.connect(
                         hostname=self.hostname,
@@ -54,15 +56,19 @@ class SFTP(ProviderInterface):
                         username=self.username,
                         password=self.password,
                         # key_filename=self.key_filename
-                        look_for_keys=False
+                        look_for_keys=False,
                     )
                 except paramiko.AuthenticationException as e:
                     self.logger.error(f"Authentication failed: {e}")
                     raise AuthError("Authentication failed for SFTP connection")
                 except gaierror as e:
-                    self.logger.error(f"Could not resolve hostname {self.hostname}: {e}")
+                    self.logger.error(
+                        f"Could not resolve hostname {self.hostname}: {e}"
+                    )
                     raise AuthError(f"Could not resolve hostname {self.hostname}")
-                self.logger.info(f"Connected to SFTP server {self.hostname}:{self.port}")
+                self.logger.info(
+                    f"Connected to SFTP server {self.hostname}:{self.port}"
+                )
 
             self.logger.debug("Creating SFTP client")
             self._sftp_client = self.ssh_client.open_sftp()
@@ -74,11 +80,13 @@ class SFTP(ProviderInterface):
         """
         Decorator that converts a key to the path on the SFTP before passing it to the method.
         """
+
         def wrapper(self, key: bytes, *args, **kwargs):
-            key_str = key.decode('utf-8')
+            key_str = key.decode("utf-8")
             # Use forward slash explicitly for SFTP paths regardless of local OS
             full_path = f"{self.remote_path}/{key_str}"
             return method(self, full_path, *args, **kwargs)
+
         return wrapper
 
     def close(self) -> None:
@@ -95,15 +103,14 @@ class SFTP(ProviderInterface):
                 self._sftp_client.close()
                 self._sftp_client = None
 
-
     def configure_default(self, config: Dict[str, str]) -> None:
         """
         Default configuration of the SFTP provider.
-        
+
         Required parameters:
         - hostname: SFTP server hostname
         - username: SFTP username
-        
+
         Optional parameters:
         - port: SFTP port (default: 22)
         - password: SFTP password (either password or key_filename must be provided)
@@ -147,7 +154,9 @@ class SFTP(ProviderInterface):
         if not self.username:
             raise ConfigurationError("SFTP username is required")
         if not (self.password or self.key_filename):
-            raise ConfigurationError("Either password or key_filename must be provided for SFTP authentication")
+            raise ConfigurationError(
+                "Either password or key_filename must be provided for SFTP authentication"
+            )
 
     @_sftp_path
     def contains(self, key: bytes) -> bool:
@@ -199,7 +208,7 @@ class SFTP(ProviderInterface):
         Get the value associated with the key from the SFTP server.
         """
         self.logger.debug(f"Retrieving value for '{key}'")
-        with self.sftp_client.open(key, 'rb') as f:
+        with self.sftp_client.open(key, "rb") as f:
             data = f.read()
         return data
 
@@ -211,7 +220,7 @@ class SFTP(ProviderInterface):
             files = self.sftp_client.listdir(self.remote_path)
             for filename in files:
                 self.logger.debug(f"Yielding key: {filename}")
-                yield filename.encode('utf-8')
+                yield filename.encode("utf-8")
         except Exception as e:
             self.logger.error(f"Error iterating over keys: {e}")
             raise
@@ -237,7 +246,7 @@ class SFTP(ProviderInterface):
         """
         try:
             self._mkdir(Path(key).parent)
-            with self.sftp_client.open(key, 'wb') as f:
+            with self.sftp_client.open(key, "wb") as f:
                 f.write(value)
             self.logger.debug(f"Set value for key: {key}")
         except Exception as e:
@@ -276,12 +285,12 @@ class SFTP(ProviderInterface):
         try:
             # raise Exception(f"list? {full_path}. It may not exist or is not empty.")
             for item in self.sftp_client.listdir(full_path):
-                print('listdir item:', item)
+                print("listdir item:", item)
                 # raise Exception(f"Error removing {full_path}. It may not exist or is not empty.")
                 self._rmdir(f"{full_path}/{item}")
-            #raise Exception(f"no loop removing {full_path}. It may not exist or is not empty.")
+            # raise Exception(f"no loop removing {full_path}. It may not exist or is not empty.")
             self.sftp_client.rmdir(full_path)
         except:
-            print('Removing file:', full_path, '-------------')
+            print("Removing file:", full_path, "-------------")
             # raise Exception(f"removing {full_path}. It may not exist or is not empty.")
             self.sftp_client.remove(full_path)
