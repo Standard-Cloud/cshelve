@@ -15,6 +15,9 @@ class ProviderInterface:
     Some methods may be left empty if not needed by the storage provider.
     """
 
+    # Indicates that the provider is thread-safe.
+    IS_THREAD_SAFE: bool = True
+
     def __init__(self, logger) -> None:
         self.logger = logger
 

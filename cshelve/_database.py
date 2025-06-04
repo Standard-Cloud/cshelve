@@ -130,11 +130,17 @@ class _Database(MutableMapping):
             if clear_db(self.flag):
                 self.logger.info(f"Purging the database...")
                 # Retrieve all the keys and delete them.
-                # Retrieving keys is quick, but deletion synchronously is slow, so we use threads to speed up the process.
-                # for i in self.db.iter():
-                #     print(self.db.delete(i))
-                with ThreadPoolExecutor() as executor:
-                    list(executor.map(self.db.delete, self.db.iter()))
+                # Retrieving keys is quick, but deletion synchronously is slow, so we use threads to speed up the process when possible.
+                if self.db.IS_THREAD_SAFE:
+                    self.logger.info(f"Using threads to purge the database.")
+                    with ThreadPoolExecutor() as executor:
+                        list(executor.map(self.db.delete, self.db.iter()))
+                else:
+                    self.logger.warning(
+                        f"Database is not thread-safe, purging will be done synchronously."
+                    )
+                    for i in self.db.iter():
+                        self.db.delete(i)
                 self.logger.info(f"Database purged.")
 
 

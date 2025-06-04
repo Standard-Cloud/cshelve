@@ -27,6 +27,9 @@ class SFTP(ProviderInterface):
     This class implements the ProviderInterface for SFTP connections.
     """
 
+    # The SFTP connection from paramiko is not thread-safe.
+    IS_THREAD_SAFE = False
+
     def __init__(self, logger) -> None:
         self._lock = threading.RLock()
         self.logger = logger
