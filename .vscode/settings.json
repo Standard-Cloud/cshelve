@@ -8,6 +8,5 @@
         "cshelve"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "cmake.sourceDirectory": "/workspaces/package/cpp_lib"
+    "python.testing.pytestEnabled": true
 }
