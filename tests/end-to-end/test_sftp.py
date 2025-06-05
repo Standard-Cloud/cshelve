@@ -39,20 +39,15 @@ def test_sftp_authentication(config_file):
 @pytest.mark.parametrize(
     "config_file",
     [
-        "tests/configurations/sftp/auth.ini",
+        "tests/configurations/sftp/auth_error.ini",
     ],
 )
 def test_sftp_authentication(config_file):
     """
     Test authentication methods.
     """
-    provider_params = {
-        "username": "wrong",
-        "password": "wrong",
-    }
-
     with pytest.raises(cshelve.AuthArgumentError):
-        cshelve.open(config_file, provider_params=provider_params)
+        cshelve.open(config_file)
 
 
 @pytest.mark.sftp

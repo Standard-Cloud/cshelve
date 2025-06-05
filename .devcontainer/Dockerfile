@@ -8,7 +8,7 @@ ARG VCPKG_VERSION=2025.04.09
 
 # Install dependencies
 RUN apt-get update \
-    && apt-get install -y python3-pip git nodejs npm cmake g++ ninja-build curl \
+    && apt-get install -y python3-pip git nodejs npm \
     && pip3 install uv pre-commit --break-system-packages
 
 # Create the vscode user and group
@@ -29,6 +29,4 @@ RUN git clone --branch $VCPKG_VERSION --depth 1 https://github.com/microsoft/vcp
 # Create the virtual environment
 RUN uv venv --python 3.9 /build/package/venv
 
-USER root
-RUN apt install -y zip pkg-config linux-libc-dev
 USER $USERNAME
