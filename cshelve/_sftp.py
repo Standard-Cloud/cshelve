@@ -12,6 +12,9 @@ from .provider_interface import ProviderInterface
 import threading
 
 
+DEFAULT_TIMEOUT = 10  # Default timeout for SFTP operations in seconds
+
+
 class SFTP(ProviderInterface):
     """
     SFTP provider implementation using paramiko.
@@ -33,14 +36,14 @@ class SFTP(ProviderInterface):
         self.key_filename = None
         self.remote_path = None
         self.accept_unknown_host_keys = False
-        self._provider_parameters = {}
+        self._provider_auth_parameters = {}
 
     @property
     def sftp_client(self):
         if not self._sftp_client:
             if not self.ssh_client:
                 # Lazy import paramiko.
-                paramiko = self._paramiko
+                paramiko = self._paramiko()
 
                 self.ssh_client = paramiko.client.SSHClient()
                 host_key_policy = (
@@ -60,6 +63,7 @@ class SFTP(ProviderInterface):
                         password=self.password,
                         # key_filename=self.key_filename
                         look_for_keys=False,
+                        **self._provider_auth_parameters,
                     )
                 except paramiko.AuthenticationException as e:
                     self.logger.error(f"Authentication failed: {e}")
@@ -159,7 +163,18 @@ class SFTP(ProviderInterface):
         # If remote_path is not provided, use the default path based on the username.
         self.remote_path = self.remote_path or provider_params.get("remote_path", "")
 
-        self._provider_parameters = provider_params
+        self._provider_auth_parameters["timeout"] = provider_params.get(
+            "timeout", DEFAULT_TIMEOUT
+        )
+        self._provider_auth_parameters["banner_timeout"] = provider_params.get(
+            "banner_timeout", DEFAULT_TIMEOUT
+        )
+        self._provider_auth_parameters["auth_timeout"] = provider_params.get(
+            "auth_timeout", DEFAULT_TIMEOUT
+        )
+        self._provider_auth_parameters["channel_timeout"] = provider_params.get(
+            "channel_timeout", DEFAULT_TIMEOUT
+        )
 
         # Check if required parameters are defined
         if not self.hostname:
@@ -231,14 +246,7 @@ class SFTP(ProviderInterface):
         """
         Return an iterator over the keys in the SFTP server.
         """
-        try:
-            files = self.sftp_client.listdir(self.remote_path)
-            for filename in files:
-                self.logger.debug(f"Yielding key: {filename}")
-                yield filename.encode("utf-8")
-        except Exception as e:
-            self.logger.error(f"Error iterating over keys: {e}")
-            raise
+        yield from self._iter(self.remote_path)
 
     def len(self) -> int:
         """
@@ -281,36 +289,38 @@ class SFTP(ProviderInterface):
         Create a directory for the given key in the SFTP server.
         """
         _full_path = str(full_path)
-        try:
-            # Check if the directory already exists
-            self.sftp_client.stat(_full_path)
+
+        if self._exists(_full_path):
             self.logger.debug(f"Folder {_full_path} already exists")
             return
-        except:
-            self.logger.debug(f"Folder {_full_path} does not exists")
-        try:
-            self.sftp_client.mkdir(_full_path)
-            self.logger.debug(f"Folder {_full_path} created successfully")
-        except Exception as e:
-            self.logger.error(f"Error creating directory {_full_path}: {e}")
-            self._mkdir(full_path.parent)
-            self.sftp_client.mkdir(_full_path)
+
+        self._mkdir(full_path.parent)
+
+        self.logger.debug(f"Creating folder {_full_path}")
+        self.sftp_client.mkdir(_full_path)
+        self.logger.debug(f"Folder {_full_path} created successfully")
 
     def _rmdir(self, full_path) -> None:
-        try:
-            # raise Exception(f"list? {full_path}. It may not exist or is not empty.")
-            for item in self.sftp_client.listdir(full_path):
-                print("listdir item:", item)
-                # raise Exception(f"Error removing {full_path}. It may not exist or is not empty.")
-                self._rmdir(f"{full_path}/{item}")
-            # raise Exception(f"no loop removing {full_path}. It may not exist or is not empty.")
-            self.sftp_client.rmdir(full_path)
-        except:
-            print("Removing file:", full_path, "-------------")
-            # raise Exception(f"removing {full_path}. It may not exist or is not empty.")
-            self.sftp_client.remove(full_path)
+        if self._is_dir(full_path):
+            self.logger.debug(f"Removing directory {full_path}")
 
-    @property
+            for item in self.sftp_client.listdir(full_path):
+                item_path = f"{full_path}/{item}"
+
+                if self._is_dir(item_path):
+                    self._rmdir(item_path)
+                else:
+                    self.logger.debug(f"Removing file {item_path}")
+                    self.sftp_client.remove(item_path)
+                    self.logger.debug(f"File {item_path} removed successfully")
+
+            self.logger.debug(f"Removing empty directory {full_path}")
+            self.sftp_client.rmdir(full_path)
+        else:
+            self.logger.debug(f"Removing file {full_path}")
+            self.sftp_client.remove(full_path)
+            self.logger.debug(f"File {full_path} removed successfully")
+
     def _paramiko(self):
         """
         Lazy import of paramiko to avoid circular imports.
@@ -323,3 +333,36 @@ class SFTP(ProviderInterface):
                 "You can install it with `pip install cshelve[sftp]`"
             )
         return paramiko
+
+    def _is_dir(self, key: bytes) -> bool:
+        """
+        Check if the key is a directory.
+        """
+        try:
+            stat = self.sftp_client.stat(key)
+            return stat.st_mode & 0o170000 == 0o040000  # Check if it's a directory
+        except Exception as e:
+            self.logger.error(f"Error checking if '{key}' is a directory: {e}")
+            return False
+
+    def _exists(self, key: bytes) -> bool:
+        """
+        Check if the key exists in the SFTP server.
+        """
+        try:
+            self.sftp_client.stat(key)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error checking existence of '{key}': {e}")
+            return False
+
+    def _iter(self, folder):
+        files = self.sftp_client.listdir(folder)
+        for item in files:
+            full_path = f"{folder}/{item}"
+
+            if self._is_dir(full_path):
+                ...
+            else:
+                self.logger.debug(f"Yielding key: {item}")
+                yield item.encode("utf-8")

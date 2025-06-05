@@ -1,6 +1,7 @@
 import importlib
 import sys
 import types
+from unittest.mock import Mock
 import pytest
 from cshelve._sftp import SFTP
 
@@ -109,3 +110,67 @@ def test_accept_unknown_host_keys_can_be_overridden_with_set_provider_params():
     sftp5.configure_default(default_params)
     sftp5.set_provider_params(default_params)
     assert sftp5.accept_unknown_host_keys is False
+
+
+def test_set_provider_params_assigns_timeouts():
+    """
+    Test that set_provider_params assigns timeout-related parameters correctly.
+    """
+    sftp = SFTP(DummyLogger())
+    config = {
+        "hostname": "host",
+        "port": "22",
+        "username": "user",
+        "password": "pass",
+    }
+    sftp.configure_default(config)
+    provider_params = {
+        "timeout": 10,
+        "banner_timeout": 20,
+        "auth_timeout": 30,
+        "channel_timeout": 40,
+    }
+    sftp.set_provider_params(provider_params)
+    # Patch SFTP._paramiko to return a mock paramiko module
+    paramiko_mock = Mock()
+    ssh_client_mock = Mock()
+    paramiko_mock.client.SSHClient.return_value = ssh_client_mock
+    sftp._paramiko = lambda: paramiko_mock
+
+    # Access sftp_client to trigger connect
+    _ = sftp.sftp_client
+
+    args = ssh_client_mock.connect.call_args[1]
+    print(args)
+    assert args["timeout"] == provider_params["timeout"]
+    assert args["banner_timeout"] == provider_params["banner_timeout"]
+    assert args["channel_timeout"] == provider_params["channel_timeout"]
+    assert args["auth_timeout"] == provider_params["auth_timeout"]
+
+
+def test_sftp_client_connect_uses_default_timeouts():
+    """
+    Test that sftp_client passes default timeout values to SSHClient.connect when not set in provider_params.
+    """
+    from cshelve._sftp import DEFAULT_TIMEOUT
+
+    sftp = SFTP(DummyLogger())
+    config = {
+        "hostname": "host",
+        "port": "22",
+        "username": "user",
+        "password": "pass",
+    }
+    sftp.configure_default(config)
+    sftp.set_provider_params({})
+    paramiko_mock = Mock()
+    ssh_client_mock = Mock()
+    paramiko_mock.client.SSHClient.return_value = ssh_client_mock
+    sftp._paramiko = lambda: paramiko_mock
+
+    _ = sftp.sftp_client
+
+    args = ssh_client_mock.connect.call_args[1]
+    assert args["timeout"] == DEFAULT_TIMEOUT
+    assert args["banner_timeout"] == DEFAULT_TIMEOUT
+    assert args["auth_timeout"] == DEFAULT_TIMEOUT
