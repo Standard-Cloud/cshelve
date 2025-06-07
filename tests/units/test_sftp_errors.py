@@ -52,6 +52,7 @@ def test_accept_unknown_host_keys_can_be_overridden():
         "port": "22",
         "username": "user",
         "password": "pass",
+        "auth_type": "username_password",
     }
     sftp = SFTP(DummyLogger())
     config = {**default_params, "accept_unknown_host_keys": "true"}
@@ -78,6 +79,7 @@ def test_accept_unknown_host_keys_can_be_overridden_with_set_provider_params():
         "port": "22",
         "username": "user",
         "password": "pass",
+        "auth_type": "username_password",
     }
     # Case 1: configure_default sets to false, set_provider_params tries to set to True (should remain False)
     sftp = SFTP(DummyLogger())
@@ -120,6 +122,7 @@ def test_set_provider_params_assigns_timeouts():
         "port": "22",
         "username": "user",
         "password": "pass",
+        "auth_type": "username_password",
     }
     sftp.configure_default(config)
     provider_params = {
@@ -158,6 +161,7 @@ def test_sftp_client_connect_uses_default_timeouts():
         "port": "22",
         "username": "user",
         "password": "pass",
+        "auth_type": "username_password",
     }
     sftp.configure_default(config)
     sftp.set_provider_params({})

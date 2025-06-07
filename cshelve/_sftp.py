@@ -24,16 +24,14 @@ class SFTP(ProviderInterface):
     def __init__(self, logger) -> None:
         super().__init__(logger)
         self._lock = threading.RLock()
-        self.logger = logger
         self._sftp_client = None
-        self.ssh_client = None
+        self.accept_unknown_host_keys = False
+        self.auth_type = None
+        self.config = None
         self.hostname = None
         self.port = 22
-        self.username = None
-        self.password = None
-        self.key_filename = None
         self.remote_path = None
-        self.accept_unknown_host_keys = False
+        self.ssh_client = None
         self._provider_auth_parameters = {}
 
     @property
@@ -57,8 +55,6 @@ class SFTP(ProviderInterface):
                     self.ssh_client.connect(
                         hostname=self.hostname,
                         port=self.port,
-                        username=self.username,
-                        password=self.password,
                         # key_filename=self.key_filename
                         look_for_keys=False,
                         **self._provider_auth_parameters,
@@ -77,7 +73,6 @@ class SFTP(ProviderInterface):
 
             self.logger.debug("Creating SFTP client")
             self._sftp_client = self.ssh_client.open_sftp()
-            self._sftp_client.settimeout(self._provider_auth_parameters["timeout"])
             self.logger.info("SFTP client created successfully")
 
         return self._sftp_client
@@ -131,17 +126,16 @@ class SFTP(ProviderInterface):
 
         Optional parameters:
         - port: SFTP port (default: 22)
-        - password: SFTP password (either password or key_filename must be provided)
-        - key_filename: SSH private key path (either password or key_filename must be provided)
-        - remote_path: Remote directory path, the default is /home/{username}
+        - username: SFTP username
+        - auth_type: Authentication type, either 'username_password' or 'key_filename'
         - accept_unknown_host_keys: Accept unknown host keys (default: False)
         """
+        self.config = config
         self.hostname = config.get("hostname")
         self.port = int(config.get("port", "22"))
-        self.username = config.get("username")
-        self.password = config.get("password")
-        self.key_filename = config.get("key_filename")
+        self.auth_type = config.get("auth_type")
         self.remote_path = config.get("remote_path")
+        self._provider_auth_parameters["username"] = config.get("username")
         self.accept_unknown_host_keys = config.get("accept_unknown_host_keys")
 
     def configure_logging(self, config: Dict[str, str]) -> None:
@@ -157,9 +151,6 @@ class SFTP(ProviderInterface):
         # The configuration provided from the config overrides the configuration provided from the provider_params
         self.hostname = self.hostname or provider_params.get("hostname")
         self.port = self.port or int(provider_params.get("port", "22"))
-        self.username = self.username or provider_params.get("username")
-        self.password = self.password or provider_params.get("password")
-        self.key_filename = self.key_filename or provider_params.get("key_filename")
 
         # Take the value from the config if it exists, otherwise from the provider_params or default to False.
         if self.accept_unknown_host_keys is None:
@@ -187,17 +178,42 @@ class SFTP(ProviderInterface):
             "channel_timeout", DEFAULT_TIMEOUT
         )
 
+        # Handle authentication parameters for paramiko
+        if self.auth_type == "username_password":
+            password = self.config.get("password") or provider_params.get("password")
+
+            if not password:
+                raise ConfigurationError(
+                    "The 'password' parameter must be provided for SFTP authentication"
+                )
+            self._provider_auth_parameters["password"] = password
+        elif self.auth_type == "key_filename":
+            key_filename = self.config.get("key_filename") or provider_params.get(
+                "key_filename"
+            )
+
+            if not key_filename:
+                raise ConfigurationError(
+                    "The 'key_filename' parameter must be provided for SFTP authentication"
+                )
+            self._provider_auth_parameters["key_filename"] = key_filename
+        else:
+            raise ConfigurationError(
+                "Unsupported authentication type. Use 'username_password' or 'key_filename'."
+            )
+
         # Check if required parameters are defined
         if not self.hostname:
             raise ConfigurationError("SFTP hostname is required")
         if not self.port:
             raise ConfigurationError("SFTP port is required")
-        if not self.username:
-            raise ConfigurationError("SFTP username is required")
-        if not (self.password or self.key_filename):
+
+        username = self.config.get("username") or provider_params.get("username")
+        if not username:
             raise ConfigurationError(
-                "Either password or key_filename must be provided for SFTP authentication"
+                "The 'username' parameter must be provided for SFTP authentication"
             )
+        self._provider_auth_parameters["username"] = username
 
     @_sftp_path
     @_lock
