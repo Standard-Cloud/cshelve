@@ -1,6 +1,4 @@
-import importlib
 import sys
-import types
 from unittest.mock import Mock
 import pytest
 from cshelve._sftp import SFTP
@@ -36,7 +34,7 @@ def test_importerror_when_paramiko_missing(monkeypatch):
     try:
         sftp = SFTP(DummyLogger())
         with pytest.raises(ImportError, match="paramiko"):
-            _ = sftp._paramiko
+            _ = sftp._paramiko()
     finally:
         # Restore sys.modules to avoid impacting other tests
         if paramiko_saved is not None:

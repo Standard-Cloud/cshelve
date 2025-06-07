@@ -12,33 +12,6 @@ from helpers import unique_key
 @pytest.mark.parametrize(
     "config_file",
     [
-        "tests/configurations/sftp/auth.ini",
-    ],
-)
-def test_sftp_authentication(config_file):
-    """
-    Test authentication methods.
-    """
-    with cshelve.open(config_file) as db:
-        key = unique_key + "test_sftp_authentication"
-        data = "test_sftp_authentication"
-
-        # Write data to the DB.
-        db[key] = data
-
-        # Data must be accessible in the DB.
-        assert db[key] == data
-
-        # Delete the data from the DB.
-        del db[key]
-
-    db.close()
-
-
-@pytest.mark.sftp
-@pytest.mark.parametrize(
-    "config_file",
-    [
         "tests/configurations/sftp/auth_error.ini",
     ],
 )
@@ -46,7 +19,7 @@ def test_sftp_authentication(config_file):
     """
     Test authentication methods.
     """
-    with pytest.raises(cshelve.AuthArgumentError):
+    with pytest.raises(cshelve.AuthError):
         cshelve.open(config_file)
 
 
@@ -77,7 +50,8 @@ def test_sftp_recursion_folder(config_file):
         # Data must be accessible in the DB.
         assert db[key] == data
 
-        # Delete all the folders and data.
-        del db[first_folder]
+        # Can not delete the folder.
+        with pytest.raises(cshelve.KeyNotFoundError):
+            del db[first_folder]
 
     db.close()

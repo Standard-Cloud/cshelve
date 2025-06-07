@@ -1,6 +1,8 @@
 """
 This Interface defines the interface for storage provider supporting the `MutableMapping` interface.
 This class is used by the `Shelf` class to interact with the cloud storage provider.
+
+If the provider is not thread-safe, it must handle the locking mechanism itself.
 """
 from abc import abstractmethod
 from typing import Any, Dict, Iterator
@@ -14,9 +16,6 @@ class ProviderInterface:
     This class defines the interface for storage provider to be used by `cshelve`.
     Some methods may be left empty if not needed by the storage provider.
     """
-
-    # Indicates that the provider is thread-safe.
-    IS_THREAD_SAFE: bool = True
 
     def __init__(self, logger) -> None:
         self.logger = logger

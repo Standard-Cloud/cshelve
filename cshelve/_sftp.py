@@ -21,10 +21,8 @@ class SFTP(ProviderInterface):
     This class implements the ProviderInterface for SFTP connections.
     """
 
-    # The SFTP connection from paramiko is not thread-safe.
-    IS_THREAD_SAFE = False
-
     def __init__(self, logger) -> None:
+        super().__init__(logger)
         self._lock = threading.RLock()
         self.logger = logger
         self._sftp_client = None
@@ -65,20 +63,21 @@ class SFTP(ProviderInterface):
                         look_for_keys=False,
                         **self._provider_auth_parameters,
                     )
-                except paramiko.AuthenticationException as e:
-                    self.logger.error(f"Authentication failed: {e}")
-                    raise AuthError("Authentication failed for SFTP connection")
                 except gaierror as e:
                     self.logger.error(
                         f"Could not resolve hostname {self.hostname}: {e}"
                     )
                     raise AuthError(f"Could not resolve hostname {self.hostname}")
+                except Exception as e:
+                    self.logger.error(f"Authentication failed: {e}")
+                    raise AuthError("Authentication failed for SFTP connection") from e
                 self.logger.info(
                     f"Connected to SFTP server {self.hostname}:{self.port}"
                 )
 
             self.logger.debug("Creating SFTP client")
             self._sftp_client = self.ssh_client.open_sftp()
+            self._sftp_client.settimeout(self._provider_auth_parameters["timeout"])
             self.logger.info("SFTP client created successfully")
 
         return self._sftp_client
@@ -96,6 +95,18 @@ class SFTP(ProviderInterface):
 
         return wrapper
 
+    def _lock(method):
+        """
+        Decorator that ensures the method is locked to prevent concurrent access.
+        """
+
+        def wrapper(self, *args, **kwargs):
+            with self._lock:
+                return method(self, *args, **kwargs)
+
+        return wrapper
+
+    @_lock
     def close(self) -> None:
         """
         Close the SFTP connection.
@@ -189,6 +200,7 @@ class SFTP(ProviderInterface):
             )
 
     @_sftp_path
+    @_lock
     def contains(self, key: bytes) -> bool:
         """
         Check if the key exists in the SFTP server.
@@ -200,6 +212,7 @@ class SFTP(ProviderInterface):
             self.logger.error(f"File '{key}' does not exists")
             return False
 
+    @_lock
     def create(self) -> None:
         """
         Create the remote directory if it doesn't exist.
@@ -208,31 +221,27 @@ class SFTP(ProviderInterface):
 
     @key_access(Exception)
     @_sftp_path
+    @_lock
     def delete(self, key: bytes) -> None:
         """
         Delete the key and its associated value from the SFTP server.
         """
-        # Use a lock to prevent concurrent SFTP delete operations
-        with self._lock:
-            self._rmdir(key)
+        # Recursive deletion of directories is not supported to maintain consistent behavior with other providers.
+        self.logger.debug(f"Removing file {key}")
+        self.sftp_client.remove(key)
+        self.logger.debug(f"File {key} removed successfully")
 
+    @_lock
     def exists(self) -> bool:
         """
         Check if the remote directory exists.
         """
-        try:
-            self.sftp_client.stat(self.remote_path)
-            return True
-        except Exception as e:
-            try:
-                self.sftp_client.listdir(self.remote_path)
-            except Exception as e:
-                print(e)
-                self.logger.error(f"Folder '{self.remote_path}' does not exist")
-                return False
+        self.sftp_client.stat(self.remote_path)
+        return True
 
     @key_access(Exception)
     @_sftp_path
+    @_lock
     def get(self, key: bytes) -> bytes:
         """
         Get the value associated with the key from the SFTP server.
@@ -242,12 +251,14 @@ class SFTP(ProviderInterface):
             data = f.read()
         return data
 
+    # The lock must be acquired inside.
     def iter(self) -> Iterator[bytes]:
         """
         Return an iterator over the keys in the SFTP server.
         """
         yield from self._iter(self.remote_path)
 
+    @_lock
     def len(self) -> int:
         """
         Return the number of keys in the SFTP server.
@@ -262,6 +273,7 @@ class SFTP(ProviderInterface):
             raise
 
     @_sftp_path
+    @_lock
     def set(self, key: bytes, value: bytes) -> None:
         """
         Set the value associated with the key in the SFTP server.
@@ -300,27 +312,6 @@ class SFTP(ProviderInterface):
         self.sftp_client.mkdir(_full_path)
         self.logger.debug(f"Folder {_full_path} created successfully")
 
-    def _rmdir(self, full_path) -> None:
-        if self._is_dir(full_path):
-            self.logger.debug(f"Removing directory {full_path}")
-
-            for item in self.sftp_client.listdir(full_path):
-                item_path = f"{full_path}/{item}"
-
-                if self._is_dir(item_path):
-                    self._rmdir(item_path)
-                else:
-                    self.logger.debug(f"Removing file {item_path}")
-                    self.sftp_client.remove(item_path)
-                    self.logger.debug(f"File {item_path} removed successfully")
-
-            self.logger.debug(f"Removing empty directory {full_path}")
-            self.sftp_client.rmdir(full_path)
-        else:
-            self.logger.debug(f"Removing file {full_path}")
-            self.sftp_client.remove(full_path)
-            self.logger.debug(f"File {full_path} removed successfully")
-
     def _paramiko(self):
         """
         Lazy import of paramiko to avoid circular imports.
@@ -357,12 +348,15 @@ class SFTP(ProviderInterface):
             return False
 
     def _iter(self, folder):
-        files = self.sftp_client.listdir(folder)
+        with self._lock:
+            files = self.sftp_client.listdir(folder)
         for item in files:
             full_path = f"{folder}/{item}"
 
-            if self._is_dir(full_path):
-                ...
+            with self._lock:
+                is_dir = self._is_dir(full_path)
+            if is_dir:
+                yield from self._iter(full_path)
             else:
                 self.logger.debug(f"Yielding key: {item}")
                 yield item.encode("utf-8")
