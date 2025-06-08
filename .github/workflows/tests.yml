@@ -63,15 +63,25 @@ jobs:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
         ENCRYPTION_KEY: "Sixteen byte key"
 
+    - name: Run sftp end-to-end tests
+      if: runner.os == 'Linux'
+      run: |
+        cd .devcontainer
+        docker-compose -f docker-compose.yml up -d sftp-ssh sftp-password
+        cd -
+        uv run --python ${{ matrix.python-version }} pytest -m "sftp" tests/end-to-end
+        cd .devcontainer
+        docker-compose -f docker-compose.yml down
+        cd -
+
     - name: Run end-to-end tests with simulator
       run: |
-        docker ps
         # Start dependencies
         azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
         moto_server -p9000 &
 
         # Run tests
-        uv run --python ${{ matrix.python-version }} pytest -m "(not azure) and (not aws)" tests/end-to-end
+        uv run --python ${{ matrix.python-version }} pytest -m "(not azure) and (not aws) and (not sftp)" tests/end-to-end
       env:
         AWS_ENDPOINT_URL: "http://127.0.0.1:9000"
         AWS_KEY_ID: "moto"
