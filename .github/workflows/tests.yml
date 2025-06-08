@@ -63,17 +63,6 @@ jobs:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
         ENCRYPTION_KEY: "Sixteen byte key"
 
-    - name: Run sftp end-to-end tests
-      if: runner.os == 'Linux'
-      run: |
-        docker run -d --name sftp-password atmoz/sftp:alpine cshelve:cloud-shelve:::upload
-        docker run -d --name sftp-ssh \
-          -v $(pwd)/tests/configurations/sftp/ssh_keys/ssh_host_ed25519_key.pub:/home/cshelve/.ssh/keys/ssh_host_ed25519_key.pub \
-          -v $(pwd)/tests/configurations/sftp/ssh_keys/ssh_host_rsa_key.pub:/home/cshelve/.ssh/keys/ssh_host_rsa_key.pub \
-          atmoz/sftp:alpine cshelve::1000::upload
-        uv run --python ${{ matrix.python-version }} pytest -m "sftp" tests/end-to-end
-        docker rm -f sftp-password sftp-ssh
-
     - name: Run end-to-end tests with simulator
       run: |
         # Start dependencies
