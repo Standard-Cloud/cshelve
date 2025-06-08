@@ -65,6 +65,7 @@ jobs:
 
     - name: Run end-to-end tests with simulator
       run: |
+        docker ps
         # Start dependencies
         azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
         moto_server -p9000 &

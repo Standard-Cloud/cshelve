@@ -14,10 +14,10 @@ services:
 
   sftp-ssh:
     image: atmoz/sftp:alpine
-    command: cshelve::::upload
+    command: cshelve::1000::upload
     volumes:
-      - ../tests/ssh_keys/ssh_key_no_password.example.pub:/home/cshelve/.ssh/ssh_key_no_password.example.pub:ro
-      - ../tests/ssh_keys/ssh_key_test_password.example.pub:/home/cshelve/.ssh/ssh_key_test_password.example.pub:ro
+      - ../tests/configurations/sftp/ssh_keys/ssh_host_ed25519_key.example.pub:/home/cshelve/.ssh/keys/ssh_host_ed25519_key.pub
+      - ../tests/configurations/sftp/ssh_keys/ssh_host_rsa_key.example.pub:/home/cshelve/.ssh/keys/ssh_host_rsa_key.pub
 
   cshelve:
     user: "1000:1000"

@@ -55,8 +55,8 @@ class SFTP(ProviderInterface):
                     self.ssh_client.connect(
                         hostname=self.hostname,
                         port=self.port,
-                        # key_filename=self.key_filename
                         look_for_keys=False,
+                        allow_agent=False,
                         **self._provider_auth_parameters,
                     )
                 except gaierror as e:
@@ -196,6 +196,9 @@ class SFTP(ProviderInterface):
                 raise ConfigurationError(
                     "The 'key_filename' parameter must be provided for SFTP authentication"
                 )
+            # import paramiko
+            # pkey = paramiko.RSAKey.from_private_key_file(key_filename)
+            # self._provider_auth_parameters["pkey"] = pkey
             self._provider_auth_parameters["key_filename"] = key_filename
         else:
             raise ConfigurationError(
