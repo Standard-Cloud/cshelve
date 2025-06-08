@@ -66,6 +66,9 @@ jobs:
     - name: Run sftp end-to-end tests
       if: runner.os == 'Linux'
       run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose
+
         cd .devcontainer
         docker-compose -f docker-compose.yml up -d sftp-ssh sftp-password
         cd -
