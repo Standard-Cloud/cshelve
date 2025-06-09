@@ -33,6 +33,7 @@ def test_sftp_authentication(config_file):
         "tests/configurations/sftp/auth_ssh_ed25519.ini",
     ],
 )
+@pytest.mark.skip(reason="No SSH key on the CI server.")
 def test_sftp_auth_methods(config_file):
     """
     Test SFTP auth methods.
