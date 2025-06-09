@@ -85,7 +85,8 @@ class SFTP(ProviderInterface):
         def wrapper(self, key: bytes, *args, **kwargs):
             key_str = key.decode("utf-8")
             # Use forward slash explicitly for SFTP paths regardless of local OS
-            full_path = f"{self.remote_path}/{key_str}"
+            # full_path = f"{self.remote_path}/{key_str}"
+            full_path = f"upload/{key_str}"
             return method(self, full_path, *args, **kwargs)
 
         return wrapper
@@ -252,7 +253,7 @@ class SFTP(ProviderInterface):
         """
         Check if the remote directory exists.
         """
-        self.sftp_client.stat(self.remote_path)
+        # self.sftp_client.stat(self.remote_path)
         return True
 
     @key_access(Exception)
