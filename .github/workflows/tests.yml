@@ -68,8 +68,8 @@ jobs:
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
         ENCRYPTION_KEY: "Sixteen byte key"
         SFTP_PASSWORD_HOSTNAME: ${{ secrets.SFTP_PASSWORD_HOSTNAME }}
-        SFTP_USERNAME: ${{ secrets.SFTP_PASSWORD_HOSTNAME }}
-        SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD_HOSTNAME }}
+        SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}
+        SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
         SFTP_SSH_KEY_ED25519: /tmp/sftp_key_ed25519_key
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
 
