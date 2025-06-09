@@ -16,7 +16,7 @@ services:
     image: atmoz/sftp:alpine
     command: cshelve::1000::upload
     volumes:
-      - ../tests/configurations/sftp/ssh_keys/ssh_host_ed25519_key.pub:/home/cshelve/.ssh/keys/ssh_host_ed25519_key.pub
+      - ../tests/configurations/sftp/ssh_keys/ssh_host_ecdsa_key.pub:/home/cshelve/.ssh/keys/ssh_host_ecdsa_key.pub
       - ../tests/configurations/sftp/ssh_keys/ssh_host_rsa_key.pub:/home/cshelve/.ssh/keys/ssh_host_rsa_key.pub
 
   cshelve:
