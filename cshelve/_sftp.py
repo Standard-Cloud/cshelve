@@ -180,7 +180,7 @@ class SFTP(ProviderInterface):
         )
 
         # Handle authentication parameters for paramiko
-        if self.auth_type == "username_password":
+        if self.auth_type == "password":
             password = self.config.get("password") or provider_params.get("password")
 
             if not password:
