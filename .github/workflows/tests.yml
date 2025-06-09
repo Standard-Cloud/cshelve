@@ -56,8 +56,8 @@ jobs:
 
     - name: Retrieve SSH key for SFTP tests
       run: |
-        echo ${{ secrets.SFTP_SSH_KEY_ED25519 }} > /tmp/sftp_key_ed25519_key
-        echo ${{ secrets.SFTP_SSH_KEY_RSA }} > /tmp/sftp_key_rsa_key
+        echo ${{ secrets.SFTP_SSH_KEY_ED25519 }} | base64 --decode > /tmp/sftp_key_ed25519_key
+        echo ${{ secrets.SFTP_SSH_KEY_RSA }} | base64 --decode > /tmp/sftp_key_rsa_key
 
     - name: Run end-to-end tests interracting with Azure and AWS
       run: uv run --python ${{ matrix.python-version }} pytest -m "azure or aws or sftp" tests/end-to-end

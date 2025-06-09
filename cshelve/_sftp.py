@@ -37,21 +37,21 @@ class SFTP(ProviderInterface):
     @property
     def sftp_client(self):
         if not self._sftp_client:
-            if not self.ssh_client:
-                # Lazy import paramiko.
-                paramiko = self._paramiko()
+            try:
+                if not self.ssh_client:
+                    # Lazy import paramiko.
+                    paramiko = self._paramiko()
 
-                self.ssh_client = paramiko.client.SSHClient()
-                host_key_policy = (
-                    paramiko.AutoAddPolicy()
-                    if self.accept_unknown_host_keys
-                    else paramiko.RejectPolicy()
-                )
-                self.ssh_client.set_missing_host_key_policy(host_key_policy)
-                self.logger.debug(
-                    f"Connecting to SFTP server {self.hostname}:{self.port}"
-                )
-                try:
+                    self.ssh_client = paramiko.client.SSHClient()
+                    host_key_policy = (
+                        paramiko.AutoAddPolicy()
+                        if self.accept_unknown_host_keys
+                        else paramiko.RejectPolicy()
+                    )
+                    self.ssh_client.set_missing_host_key_policy(host_key_policy)
+                    self.logger.debug(
+                        f"Connecting to SFTP server {self.hostname}:{self.port}"
+                    )
                     self.ssh_client.connect(
                         hostname=self.hostname,
                         port=self.port,
@@ -59,21 +59,20 @@ class SFTP(ProviderInterface):
                         allow_agent=False,
                         **self._provider_auth_parameters,
                     )
-                except gaierror as e:
-                    self.logger.error(
-                        f"Could not resolve hostname {self.hostname}: {e}"
+                    self.logger.info(
+                        f"Connected to SFTP server {self.hostname}:{self.port}"
                     )
-                    raise AuthError(f"Could not resolve hostname {self.hostname}")
-                except Exception as e:
-                    self.logger.error(f"Authentication failed: {e}")
-                    raise AuthError("Authentication failed for SFTP connection") from e
-                self.logger.info(
-                    f"Connected to SFTP server {self.hostname}:{self.port}"
-                )
 
-            self.logger.debug("Creating SFTP client")
-            self._sftp_client = self.ssh_client.open_sftp()
-            self.logger.info("SFTP client created successfully")
+                self.logger.debug("Creating SFTP client")
+                self._sftp_client = self.ssh_client.open_sftp()
+                self.logger.info("SFTP client created successfully")
+
+            except gaierror as e:
+                self.logger.error(f"Could not resolve hostname {self.hostname}: {e}")
+                raise AuthError(f"Could not resolve hostname {self.hostname}")
+            except Exception as e:
+                self.logger.error(f"Authentication failed: {e}")
+                raise AuthError("Authentication failed for SFTP connection") from e
 
         return self._sftp_client
 
