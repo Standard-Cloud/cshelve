@@ -58,6 +58,7 @@ jobs:
       run: |
         echo ${{ secrets.SFTP_SSH_KEY_ECDSA }} | base64 --decode > /tmp/sftp_key_ecdsa_key
         echo ${{ secrets.SFTP_SSH_KEY_RSA }} | base64 --decode > /tmp/sftp_key_rsa_key
+      shell: bash
 
     - name: Run end-to-end tests interracting with Azure, AWS and SFTP
       run: uv run --python ${{ matrix.python-version }} pytest -m "azure or aws or sftp" tests/end-to-end
