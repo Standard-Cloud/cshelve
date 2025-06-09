@@ -54,6 +54,11 @@ jobs:
     - name: Run tests without dependencies
       run: uv run pytest tests/units
 
+    - name: Retrieve SSH key for SFTP tests
+      run: |
+        cat ${{ secrets.SFTP_SSH_KEY_ED25519 }} > /tmp/sftp_key_ed25519_key
+        cat ${{ secrets.SFTP_SSH_KEY_RSA }} > /tmp/sftp_key_rsa_key
+
     - name: Run end-to-end tests interracting with Azure and AWS
       run: uv run --python ${{ matrix.python-version }} pytest -m "azure or aws or sftp" tests/end-to-end
       env:
@@ -65,6 +70,8 @@ jobs:
         SFTP_PASSWORD_HOSTNAME: ${{ secrets.SFTP_PASSWORD_HOSTNAME }}
         SFTP_USERNAME: ${{ secrets.SFTP_PASSWORD_HOSTNAME }}
         SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD_HOSTNAME }}
+        SFTP_SSH_KEY_ED25519: /tmp/sftp_key_ed25519_key
+        SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
 
     - name: Run end-to-end tests with simulator
       run: |
