@@ -251,7 +251,11 @@ class SFTP(ProviderInterface):
         """
         Check if the remote directory exists.
         """
-        self.sftp_client.stat(self.remote_path + "/.")
+        try:
+            self.sftp_client.stat(self.remote_path + "/.")
+        except FileNotFoundError:
+            self.logger.info(f"Remote path '{self.remote_path}' does not exist.")
+            return False
         return True
 
     @key_access(Exception)
