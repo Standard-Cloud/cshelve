@@ -128,7 +128,7 @@ class SFTP(ProviderInterface):
         Optional parameters:
         - port: SFTP port (default: 22)
         - username: SFTP username
-        - auth_type: Authentication type, either 'username_password' or 'key_filename'
+        - auth_type: Authentication type, either 'password' or 'key_filename'
         - accept_unknown_host_keys: Accept unknown host keys (default: False)
         """
         self.config = config
@@ -200,7 +200,7 @@ class SFTP(ProviderInterface):
             self._provider_auth_parameters["key_filename"] = key_filename
         else:
             raise ConfigurationError(
-                "Unsupported authentication type. Use 'username_password' or 'key_filename'."
+                "Unsupported authentication type. Use 'password' or 'key_filename'."
             )
 
         # Check if required parameters are defined
