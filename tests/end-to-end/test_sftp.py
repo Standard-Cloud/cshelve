@@ -78,4 +78,7 @@ def test_sftp_recursion(config_file):
         with pytest.raises(cshelve.KeyNotFoundError):
             del db[folder]
 
+        # delete the key.
+        del db[key]
+
     db.close()
