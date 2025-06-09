@@ -74,6 +74,7 @@ jobs:
         SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
         SFTP_SSH_KEY_ECDSA: /tmp/sftp_key_ecdsa_key
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
+      shell: bash
 
     - name: Run end-to-end tests with simulator
       run: |
