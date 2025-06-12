@@ -38,7 +38,7 @@ def test_sftp_auth_methods(config_file):
     Test SFTP auth methods.
     """
     with cshelve.open(config_file) as db:
-        key = f"{unique_key}-cshelve-{config_file}".replace("\\", "/")
+        key = f"{unique_key}-cshelve-{config_file}"
         data = "test_sftp_auth_methods"
 
         # Write data to the DB.
@@ -64,7 +64,7 @@ def test_sftp_recursion(config_file):
     Test SFTP auth methods.
     """
     with cshelve.open(config_file) as db:
-        key = f"{unique_key}-cshelve-{config_file}".replace("\\", "/")
+        key = f"{unique_key}-cshelve-{config_file}"
         folder = str(Path(key).parent)
         data = "test_sftp_recursion"
 

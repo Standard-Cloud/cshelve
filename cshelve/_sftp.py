@@ -84,7 +84,7 @@ class SFTP(ProviderInterface):
         def wrapper(self, key: bytes, *args, **kwargs):
             key_str = key.decode("utf-8")
             # Use forward slash explicitly for SFTP paths regardless of local OS
-            full_path = f"{self.remote_path}/{key_str}"
+            full_path = f"{self.remote_path}/{key_str}".replace("\\", "/")
             return method(self, full_path, *args, **kwargs)
 
         return wrapper
