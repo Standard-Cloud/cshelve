@@ -181,7 +181,7 @@ def test_clear_db(config_file):
     """
     Ensure the database is cleared when using the 'n' flag.
     """
-    key_pattern = "test_clear_db"
+    key_pattern = f"{unique_key}-test_clear_db-{config_file}"
     data_pattern = "test_clear_db"
 
     def rewrite_db():
@@ -217,7 +217,7 @@ def test_del(config_file):
     """
     Ensure we can delete a record from the DB.
     """
-    key_pattern = "test_del"
+    key_pattern = f"{unique_key}-test_del-{config_file}"
     data_pattern = "test_del"
 
     def _del_data():
@@ -245,7 +245,7 @@ def test_len(config_file):
     """
     db = cshelve.open(config_file)
 
-    key_pattern = "test_len"
+    key_pattern = f"{unique_key}-test_len-{config_file}"
     data_pattern = "test_len"
 
     del_data(config_file)
@@ -269,7 +269,7 @@ def test_iter(config_file):
     res = set()
     db = cshelve.open(config_file)
 
-    key_pattern = "test_iter"
+    key_pattern = f"{unique_key}-test_iter-{config_file}"
     data_pattern = "test_iter"
     del_data(config_file)
 

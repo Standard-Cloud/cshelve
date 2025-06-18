@@ -24,6 +24,8 @@ class SFTP(ProviderInterface):
 
     def __init__(self, logger) -> None:
         super().__init__(logger)
+        # The SFTP protocol does not support using the same connection across multiple threads.
+        # If multithreading is required, each thread should create its own SFTP connection.
         self._lock = threading.RLock()
         self._sftp_client = None
         self.accept_unknown_host_keys = False

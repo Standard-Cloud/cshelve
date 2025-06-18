@@ -6,7 +6,7 @@
 	"runServices": ["cshelve"],
 	"service": "cshelve",
 	"workspaceFolder": "/workspaces/package",
-	"postStartCommand": "bash ./.devcontainer/startup.sh",
+	"postStartCommand": ".devcontainer/startup.sh",
 	"containerUser": "vscode",
 	"remoteEnv": {
 		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
