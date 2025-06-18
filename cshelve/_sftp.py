@@ -2,7 +2,8 @@
 SFTP provider implementation for cshelve.
 This module implements the SFTP provider interface using paramiko.
 """
-from pathlib import PurePosixPath as Path
+# SFTP is a *nix-based protocol, so we use PurePosixPath for paths.
+from pathlib import PurePosixPath
 from socket import gaierror
 from typing import Any, Dict, Iterator
 
@@ -83,8 +84,7 @@ class SFTP(ProviderInterface):
 
         def wrapper(self, key: bytes, *args, **kwargs):
             key_str = key.decode("utf-8")
-            # Use forward slash explicitly for SFTP paths regardless of local OS
-            full_path = f"{self.remote_path}/{key_str}".replace("\\", "/")
+            full_path = f"{self.remote_path}/{key_str}"
             return method(self, full_path, *args, **kwargs)
 
         return wrapper
@@ -232,7 +232,7 @@ class SFTP(ProviderInterface):
         """
         Create the remote directory if it doesn't exist.
         """
-        self._mkdir(Path(self.remote_path))
+        self._mkdir(PurePosixPath(self.remote_path))
 
     @key_access(Exception)
     @_sftp_path
@@ -282,14 +282,7 @@ class SFTP(ProviderInterface):
         """
         Return the number of keys in the SFTP server.
         """
-        try:
-            files = self.sftp_client.listdir(self.remote_path)
-            length = len(files)
-            self.logger.debug(f"Number of keys: {length}")
-            return length
-        except Exception as e:
-            self.logger.error(f"Error getting number of keys: {e}")
-            raise
+        return sum(1 for _ in self.iter())
 
     @_sftp_path
     @_lock
@@ -299,7 +292,7 @@ class SFTP(ProviderInterface):
         Creates any parent directories if they don't exist.
         """
         try:
-            self._mkdir(Path(key).parent)
+            self._mkdir(PurePosixPath(key).parent)
             with self.sftp_client.open(key, "wb") as f:
                 f.write(value)
             self.logger.debug(f"Set value for key: {key}")
