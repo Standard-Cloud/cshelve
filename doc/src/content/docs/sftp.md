@@ -129,12 +129,14 @@ with cshelve.open('sftp-config.ini') as db:
     # If permissions are missing, an error will be raised.
     db['customers/1001/name'] = 'John Doe'
     db['customers/1001/email'] = 'john@example.com'
-    
+
+
     # Windows-style paths are automatically converted to POSIX-style paths.
     # The following data will be stored in the folder 'customers/1002/'.
     db['customers\\1002\\name'] = 'Jane Smith'
     db['customers\\1002\\email'] = 'jane@example.com'
-    
+
+
     # Iterate through all keys
     # The iteration is recursive; the folders 'customers', 'customers/1001', and 'customers/1002' will be explored:
     for key in db:
