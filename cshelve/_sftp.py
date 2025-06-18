@@ -58,8 +58,6 @@ class SFTP(ProviderInterface):
                     self.ssh_client.connect(
                         hostname=self.hostname,
                         port=self.port,
-                        look_for_keys=False,
-                        allow_agent=False,
                         **self._provider_auth_parameters,
                     )
                     self.logger.info(
@@ -215,6 +213,12 @@ class SFTP(ProviderInterface):
                 "The 'username' parameter must be provided for SFTP authentication"
             )
         self._provider_auth_parameters["username"] = username
+
+        self._provider_auth_parameters = {
+            "look_for_keys": False,
+            "allow_agent": False,
+            **self._provider_auth_parameters,
+        }
 
     @_sftp_path
     @_lock
