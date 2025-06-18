@@ -2,7 +2,7 @@
 SFTP provider implementation for cshelve.
 This module implements the SFTP provider interface using paramiko.
 """
-from pathlib import Path
+from pathlib import PurePosixPath as Path
 from socket import gaierror
 from typing import Any, Dict, Iterator
 
