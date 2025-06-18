@@ -377,4 +377,4 @@ class SFTP(ProviderInterface):
                 yield from self._iter(full_path)
             else:
                 self.logger.debug(f"Yielding key: {item}")
-                yield item.encode("utf-8")
+                yield full_path
