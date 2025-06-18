@@ -322,14 +322,14 @@ class SFTP(ProviderInterface):
         _full_path = str(full_path)
 
         if self._exists(_full_path):
-            self.logger.debug(f"Folder {_full_path} already exists")
+            self.logger.error(f"Folder {_full_path} already exists")
             return
 
         self._mkdir(full_path.parent)
 
-        self.logger.debug(f"Creating folder {_full_path}")
+        self.logger.error(f"Creating folder {_full_path}")
         self.sftp_client.mkdir(_full_path)
-        self.logger.debug(f"Folder {_full_path} created successfully")
+        self.logger.error(f"Folder {_full_path} created successfully")
 
     def _paramiko(self):
         """
