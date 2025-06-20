@@ -8,7 +8,56 @@ permissions:
   contents: read
 
 jobs:
+  infrastructure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: azure
+    outputs:
+      storage_account_name: ${{ steps.terraform-outputs.outputs.STORAGE_ACCOUNT_NAME }}
+      container_name: ${{ steps.terraform-outputs.outputs.CONTAINER_NAME }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: .devcontainer/infra/backbone
+
+    - name: Terraform Apply
+      run: |
+        terraform apply -auto-approve \
+          -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
+          -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
+          -var="client_id=${{ secrets.AZURE_CLIENT_ID }}"
+      working-directory: .devcontainer/infra/backbone
+
+    - name: Export Terraform Outputs
+      id: terraform-outputs
+      run: |
+        echo "STORAGE_ACCOUNT_NAME=$(terraform output -raw storage_account_name)" >> $GITHUB_OUTPUT
+        echo "CONTAINER_NAME=$(terraform output -raw container_name)" >> $GITHUB_OUTPUT
+      working-directory: .devcontainer/infra/backbone
+
+    - name: Update Azure Storage Environment
+      run: |
+        echo "Created Azure Storage Account: ${{ steps.terraform-outputs.outputs.STORAGE_ACCOUNT_NAME }}"
+        echo "Created Container: ${{ steps.terraform-outputs.outputs.CONTAINER_NAME }}"
+
   tests:
+    needs: infrastructure
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -33,9 +82,6 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: 18
-
-    - name: Checkout code
-      uses: actions/checkout@v4
 
     - name: Install uv
       uses: astral-sh/setup-uv@v3
@@ -95,3 +141,43 @@ jobs:
         SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
         SFTP_SSH_KEY_ECDSA: /tmp/sftp_key_ecdsa_key
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
+
+  cleanup:
+    needs: [tests, infrastructure]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: azure
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: .devcontainer/infra/backbone
+
+    - name: Terraform Destroy
+      run: |
+        terraform destroy -auto-approve \
+          -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
+          -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
+          -var="client_id=${{ secrets.AZURE_CLIENT_ID }}"
+      working-directory: .devcontainer/infra/backbone
+
+    - name: Confirm Resource Cleanup
+      run: |
+        echo "Destroyed Storage Account: ${{ needs.infrastructure.outputs.storage_account_name }}"
+        echo "Destroyed Container: ${{ needs.infrastructure.outputs.container_name }}"
