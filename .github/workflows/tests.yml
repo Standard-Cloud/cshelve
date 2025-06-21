@@ -130,7 +130,8 @@ jobs:
       run: |
         # STORAGE_ACCOUNT_NAME=$(terraform output -raw storage_account_name)
         # SFTP_NAME=$(terraform output -raw sftp_name)
-        echo "SFTP_NAME=$(terraform output -raw sftp_name)" >> $GITHUB_OUTPUT
+        echo "SFTP_NAME=$(terraform output -raw sftp_name)"
+        echo "SFTP_NAME=$(terraform output -raw sftp_name)" >> $GITHUB_ENV
         # CONNECTION_STRING=$(terraform output -raw storage_account_primary_connection_string)
 
         # echo "STORAGE_ACCOUNT_NAME=${STORAGE_ACCOUNT_NAME}" >> $GITHUB_OUTPUT
