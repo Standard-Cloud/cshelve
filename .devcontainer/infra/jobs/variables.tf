@@ -28,3 +28,13 @@ variable "python_version" {
   description = "Python version for the job container"
   type        = string
 }
+
+variable "storage_account_name" {
+  description = "Name of the storage account created in the infrastructure job"
+  type        = string
+}
+
+variable "resource_group_name" {
+  description = "Name of the resource group containing the storage account"
+  type        = string
+}

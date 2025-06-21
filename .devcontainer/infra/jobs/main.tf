@@ -8,21 +8,10 @@ provider "azurerm" {
   use_oidc        = true
 }
 
-# Find the resource group by tag
-data "azurerm_resources" "resource_group" {
-  type                = "Microsoft.Resources/resourceGroups"
-  resource_group_name = ""
-
-  required_tags = {
-    github_run_id = var.run_id
-    created_by    = "github-actions"
-    purpose       = "cshelve-testing"
-  }
-}
-
 # Find storage account in the resource group
 data "azurerm_storage_account" "storage" {
-  resource_group_name = element(split("/", data.azurerm_resources.resource_group.resources[0].id), 4)
+  name                = var.storage_account_name
+  resource_group_name = var.resource_group_name
 
   tags = {
     github_run_id = var.run_id

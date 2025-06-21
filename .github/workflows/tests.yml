@@ -63,11 +63,17 @@ jobs:
       run: terraform output -no-color container_name
       working-directory: .devcontainer/infra/backbone
 
+    - name: Get Resource Group Name
+      id: get-resource-group
+      run: terraform output -no-color resource_group_name
+      working-directory: .devcontainer/infra/backbone
+
     - name: Set Outputs
       id: terraform-outputs
       run: |
         echo "STORAGE_ACCOUNT_NAME=${{ steps.get-storage-account.outputs.stdout }}" >> $GITHUB_OUTPUT
         echo "CONTAINER_NAME=${{ steps.get-container.outputs.stdout }}" >> $GITHUB_OUTPUT
+        echo "RESOURCE_GROUP_NAME=${{ steps.get-resource-group.outputs.stdout }}" >> $GITHUB_OUTPUT
 
     - name: Update Azure Storage Environment
       run: |
@@ -122,6 +128,8 @@ jobs:
         TF_VAR_run_id: ${{ github.run_id }}
         TF_VAR_os: ${{ matrix.os }}
         TF_VAR_python_version: ${{ matrix.python-version }}
+        TF_VAR_storage_account_name: ${{ needs.infrastructure.outputs.storage_account_name }}
+        TF_VAR_resource_group_name: ${{ needs.infrastructure.outputs.resource_group_name }}
 
     - name: Get Job Container Info
       id: get-job-container
