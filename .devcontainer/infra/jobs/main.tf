@@ -25,7 +25,7 @@ locals {
 
 # Create a container for this specific job
 resource "azurerm_storage_container" "job_sftp" {
-  name                  = "upload" #local.container_name
+  name                  = local.container_name
   storage_account_id    = data.azurerm_storage_account.storage.id
   container_access_type = "private"
 }
