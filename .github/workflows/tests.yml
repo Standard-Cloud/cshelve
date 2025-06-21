@@ -14,7 +14,6 @@ jobs:
     environment: azure
     outputs:
       storage_account_name: ${{ steps.terraform-outputs.outputs.STORAGE_ACCOUNT_NAME }}
-      container_name: ${{ steps.terraform-outputs.outputs.CONTAINER_NAME }}
       resource_group_name: ${{ steps.terraform-outputs.outputs.RESOURCE_GROUP_NAME }}
 
     steps:
@@ -59,11 +58,6 @@ jobs:
       run: terraform output -no-color storage_account_name
       working-directory: .devcontainer/infra/backbone
 
-    - name: Get Container Name
-      id: get-container
-      run: terraform output -no-color container_name
-      working-directory: .devcontainer/infra/backbone
-
     - name: Get Resource Group Name
       id: get-resource-group
       run: terraform output -no-color resource_group_name
@@ -73,13 +67,12 @@ jobs:
       id: terraform-outputs
       run: |
         echo "STORAGE_ACCOUNT_NAME=${{ steps.get-storage-account.outputs.stdout }}" >> $GITHUB_OUTPUT
-        echo "CONTAINER_NAME=${{ steps.get-container.outputs.stdout }}" >> $GITHUB_OUTPUT
         echo "RESOURCE_GROUP_NAME=${{ steps.get-resource-group.outputs.stdout }}" >> $GITHUB_OUTPUT
 
     - name: Update Azure Storage Environment
       run: |
-        echo "Created Azure Storage Account: ${{ steps.terraform-outputs.outputs.STORAGE_ACCOUNT_NAME }}"
-        echo "Created Container: ${{ steps.terraform-outputs.outputs.CONTAINER_NAME }}"
+        echo "Created SFTP Storage Account: ${{ steps.terraform-outputs.outputs.STORAGE_ACCOUNT_NAME }}"
+        echo "Resource Group: ${{ steps.terraform-outputs.outputs.RESOURCE_GROUP_NAME }}"
 
   tests:
     needs: infrastructure
@@ -105,8 +98,8 @@ jobs:
 
     - name: Echo Storage Account Info
       run: |
-        echo "Using Storage Account: ${{ needs.infrastructure.outputs.storage_account_name }}"
-        echo "Using Container: ${{ needs.infrastructure.outputs.container_name }}"
+        echo "Using SFTP Storage Account: ${{ needs.infrastructure.outputs.storage_account_name }}"
+        echo "Using SFTP Container: ${{ needs.infrastructure.outputs.container_name }}"
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
@@ -136,11 +129,11 @@ jobs:
       id: get-job-container
       run: |
         STORAGE_ACCOUNT_NAME=$(terraform output -raw storage_account_name)
-        CONTAINER_NAME=$(terraform output -raw container_name)
+        SFTP_NAME=$(terraform output -raw sftp_name)
         CONNECTION_STRING=$(terraform output -raw storage_account_primary_connection_string)
 
         echo "STORAGE_ACCOUNT_NAME=${STORAGE_ACCOUNT_NAME}" >> $GITHUB_OUTPUT
-        echo "CONTAINER_NAME=${CONTAINER_NAME}" >> $GITHUB_OUTPUT
+        echo "SFTP_NAME=${SFTP_NAME}" >> $GITHUB_OUTPUT
         # Store connection string securely as an environment variable
         echo "CONNECTION_STRING=${CONNECTION_STRING}" >> $GITHUB_ENV
       working-directory: .devcontainer/infra/jobs
@@ -148,7 +141,7 @@ jobs:
     - name: Echo Job Container Info
       run: |
         echo "Job-specific Storage Account: ${{ steps.get-job-container.outputs.STORAGE_ACCOUNT_NAME }}"
-        echo "Job-specific Container: ${{ steps.get-job-container.outputs.CONTAINER_NAME }}"
+        echo "Job-specific Container: ${{ steps.get-job-container.outputs.SFTP_NAME }}"
 
     # Nodejs is used to install Azurite.
     - uses: actions/setup-node@v4
@@ -262,7 +255,6 @@ jobs:
     - name: Confirm Resource Cleanup
       run: |
         echo "Destroyed Storage Account: ${{ needs.infrastructure.outputs.storage_account_name }}"
-        echo "Destroyed Container: ${{ needs.infrastructure.outputs.container_name }}"
 
     - name: Delete Terraform State Cache
       run: |

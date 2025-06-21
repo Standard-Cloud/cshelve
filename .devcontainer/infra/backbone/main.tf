@@ -17,36 +17,29 @@ resource "random_string" "storage_account_name" {
 
 # Create resource group
 resource "azurerm_resource_group" "storage_rg" {
-  name     = "rg-${random_string.storage_account_name.result}"
+  name     = "rg-sftp-${random_string.storage_account_name.result}"
   location = "West Europe"
 
   tags = {
     github_run_id = var.run_id
     created_by    = "github-actions"
-    purpose       = "cshelve-testing"
+    purpose       = "cshelve-sftp-testing"
   }
 }
 
 # Create storage account
 resource "azurerm_storage_account" "storage" {
-  name                     = "st${random_string.storage_account_name.result}"
+  name                     = "stsftp${random_string.storage_account_name.result}"
   resource_group_name      = azurerm_resource_group.storage_rg.name
   location                 = azurerm_resource_group.storage_rg.location
   account_tier             = "Standard"
-#   sftp_enabled             = true
-#   is_hns_enabled           = true
+  sftp_enabled             = true
+  is_hns_enabled           = true
   account_replication_type = "LRS"
 
   tags = {
     github_run_id = var.run_id
     created_by    = "github-actions"
-    purpose       = "cshelve-testing"
+    purpose       = "cshelve-sftp-testing"
   }
-}
-
-# Create a container in the storage account
-resource "azurerm_storage_container" "container" {
-  name                  = "cshelve"
-  storage_account_id    = azurerm_storage_account.storage.id
-  container_access_type = "private"
 }
