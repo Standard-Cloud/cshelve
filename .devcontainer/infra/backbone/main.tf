@@ -67,7 +67,7 @@ resource "azurerm_storage_account_local_user" "sftp_user" {
       create = true
     }
     service       = "blob"
-    resource_name = "*"
+    resource_name = azurerm_storage_account.storage.name
   }
 
   ssh_authorized_key {
