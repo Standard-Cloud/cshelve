@@ -20,7 +20,7 @@ locals {
   clean_python_version = replace(replace(var.python_version, ".", ""), "[^a-z0-9_]", "")
 
   # Create a unique container name for this job
-  container_name = lower("sftpjob${local.clean_os}python${local.clean_python_version}")
+  container_name = lower("${local.clean_os}") #${local.clean_python_version}")
 }
 
 # Create a container for this specific job
