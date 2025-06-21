@@ -98,6 +98,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     needs: infrastructure
+    environment: azure
 
     steps:
     - name: Checkout code
@@ -142,10 +143,9 @@ jobs:
         ENCRYPTION_KEY: "Sixteen byte key"
         SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.storage_account_name }}.blob.core.windows.net
         SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.storage_account_name }}.blob.core.windows.net
-        # Support both existing secrets and Terraform-generated credentials
         SFTP_USERNAME: ${{ needs.infrastructure.outputs.sftp_username }}
         SFTP_PASSWORD: ${{ needs.infrastructure.outputs.sftp_password }}
-        SFTP_SSH_KEY_ECDSA: /tmp/sftp_key_ecdsa_key
+        SFTP_SSH_KEY_ECDSA: /tmp/sftp_key_rsa_key #/tmp/sftp_key_ecdsa_key
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
       shell: bash
 
