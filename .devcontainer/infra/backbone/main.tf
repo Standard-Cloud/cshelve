@@ -54,7 +54,7 @@ resource "tls_private_key" "sftp_ssh_key" {
 resource "azurerm_storage_account_local_user" "sftp_user" {
   name                 = "cshelveuser"
   storage_account_id   = azurerm_storage_account.storage.id
-  home_directory       = "/upload"
+  home_directory       = "upload"
   ssh_password_enabled = true
   ssh_key_enabled      = true
 
