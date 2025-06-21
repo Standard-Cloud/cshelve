@@ -130,27 +130,32 @@ jobs:
       run: terraform output -no-color sftp_name
       working-directory: .devcontainer/infra/jobs
 
+    - name: Get SFTP Key
+      id: get-sftp-key
+      run: terraform output -no-color sftp_key
+      working-directory: .devcontainer/infra/jobs
+
+    - name: Get SFTP password
+      id: get-sftp-password
+      run: terraform output -no-color sftp_password
+      working-directory: .devcontainer/infra/jobs
+
     - name: Get Job Container Info
       id: get-job-container
       run: |
-        echo "SFTP_NAME=${{ steps.get-sftp-name.outputs.stdout }}"
         echo "SFTP_NAME=${{ steps.get-sftp-name.outputs.stdout }}" >> $GITHUB_ENV
-        # STORAGE_ACCOUNT_NAME=$(terraform output -raw storage_account_name)
-        # SFTP_NAME=$(terraform output -raw sftp_name)
-        # echo "SFTP_NAME=$(terraform output -no-color sftp_name)"
-        # echo "SFTP_NAME=$(terraform output -no-color sftp_name)" >> $GITHUB_ENV
-        # CONNECTION_STRING=$(terraform output -raw storage_account_primary_connection_string)
-
-        # echo "STORAGE_ACCOUNT_NAME=${STORAGE_ACCOUNT_NAME}" >> $GITHUB_OUTPUT
-        # echo "SFTP_NAME=${SFTP_NAME}" >> $GITHUB_OUTPUT
-        # Store connection string securely as an environment variable
-        # echo "CONNECTION_STRING=${CONNECTION_STRING}" >> $GITHUB_OUTPUT
+        echo "SFTP_KEY=${{ steps.get-sftp-key.outputs.stdout }}"
+        echo "SFTP_KEY=${{ steps.get-sftp-key.outputs.stdout }}" >> $GITHUB_ENV
+        echo "SFTP_PASSWORD=${{ steps.get-sftp-password.outputs.stdout }}"
+        echo "SFTP_PASSWORD=${{ steps.get-sftp-password.outputs.stdout }}" >> $GITHUB_ENV
       working-directory: .devcontainer/infra/jobs
 
     - name: Echo Job Container Info
       run: |
-        echo "Job-specific Storage Account: ${{ steps.get-job-container.outputs.STORAGE_ACCOUNT_NAME }}"
-        echo "Job-specific Container: ${{ steps.get-job-container.outputs.SFTP_NAME }}"
+
+        echo "Job-specific Storage Account: $SFTP_NAME"
+        echo "Job-specific Storage Account: $SFTP_KEY"
+        echo "Job-specific Storage Account: $SFTP_PASSWORD"
 
     # Nodejs is used to install Azurite.
     - uses: actions/setup-node@v4
