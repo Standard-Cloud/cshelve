@@ -58,27 +58,27 @@ jobs:
 
     - name: Get Storage Account Name
       id: get-storage-account
-      run: terraform output -no-color storage_account_name
+      run: terraform output -no-color -raw storage_account_name
       working-directory: .devcontainer/infra/backbone
 
     - name: Get Resource Group Name
       id: get-resource-group
-      run: terraform output -no-color resource_group_name
+      run: terraform output -no-color -raw resource_group_name
       working-directory: .devcontainer/infra/backbone
 
     - name: Get SFTP Username
       id: get-sftp-username
-      run: terraform output -no-color sftp_username
+      run: terraform output -no-color -raw sftp_username
       working-directory: .devcontainer/infra/backbone
 
     - name: Get SFTP Password
       id: get-sftp-password
-      run: terraform output -no-color sftp_password
+      run: terraform output -no-color -raw sftp_password
       working-directory: .devcontainer/infra/backbone
 
     - name: Get SFTP SSH Private Key
       id: get-sftp-ssh-key
-      run: terraform output -no-color sftp_ssh_private_key | base64 -w0
+      run: terraform output -no-color -raw sftp_ssh_private_key | base64 -w0
       working-directory: .devcontainer/infra/backbone
 
     - name: Set Outputs
@@ -145,3 +145,64 @@ jobs:
         SFTP_SSH_KEY_ECDSA: /tmp/sftp_key_ecdsa_key
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
         SFTP_SSH_KEY_TERRAFORM: /tmp/sftp_terraform_key
+
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [infrastructure, tests]
+    if: always()
+    environment: azure
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+
+    - name: Restore Terraform State
+      uses: actions/cache/restore@v3
+      with:
+        path: .devcontainer/infra/backbone/terraform.tfstate
+        key: terraform-state-${{ github.run_id }}
+        fail-on-cache-miss: true
+
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      working-directory: .devcontainer/infra/backbone
+
+    - name: Terraform Destroy
+      id: destroy
+      run: terraform destroy -auto-approve
+      working-directory: .devcontainer/infra/backbone
+      env:
+        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        TF_VAR_run_id: ${{ github.run_id }}
+
+    - name: Delete Terraform State Cache
+      if: always()
+      run: |
+        CACHE_KEY="terraform-state-${{ github.run_id }}"
+        echo "Deleting cache with key: $CACHE_KEY"
+
+        # List caches to find the ID
+        CACHE_ID=$(gh cache list --key "$CACHE_KEY" --limit 1 --json id -q '.[0].id')
+
+        if [ -n "$CACHE_ID" ]; then
+          echo "Deleting cache ID: $CACHE_ID"
+          gh cache delete "$CACHE_ID" --confirm
+        else
+          echo "Cache not found with key: $CACHE_KEY"
+        fi
+      env:
+        GH_TOKEN: ${{ github.token }}
