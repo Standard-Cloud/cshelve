@@ -88,14 +88,37 @@ jobs:
         echo "RESOURCE_GROUP_NAME=${{ steps.get-resource-group.outputs.stdout }}" >> $GITHUB_OUTPUT
         echo "SFTP_USERNAME=${{ steps.get-sftp-username.outputs.stdout }}" >> $GITHUB_OUTPUT
         echo "SFTP_PASSWORD=${{ steps.get-sftp-password.outputs.stdout }}" >> $GITHUB_OUTPUT
-        echo $SFTP_SSH_PRIVATE_KEY
 
   tests:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest] #, windows-latest, macos-latest]
+        python-version: ["3.9"] #, "3.10", "3.11", "3.12", "3.13"]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     needs: infrastructure
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+
+    - name: Install Azureit to emulate Azure Storage Account locally and moto to emulate AWS S3.
+      run: |
+        pip install moto[server]
+        npm install -g azurite
+
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+
+    - name: Install the project
+      run: uv sync --all-extras --dev --python ${{ matrix.python-version }}
+
+    - name: Run tests without dependencies
+      run: uv run pytest tests/units
 
     - name: Retrieve SSH key for SFTP tests
       run: |
