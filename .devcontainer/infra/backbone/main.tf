@@ -19,6 +19,12 @@ resource "random_string" "storage_account_name" {
 resource "azurerm_resource_group" "storage_rg" {
   name     = "rg-${random_string.storage_account_name.result}"
   location = "West Europe"
+
+  tags = {
+    github_run_id = var.run_id
+    created_by    = "github-actions"
+    purpose       = "cshelve-testing"
+  }
 }
 
 # Create storage account
@@ -28,6 +34,12 @@ resource "azurerm_storage_account" "storage" {
   location                 = azurerm_resource_group.storage_rg.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
+
+  tags = {
+    github_run_id = var.run_id
+    created_by    = "github-actions"
+    purpose       = "cshelve-testing"
+  }
 }
 
 # Create a container in the storage account
