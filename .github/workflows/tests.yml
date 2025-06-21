@@ -129,11 +129,12 @@ jobs:
       id: get-job-container
       run: |
         # STORAGE_ACCOUNT_NAME=$(terraform output -raw storage_account_name)
-        SFTP_NAME=$(terraform output -raw sftp_name)
+        # SFTP_NAME=$(terraform output -raw sftp_name)
+        echo "SFTP_NAME=$(terraform output -raw sftp_name)" >> $GITHUB_OUTPUT
         # CONNECTION_STRING=$(terraform output -raw storage_account_primary_connection_string)
 
         # echo "STORAGE_ACCOUNT_NAME=${STORAGE_ACCOUNT_NAME}" >> $GITHUB_OUTPUT
-        echo "SFTP_NAME=${SFTP_NAME}" >> $GITHUB_OUTPUT
+        # echo "SFTP_NAME=${SFTP_NAME}" >> $GITHUB_OUTPUT
         # Store connection string securely as an environment variable
         # echo "CONNECTION_STRING=${CONNECTION_STRING}" >> $GITHUB_OUTPUT
       working-directory: .devcontainer/infra/jobs
