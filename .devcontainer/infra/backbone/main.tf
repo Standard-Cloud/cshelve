@@ -50,13 +50,6 @@ resource "tls_private_key" "sftp_ssh_key" {
   rsa_bits  = 4096
 }
 
-# Create a random password for SFTP user
-resource "random_password" "sftp_password" {
-  length           = 16
-  special          = true
-  override_special = "!@#$%&*()-_=+[]{}<>:?"
-}
-
 # Create local user for SFTP access
 resource "azurerm_storage_account_local_user" "sftp_user" {
   name                 = "cshelveuser"
@@ -81,7 +74,4 @@ resource "azurerm_storage_account_local_user" "sftp_user" {
     description = "SFTP access key"
     key         = tls_private_key.sftp_ssh_key.public_key_openssh
   }
-
-  # Set password for SFTP user
-  password = random_password.sftp_password.result
 }
