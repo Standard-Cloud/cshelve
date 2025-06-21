@@ -39,7 +39,7 @@ jobs:
 
     - name: Terraform Apply
       id: apply
-      run: terraform apply -auto-approve -no-color \
+      run: terraform apply -auto-approve \
           -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
           -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
           -var="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
