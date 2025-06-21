@@ -128,7 +128,7 @@ jobs:
     - name: Get SFTP Name
       id: get-sftp-name
       run: terraform output -no-color sftp_name
-      working-directory: .devcontainer/infra/backbone
+      working-directory: .devcontainer/infra/jobs
 
     - name: Get Job Container Info
       id: get-job-container
