@@ -12,12 +12,6 @@ provider "azurerm" {
 data "azurerm_storage_account" "storage" {
   name                = var.storage_account_name
   resource_group_name = var.resource_group_name
-
-  tags = {
-    github_run_id = var.run_id
-    created_by    = "github-actions"
-    purpose       = "cshelve-testing"
-  }
 }
 
 locals {
