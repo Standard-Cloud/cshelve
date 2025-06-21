@@ -39,12 +39,13 @@ jobs:
 
     - name: Terraform Apply
       id: apply
-      run: terraform apply -auto-approve \
-          -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
-          -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
-          -var="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
-          -var="run_id=${{ github.run_id }}"
+      run: terraform apply -auto-approve
       working-directory: .devcontainer/infra/backbone
+      env:
+        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        TF_VAR_run_id: ${{ github.run_id }}
 
     - name: Cache Terraform State
       uses: actions/cache/save@v3
@@ -201,12 +202,13 @@ jobs:
 
     - name: Terraform Destroy
       id: destroy
-      run: terraform destroy -auto-approve -no-color \
-          -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
-          -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
-          -var="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
-          -var="run_id=${{ github.run_id }}"
+      run: terraform destroy -auto-approve -no-color
       working-directory: .devcontainer/infra/backbone
+      env:
+        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        TF_VAR_run_id: ${{ github.run_id }}
 
     - name: Confirm Resource Cleanup
       run: |
