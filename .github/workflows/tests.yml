@@ -135,7 +135,7 @@ jobs:
         echo "STORAGE_ACCOUNT_NAME=${STORAGE_ACCOUNT_NAME}" >> $GITHUB_OUTPUT
         echo "SFTP_NAME=${SFTP_NAME}" >> $GITHUB_OUTPUT
         # Store connection string securely as an environment variable
-        echo "CONNECTION_STRING=${CONNECTION_STRING}" >> $GITHUB_OUTPUT
+        # echo "CONNECTION_STRING=${CONNECTION_STRING}" >> $GITHUB_OUTPUT
       working-directory: .devcontainer/infra/jobs
 
     - name: Echo Job Container Info
