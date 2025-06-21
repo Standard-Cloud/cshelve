@@ -104,6 +104,48 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+
+    - name: Terraform Init (Job Container)
+      id: init-job
+      run: terraform init
+      working-directory: .devcontainer/infra/jobs
+
+    - name: Create Job Container
+      id: job-container
+      run: terraform apply -auto-approve
+      working-directory: .devcontainer/infra/jobs
+      env:
+        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        TF_VAR_run_id: ${{ github.run_id }}
+        TF_VAR_os: ${{ matrix.os }}
+        TF_VAR_python_version: ${{ matrix.python-version }}
+        TF_VAR_storage_account_name: ${{ needs.infrastructure.outputs.storage_account_name }}
+        TF_VAR_resource_group_name: ${{ needs.infrastructure.outputs.resource_group_name }}
+
+    - name: Get SFTP Name
+      id: get-sftp-name
+      run: echo "SFTP_FOLDER=terraform output -no-color sftp_name" >> $GITHUB_ENV
+      working-directory: .devcontainer/infra/jobs
+
+    - name: Get Jsftp folder
+      id: get-job-container
+      run: |
+        echo SFTP_FOLDER
+      working-directory: .devcontainer/infra/jobs
+
     - name: Install uv
       uses: astral-sh/setup-uv@v3
 
@@ -214,19 +256,7 @@ jobs:
         TF_VAR_run_id: ${{ github.run_id }}
 
     - name: Delete Terraform State Cache
-      if: always()
       run: |
-        CACHE_KEY="terraform-state-${{ github.run_id }}"
-        echo "Deleting cache with key: $CACHE_KEY"
-
-        # List caches to find the ID
-        CACHE_ID=$(gh cache list --key "$CACHE_KEY" --limit 1 --json id -q '.[0].id')
-
-        if [ -n "$CACHE_ID" ]; then
-          echo "Deleting cache ID: $CACHE_ID"
-          gh cache delete "$CACHE_ID"
-        else
-          echo "Cache not found with key: $CACHE_KEY"
-        fi
-      env:
-        GH_TOKEN: ${{ github.token }}
+        echo "Cleaning up Terraform state cache..."
+        rm -f .devcontainer/infra/backbone/terraform.tfstate*
+      shell: bash
