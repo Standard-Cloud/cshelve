@@ -101,6 +101,46 @@ jobs:
         echo "Using Storage Account: ${{ needs.infrastructure.outputs.storage_account_name }}"
         echo "Using Container: ${{ needs.infrastructure.outputs.container_name }}"
 
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+
+    - name: Terraform Init (Job Container)
+      id: init-job
+      run: terraform init
+      working-directory: .devcontainer/infra/jobs
+
+    - name: Create Job Container
+      id: job-container
+      run: terraform apply -auto-approve
+      working-directory: .devcontainer/infra/jobs
+      env:
+        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        TF_VAR_run_id: ${{ github.run_id }}
+        TF_VAR_os: ${{ matrix.os }}
+        TF_VAR_python_version: ${{ matrix.python-version }}
+
+    - name: Get Job Container Info
+      id: get-job-container
+      run: |
+        STORAGE_ACCOUNT_NAME=$(terraform output -raw storage_account_name)
+        CONTAINER_NAME=$(terraform output -raw container_name)
+        CONNECTION_STRING=$(terraform output -raw storage_account_primary_connection_string)
+
+        echo "STORAGE_ACCOUNT_NAME=${STORAGE_ACCOUNT_NAME}" >> $GITHUB_OUTPUT
+        echo "CONTAINER_NAME=${CONTAINER_NAME}" >> $GITHUB_OUTPUT
+        # Store connection string securely as an environment variable
+        echo "CONNECTION_STRING=${CONNECTION_STRING}" >> $GITHUB_ENV
+      working-directory: .devcontainer/infra/jobs
+
+    - name: Echo Job Container Info
+      run: |
+        echo "Job-specific Storage Account: ${{ steps.get-job-container.outputs.STORAGE_ACCOUNT_NAME }}"
+        echo "Job-specific Container: ${{ steps.get-job-container.outputs.CONTAINER_NAME }}"
+
     # Nodejs is used to install Azurite.
     - uses: actions/setup-node@v4
       with:
