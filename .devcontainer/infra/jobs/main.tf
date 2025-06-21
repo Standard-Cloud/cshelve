@@ -26,6 +26,6 @@ locals {
 # Create a container for this specific job
 resource "azurerm_storage_container" "job_container" {
   name                  = local.container_name
-  storage_account_name  = data.azurerm_storage_account.storage.name
+  storage_account_id    = data.azurerm_storage_account.storage.id
   container_access_type = "private"
 }
