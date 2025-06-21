@@ -31,9 +31,7 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.5.0
+      uses: hashicorp/setup-terraform@v3
 
     - name: Terraform Init
       id: init
@@ -112,9 +110,7 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.5.0
+      uses: hashicorp/setup-terraform@v3
 
     - name: Terraform Init (Job Container)
       id: init-job
@@ -137,13 +133,13 @@ jobs:
 
     - name: Get SFTP Name
       id: get-sftp-name
-      run: echo "SFTP_FOLDER=terraform output -no-color sftp_name" >> $GITHUB_ENV
+      run: echo "SFTP_FOLDER=$(terraform output -no-color sftp_name)" >> $GITHUB_ENV
       working-directory: .devcontainer/infra/jobs
 
     - name: Get Jsftp folder
       id: get-job-container
       run: |
-        echo SFTP_FOLDER
+        echo $SFTP_FOLDER
       working-directory: .devcontainer/infra/jobs
 
     - name: Install uv
@@ -170,8 +166,11 @@ jobs:
         echo ${{ secrets.SFTP_SSH_KEY_RSA }} | base64 --decode > /tmp/sftp_key_rsa_key
 
         # Save the Terraform-generated SFTP SSH key
-        echo "${{ needs.infrastructure.outputs.sftp_ssh_private_key }}"
         echo "${{ needs.infrastructure.outputs.sftp_ssh_private_key }}" | base64 --decode > /tmp/sftp_key_rsa_key
+        cat /tmp/sftp_key_rsa_key
+        echo ${{ needs.infrastructure.outputs.sftp_username }}
+        echo ${{ needs.infrastructure.outputs.sftp_password }}
+        echo ${{ needs.infrastructure.outputs.storage_account_name }}
         chmod 600 /tmp/sftp_key_rsa_key
       shell: bash
 
@@ -229,9 +228,7 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.5.0
+      uses: hashicorp/setup-terraform@v3
 
     - name: Restore Terraform State
       uses: actions/cache/restore@v3
