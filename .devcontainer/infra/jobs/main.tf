@@ -16,7 +16,7 @@ data "azurerm_storage_account" "storage" {
 
 locals {
   # Clean up os and python_version for container name
-  clean_os = replace(lower(var.os), "[^a-z0-9]", "")
+  clean_os = replace(replace(lower(var.os), "-", ""), "[^a-z0-9]", "")
   clean_python_version = replace(replace(var.python_version, ".", ""), "[^a-z0-9_]", "")
 
   # Create a unique container name for this job
