@@ -17,7 +17,7 @@ jobs:
       resource_group_name: ${{ steps.terraform-outputs.outputs.RESOURCE_GROUP_NAME }}
       sftp_username: ${{ steps.terraform-outputs.outputs.SFTP_USERNAME }}
       sftp_password: ${{ steps.terraform-outputs.outputs.SFTP_PASSWORD }}
-      sftp_ssh_private_key: ${{ steps.terraform-outputs.outputs.SFTP_SSH_PRIVATE_KEY }}
+      sftp_ssh_private_key: ${{ steps.get-sftp-ssh-key.outputs.SFTP_SSH_PRIVATE_KEY }}
 
     steps:
     - name: Checkout code
@@ -78,7 +78,7 @@ jobs:
 
     - name: Get SFTP SSH Private Key
       id: get-sftp-ssh-key
-      run: terraform output -no-color -raw sftp_ssh_private_key | base64 -w0
+      run: echo "SFTP_SSH_PRIVATE_KEY=$(terraform output -no-color -raw sftp_ssh_private_key | base64 -w0)" >> $GITHUB_OUTPUT
       working-directory: .devcontainer/infra/backbone
 
     - name: Set Outputs
@@ -88,7 +88,8 @@ jobs:
         echo "RESOURCE_GROUP_NAME=${{ steps.get-resource-group.outputs.stdout }}" >> $GITHUB_OUTPUT
         echo "SFTP_USERNAME=${{ steps.get-sftp-username.outputs.stdout }}" >> $GITHUB_OUTPUT
         echo "SFTP_PASSWORD=${{ steps.get-sftp-password.outputs.stdout }}" >> $GITHUB_OUTPUT
-        echo "SFTP_SSH_PRIVATE_KEY=${{ steps.get-sftp-ssh-key.outputs.stdout }}" >> $GITHUB_OUTPUT
+        echo $SFTP_SSH_PRIVATE_KEY
+        # echo "SFTP_SSH_PRIVATE_KEY=${{ steps.get-sftp-ssh-key.outputs.stdout }}" >> $GITHUB_OUTPUT
 
   tests:
     runs-on: ubuntu-latest
@@ -104,6 +105,7 @@ jobs:
         echo ${{ secrets.SFTP_SSH_KEY_RSA }} | base64 --decode > /tmp/sftp_key_rsa_key
 
         # Save the Terraform-generated SFTP SSH key
+        echo "${{ needs.infrastructure.outputs.sftp_ssh_private_key }}"
         echo "${{ needs.infrastructure.outputs.sftp_ssh_private_key }}" | base64 --decode > /tmp/sftp_key_rsa_key
         chmod 600 /tmp/sftp_key_rsa_key
       shell: bash
@@ -200,7 +202,7 @@ jobs:
 
         if [ -n "$CACHE_ID" ]; then
           echo "Deleting cache ID: $CACHE_ID"
-          gh cache delete "$CACHE_ID" --confirm
+          gh cache delete "$CACHE_ID" --all
         else
           echo "Cache not found with key: $CACHE_KEY"
         fi
