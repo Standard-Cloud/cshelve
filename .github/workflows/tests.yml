@@ -197,49 +197,49 @@ jobs:
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
         SFTP_SSH_KEY_TERRAFORM: /tmp/sftp_terraform_key
 
-  cleanup:
-    runs-on: ubuntu-latest
-    needs: [infrastructure, tests]
-    if: always()
-    environment: azure
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+  # cleanup:
+  #   runs-on: ubuntu-latest
+  #   needs: [infrastructure, tests]
+  #   if: always()
+  #   environment: azure
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
 
-    - name: 'Az CLI login'
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #   - name: 'Az CLI login'
+  #     uses: azure/login@v1
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+  #   - name: Setup Terraform
+  #     uses: hashicorp/setup-terraform@v3
 
-    - name: Restore Terraform State
-      uses: actions/cache/restore@v3
-      with:
-        path: .devcontainer/infra/backbone/terraform.tfstate
-        key: terraform-state-${{ github.run_id }}
-        fail-on-cache-miss: true
+  #   - name: Restore Terraform State
+  #     uses: actions/cache/restore@v3
+  #     with:
+  #       path: .devcontainer/infra/backbone/terraform.tfstate
+  #       key: terraform-state-${{ github.run_id }}
+  #       fail-on-cache-miss: true
 
-    - name: Terraform Init
-      id: init
-      run: terraform init
-      working-directory: .devcontainer/infra/backbone
+  #   - name: Terraform Init
+  #     id: init
+  #     run: terraform init
+  #     working-directory: .devcontainer/infra/backbone
 
-    - name: Terraform Destroy
-      id: destroy
-      run: terraform destroy -auto-approve
-      working-directory: .devcontainer/infra/backbone
-      env:
-        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
-        TF_VAR_run_id: ${{ github.run_id }}
+  #   - name: Terraform Destroy
+  #     id: destroy
+  #     run: terraform destroy -auto-approve
+  #     working-directory: .devcontainer/infra/backbone
+  #     env:
+  #       TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+  #       TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       TF_VAR_run_id: ${{ github.run_id }}
 
-    - name: Delete Terraform State Cache
-      run: |
-        echo "Cleaning up Terraform state cache..."
-        rm -f .devcontainer/infra/backbone/terraform.tfstate*
-      shell: bash
+  #   - name: Delete Terraform State Cache
+  #     run: |
+  #       echo "Cleaning up Terraform state cache..."
+  #       rm -f .devcontainer/infra/backbone/terraform.tfstate*
+  #     shell: bash

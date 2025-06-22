@@ -37,6 +37,9 @@ def test_sftp_auth_methods(config_file):
     """
     Test SFTP auth methods.
     """
+    import os
+
+    print(os.environ)
     with cshelve.open(config_file) as db:
         key = f"{unique_key}-cshelve-{config_file}"
         data = "test_sftp_auth_methods"
