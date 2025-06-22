@@ -171,7 +171,7 @@ jobs:
         SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.storage_account_name }}.blob.core.windows.net
         SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.storage_account_name }}.blob.core.windows.net
         SFTP_USERNAME: ${{ steps.get-sftp-username.outputs.stdout }}
-        SFTP_PASSWORD: $SFTP_PASSWORD
+        SFTP_PASSWORD: ${{ env.SFTP_PASSWORD }}
         SFTP_SSH_KEY_ECDSA: /tmp/sftp_key_rsa_key #/tmp/sftp_key_ecdsa_key
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
       shell: bash

@@ -80,7 +80,7 @@ class SFTP(ProviderInterface):
                 raise AuthError(
                     "Authentication failed for SFTP connection",
                     self.hostname,
-                    self._provider_auth_parameters,
+                    str(self._provider_auth_parameters),
                 ) from e
 
         return self._sftp_client
