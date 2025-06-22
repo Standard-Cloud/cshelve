@@ -43,8 +43,8 @@ resource "tls_private_key" "sftp_ssh_key_rsa" {
   rsa_bits  = 4096
 }
 
-resource "tls_private_key" "sftp_ssh_key_ecdsa" {
-  algorithm   = "ECDSA"
+resource "tls_private_key" "sftp_ssh_key_ed25519" {
+  algorithm   = "ED25519"
   ecdsa_curve = "P256"
 }
 
@@ -74,7 +74,7 @@ resource "azurerm_storage_account_local_user" "sftp_user" {
   }
 
   ssh_authorized_key {
-    description = "ECDSA access key"
-    key         = tls_private_key.sftp_ssh_key_ecdsa.public_key_openssh
+    description = "ED25519 access key"
+    key         = tls_private_key.sftp_ssh_key_ed25519.public_key_openssh
   }
 }
