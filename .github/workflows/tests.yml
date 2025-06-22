@@ -13,8 +13,9 @@ jobs:
     timeout-minutes: 5
     environment: azure
     outputs:
-      storage_account_name: ${{ steps.terraform-outputs.outputs.STORAGE_ACCOUNT_NAME }}
       resource_group_name: ${{ steps.terraform-outputs.outputs.RESOURCE_GROUP_NAME }}
+      sftp_hostname: ${{ steps.terraform-outputs.outputs.SFTP_HOSTNAME }}
+      storage_account_name: ${{ steps.terraform-outputs.outputs.STORAGE_ACCOUNT_NAME }}
 
     steps:
     - name: Checkout code
@@ -65,6 +66,7 @@ jobs:
       id: terraform-outputs
       run: |
         echo "STORAGE_ACCOUNT_NAME=${{ steps.get-storage-account.outputs.stdout }}" >> $GITHUB_OUTPUT
+        echo "SFTP_HOSTNAME=${{ steps.get-storage-account.outputs.stdout }}.blob.core.windows.net" >> $GITHUB_OUTPUT
         echo "RESOURCE_GROUP_NAME=${{ steps.get-resource-group.outputs.stdout }}" >> $GITHUB_OUTPUT
 
   tests:
@@ -164,8 +166,8 @@ jobs:
         AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
         ENCRYPTION_KEY: "Sixteen byte key"
-        SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.storage_account_name }}.blob.core.windows.net
-        SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.storage_account_name }}.blob.core.windows.net
+        SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
+        SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
         SFTP_USERNAME: ${{ steps.get-sftp-username.outputs.stdout }}
         SFTP_PASSWORD: ${{ env.SFTP_PASSWORD }}
         SFTP_SSH_KEY_ECDSA: /tmp/sftp_key_ed25519_key
@@ -186,12 +188,12 @@ jobs:
         AWS_KEY_SECRET: "moto"
         AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
         ENCRYPTION_KEY: "Sixteen byte key"
-        SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.storage_account_name }}.blob.core.windows.net
+        SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
+        SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
         SFTP_USERNAME: ${{ needs.infrastructure.outputs.sftp_username }}
         SFTP_PASSWORD: ${{ env.SFTP_PASSWORD }}
         SFTP_SSH_KEY_ECDSA: /tmp/sftp_key_ed25519_key
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
-        SFTP_SSH_KEY_TERRAFORM: /tmp/sftp_terraform_key
 
   cleanup:
     runs-on: ubuntu-latest

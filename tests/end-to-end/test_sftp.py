@@ -29,8 +29,8 @@ def test_sftp_authentication(config_file):
     "config_file",
     [
         "tests/configurations/sftp/auth.ini",
-        # "tests/configurations/sftp/auth_ssh_rsa.ini",
-        # "tests/configurations/sftp/auth_ssh_ecdsa.ini",
+        "tests/configurations/sftp/auth_ssh_rsa.ini",
+        "tests/configurations/sftp/auth_ssh_ecdsa.ini",
     ],
 )
 def test_sftp_auth_methods(config_file):
@@ -39,7 +39,6 @@ def test_sftp_auth_methods(config_file):
     """
     import os
 
-    print(os.environ)
     with cshelve.open(config_file) as db:
         key = f"{unique_key}-cshelve-{config_file}"
         data = "test_sftp_auth_methods"
