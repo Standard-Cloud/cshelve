@@ -72,8 +72,16 @@ class SFTP(ProviderInterface):
                 self.logger.error(f"Could not resolve hostname {self.hostname}: {e}")
                 raise AuthError(f"Could not resolve hostname {self.hostname}")
             except Exception as e:
-                self.logger.error(f"Authentication failed: {e}")
-                raise AuthError("Authentication failed for SFTP connection") from e
+                self.logger.error(
+                    f"Authentication failed: {e}",
+                    self.hostname,
+                    self._provider_auth_parameters,
+                )
+                raise AuthError(
+                    "Authentication failed for SFTP connection",
+                    self.hostname,
+                    self._provider_auth_parameters,
+                ) from e
 
         return self._sftp_client
 
