@@ -43,35 +43,3 @@ resource "azurerm_storage_account" "storage" {
     purpose       = "cshelve-sftp-testing"
   }
 }
-
-# Generate an SSH key for SFTP access
-resource "tls_private_key" "sftp_ssh_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-# Create local user for SFTP access
-resource "azurerm_storage_account_local_user" "sftp_user" {
-  name                 = "cshelveuser"
-  storage_account_id   = azurerm_storage_account.storage.id
-  home_directory       = "upload"
-  ssh_password_enabled = true
-  ssh_key_enabled      = true
-
-  permission_scope {
-    permissions {
-      read   = true
-      write  = true
-      delete = true
-      list   = true
-      create = true
-    }
-    service       = "blob"
-    resource_name = azurerm_storage_account.storage.name
-  }
-
-  ssh_authorized_key {
-    description = "SFTP access key"
-    key         = tls_private_key.sftp_ssh_key.public_key_openssh
-  }
-}
