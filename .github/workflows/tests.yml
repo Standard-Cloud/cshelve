@@ -65,15 +65,9 @@ jobs:
     - name: Set Outputs
       id: terraform-outputs
       run: |
-        STORAGE_ACCOUNT=${{ steps.get-storage-account.outputs.stdout }}
-        echo "::add-mask::$STORAGE_ACCOUNT"
-        SFTP_HOST="${STORAGE_ACCOUNT}.blob.core.windows.net"
-        echo "::add-mask::$SFTP_HOST"
-        RESOURCE_GROUP=${{ steps.get-resource-group.outputs.stdout }}
-
-        echo "STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT" >> $GITHUB_OUTPUT
-        echo "SFTP_HOSTNAME=$SFTP_HOST" >> $GITHUB_OUTPUT
-        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP" >> $GITHUB_OUTPUT
+        echo "STORAGE_ACCOUNT_NAME=${{ steps.get-storage-account.outputs.stdout }}" >> $GITHUB_OUTPUT
+        echo "SFTP_HOSTNAME=${{ steps.get-storage-account.outputs.stdout }}.blob.core.windows.net" >> $GITHUB_OUTPUT
+        echo "RESOURCE_GROUP_NAME=${{ steps.get-resource-group.outputs.stdout }}" >> $GITHUB_OUTPUT
 
   tests:
     strategy:
