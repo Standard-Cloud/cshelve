@@ -65,9 +65,15 @@ jobs:
     - name: Set Outputs
       id: terraform-outputs
       run: |
-        echo "::add-mask::STORAGE_ACCOUNT_NAME=${{ steps.get-storage-account.outputs.stdout }}" >> $GITHUB_OUTPUT
-        echo "::add-mask::SFTP_HOSTNAME=${{ steps.get-storage-account.outputs.stdout }}.blob.core.windows.net" >> $GITHUB_OUTPUT
-        echo "RESOURCE_GROUP_NAME=${{ steps.get-resource-group.outputs.stdout }}" >> $GITHUB_OUTPUT
+        STORAGE_ACCOUNT=${{ steps.get-storage-account.outputs.stdout }}
+        echo "::add-mask::$STORAGE_ACCOUNT"
+        SFTP_HOST="${STORAGE_ACCOUNT}.blob.core.windows.net"
+        echo "::add-mask::$SFTP_HOST"
+        RESOURCE_GROUP=${{ steps.get-resource-group.outputs.stdout }}
+
+        echo "STORAGE_ACCOUNT_NAME=$STORAGE_ACCOUNT" >> $GITHUB_OUTPUT
+        echo "SFTP_HOSTNAME=$SFTP_HOST" >> $GITHUB_OUTPUT
+        echo "RESOURCE_GROUP_NAME=$RESOURCE_GROUP" >> $GITHUB_OUTPUT
 
   tests:
     strategy:
@@ -115,17 +121,26 @@ jobs:
 
     - name: Get SFTP Name
       id: get-sftp-name
-      run: echo "::add-mask::SFTP_FOLDER=$(terraform output -no-color -raw sftp_name)" >> $GITHUB_ENV
+      run: |
+        SFTP_NAME=$(terraform output -no-color -raw sftp_name)
+        echo "::add-mask::$SFTP_NAME"
+        echo "SFTP_FOLDER=$SFTP_NAME" >> $GITHUB_ENV
       working-directory: .devcontainer/infra/jobs
 
     - name: Get SFTP Username
       id: get-sftp-username
-      run: echo "::add-mask::SFTP_USERNAME=$(terraform output -no-color -raw sftp_username)" >> $GITHUB_ENV"
+      run: |
+        SFTP_USER=$(terraform output -no-color -raw sftp_username)
+        echo "::add-mask::$SFTP_USER"
+        echo "SFTP_USERNAME=$SFTP_USER" >> $GITHUB_ENV
       working-directory: .devcontainer/infra/jobs
 
     - name: Get SFTP Password
       id: get-sftp-password
-      run: echo "::add-mask::SFTP_PASSWORD=$(terraform output -no-color -raw sftp_password)" >> $GITHUB_ENV
+      run: |
+        SFTP_PASS=$(terraform output -no-color -raw sftp_password)
+        echo "::add-mask::$SFTP_PASS"
+        echo "SFTP_PASSWORD=$SFTP_PASS" >> $GITHUB_ENV
       working-directory: .devcontainer/infra/jobs
 
     - name: Get SFTP SSH Private Key
