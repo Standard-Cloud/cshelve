@@ -16,11 +16,12 @@ output "sftp_password" {
   sensitive = true
 }
 
-output "sftp_ssh_private_key" {
-  value     = tls_private_key.sftp_ssh_key.private_key_pem
+output "sftp_ssh_private_key_rsa" {
+  value     = tls_private_key.sftp_ssh_key_rsa.private_key_pem
   sensitive = true
 }
 
-output "sftp_ssh_public_key" {
-  value = tls_private_key.sftp_ssh_key.public_key_openssh
+output "sftp_ssh_private_key_ecdsa" {
+  value     = tls_private_key.sftp_ssh_key_ecdsa.private_key_pem
+  sensitive = true
 }
