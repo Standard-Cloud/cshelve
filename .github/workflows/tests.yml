@@ -65,8 +65,8 @@ jobs:
     - name: Set Outputs
       id: terraform-outputs
       run: |
-        echo "STORAGE_ACCOUNT_NAME=${{ steps.get-storage-account.outputs.stdout }}" >> $GITHUB_OUTPUT
-        echo "SFTP_HOSTNAME=${{ steps.get-storage-account.outputs.stdout }}.blob.core.windows.net" >> $GITHUB_OUTPUT
+        echo "::add-mask::STORAGE_ACCOUNT_NAME=${{ steps.get-storage-account.outputs.stdout }}" >> $GITHUB_OUTPUT
+        echo "::add-mask::SFTP_HOSTNAME=${{ steps.get-storage-account.outputs.stdout }}.blob.core.windows.net" >> $GITHUB_OUTPUT
         echo "RESOURCE_GROUP_NAME=${{ steps.get-resource-group.outputs.stdout }}" >> $GITHUB_OUTPUT
 
   tests:
@@ -115,28 +115,22 @@ jobs:
 
     - name: Get SFTP Name
       id: get-sftp-name
-      run: echo "SFTP_FOLDER=$(terraform output -no-color -raw sftp_name)" >> $GITHUB_ENV
+      run: echo "::add-mask::SFTP_FOLDER=$(terraform output -no-color -raw sftp_name)" >> $GITHUB_ENV
       working-directory: .devcontainer/infra/jobs
 
     - name: Get SFTP Username
       id: get-sftp-username
-      run: terraform output -no-color -raw sftp_username
+      run: echo "::add-mask::SFTP_USERNAME=$(terraform output -no-color -raw sftp_username)" >> $GITHUB_ENV"
       working-directory: .devcontainer/infra/jobs
 
     - name: Get SFTP Password
       id: get-sftp-password
-      run: echo "SFTP_PASSWORD=$(terraform output -no-color -raw sftp_password)" >> $GITHUB_ENV
+      run: echo "::add-mask::SFTP_PASSWORD=$(terraform output -no-color -raw sftp_password)" >> $GITHUB_ENV
       working-directory: .devcontainer/infra/jobs
 
     - name: Get SFTP SSH Private Key
       id: get-sftp-ssh-key
       run: terraform output -no-color -raw sftp_ssh_private_key_rsa > /tmp/sftp_key_rsa_key
-      working-directory: .devcontainer/infra/jobs
-
-    - name: Get Jsftp folder
-      id: get-job-container
-      run: |
-        echo $SFTP_FOLDER
       working-directory: .devcontainer/infra/jobs
 
     - name: Install uv
@@ -166,7 +160,7 @@ jobs:
         ENCRYPTION_KEY: "Sixteen byte key"
         SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
         SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
-        SFTP_USERNAME: ${{ steps.get-sftp-username.outputs.stdout }}
+        SFTP_USERNAME: ${{ env.SFTP_USERNAME }}
         SFTP_PASSWORD: ${{ env.SFTP_PASSWORD }}
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
       shell: bash
@@ -187,7 +181,7 @@ jobs:
         ENCRYPTION_KEY: "Sixteen byte key"
         SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
         SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
-        SFTP_USERNAME: ${{ steps.get-sftp-username.outputs.stdout }}
+        SFTP_USERNAME: ${{ env.SFTP_USERNAME }}
         SFTP_PASSWORD: ${{ env.SFTP_PASSWORD }}
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
 
