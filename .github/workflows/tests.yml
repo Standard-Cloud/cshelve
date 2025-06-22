@@ -187,7 +187,7 @@ jobs:
         ENCRYPTION_KEY: "Sixteen byte key"
         SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
         SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
-        SFTP_USERNAME: ${{ needs.infrastructure.outputs.sftp_username }}
+        SFTP_USERNAME: ${{ steps.get-sftp-username.outputs.stdout }}
         SFTP_PASSWORD: ${{ env.SFTP_PASSWORD }}
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
 
