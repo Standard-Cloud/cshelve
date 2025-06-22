@@ -15,9 +15,6 @@ jobs:
     outputs:
       storage_account_name: ${{ steps.terraform-outputs.outputs.STORAGE_ACCOUNT_NAME }}
       resource_group_name: ${{ steps.terraform-outputs.outputs.RESOURCE_GROUP_NAME }}
-      sftp_username: ${{ steps.terraform-outputs.outputs.SFTP_USERNAME }}
-      sftp_password: ${{ steps.terraform-outputs.outputs.SFTP_PASSWORD }}
-      sftp_ssh_private_key: ${{ steps.get-sftp-ssh-key.outputs.SFTP_SSH_PRIVATE_KEY }}
 
     steps:
     - name: Checkout code
@@ -126,12 +123,12 @@ jobs:
 
     - name: Get SFTP Password
       id: get-sftp-password
-      run: terraform output -no-color -raw sftp_password
+      run: echo "SFTP_PASSWORD=$(terraform output -no-color -raw sftp_password)" >> $GITHUB_ENV
       working-directory: .devcontainer/infra/jobs
 
     - name: Get SFTP SSH Private Key
       id: get-sftp-ssh-key
-      run: echo "SFTP_SSH_PRIVATE_KEY=$(terraform output -no-color -raw sftp_ssh_private_key | base64 -w0)" >> $GITHUB_OUTPUT
+      run: terraform output -no-color -raw sftp_ssh_private_key > /tmp/sftp_key_rsa_key
       working-directory: .devcontainer/infra/jobs
 
     - name: Get Jsftp folder
@@ -161,17 +158,6 @@ jobs:
       run: |
         # Still keep the existing keys for backward compatibility
         echo ${{ secrets.SFTP_SSH_KEY_ECDSA }} | base64 --decode > /tmp/sftp_key_ecdsa_key
-        echo ${{ secrets.SFTP_SSH_KEY_RSA }} | base64 --decode > /tmp/sftp_key_rsa_key
-
-        # Save the Terraform-generated SFTP SSH key
-        echo "${{ steps.get-sftp-ssh-key.outputs.stdout }}" | base64 --decode > /tmp/sftp_key_rsa_key
-        # cat /tmp/sftp_key_rsa_key
-        # echo ${{ needs.infrastructure.outputs.sftp_username }}
-        # echo ${{ needs.infrastructure.outputs.sftp_password }}
-        # echo ${{ needs.infrastructure.outputs.storage_account_name }}
-        # chmod 600 /tmp/sftp_key_rsa_key
-        # echo "SFTP_USERNAME=${{ steps.get-sftp-username.outputs.stdout }}" >> $GITHUB_OUTPUT
-        # echo "SFTP_PASSWORD=${{ steps.get-sftp-password.outputs.stdout }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Run end-to-end tests interracting with Azure, AWS and SFTP
