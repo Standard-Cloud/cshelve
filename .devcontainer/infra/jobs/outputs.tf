@@ -20,8 +20,3 @@ output "sftp_ssh_private_key_rsa" {
   value     = tls_private_key.sftp_ssh_key_rsa.private_key_pem
   sensitive = true
 }
-
-output "sftp_ssh_private_key_ed25519" {
-  value     = tls_private_key.sftp_ssh_key_ed25519.private_key_pem
-  sensitive = true
-}

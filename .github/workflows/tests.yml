@@ -130,9 +130,7 @@ jobs:
 
     - name: Get SFTP SSH Private Key
       id: get-sftp-ssh-key
-      run: |
-        terraform output -no-color -raw sftp_ssh_private_key_rsa > /tmp/sftp_key_rsa_key
-        terraform output -no-color -raw sftp_ssh_private_key_ed25519 > /tmp/sftp_key_ed25519_key
+      run: terraform output -no-color -raw sftp_ssh_private_key_rsa > /tmp/sftp_key_rsa_key
       working-directory: .devcontainer/infra/jobs
 
     - name: Get Jsftp folder
@@ -170,7 +168,6 @@ jobs:
         SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
         SFTP_USERNAME: ${{ steps.get-sftp-username.outputs.stdout }}
         SFTP_PASSWORD: ${{ env.SFTP_PASSWORD }}
-        SFTP_SSH_KEY_ECDSA: /tmp/sftp_key_ed25519_key
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
       shell: bash
 
@@ -192,7 +189,6 @@ jobs:
         SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
         SFTP_USERNAME: ${{ needs.infrastructure.outputs.sftp_username }}
         SFTP_PASSWORD: ${{ env.SFTP_PASSWORD }}
-        SFTP_SSH_KEY_ECDSA: /tmp/sftp_key_ed25519_key
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
 
   cleanup:

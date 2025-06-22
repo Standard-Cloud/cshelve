@@ -43,11 +43,6 @@ resource "tls_private_key" "sftp_ssh_key_rsa" {
   rsa_bits  = 4096
 }
 
-resource "tls_private_key" "sftp_ssh_key_ed25519" {
-  algorithm   = "ED25519"
-  ecdsa_curve = "P256"
-}
-
 # Create local user for SFTP access
 resource "azurerm_storage_account_local_user" "sftp_user" {
   name                 = random_string.username.result
@@ -71,10 +66,5 @@ resource "azurerm_storage_account_local_user" "sftp_user" {
   ssh_authorized_key {
     description = "RSA access key"
     key         = tls_private_key.sftp_ssh_key_rsa.public_key_openssh
-  }
-
-  ssh_authorized_key {
-    description = "ED25519 access key"
-    key         = tls_private_key.sftp_ssh_key_ed25519.public_key_openssh
   }
 }
