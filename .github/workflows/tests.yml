@@ -113,7 +113,7 @@ jobs:
 
     - name: Get SFTP Name
       id: get-sftp-name
-      run: echo "SFTP_FOLDER=$(terraform output -no-color sftp_name)" >> $GITHUB_ENV
+      run: echo "SFTP_FOLDER=$(terraform output -no-color -raw sftp_name)" >> $GITHUB_ENV
       working-directory: .devcontainer/infra/jobs
 
     - name: Get SFTP Username
@@ -171,7 +171,7 @@ jobs:
         SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.storage_account_name }}.blob.core.windows.net
         SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.storage_account_name }}.blob.core.windows.net
         SFTP_USERNAME: ${{ steps.get-sftp-username.outputs.stdout }}
-        SFTP_PASSWORD: ${{ steps.get-sftp-password.outputs.stdout }}
+        SFTP_PASSWORD: $SFTP_PASSWORD
         SFTP_SSH_KEY_ECDSA: /tmp/sftp_key_rsa_key #/tmp/sftp_key_ecdsa_key
         SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
       shell: bash

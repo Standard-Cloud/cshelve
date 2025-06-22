@@ -32,7 +32,7 @@ resource "random_string" "username" {
 
 # Create a container for this specific job
 resource "azurerm_storage_container" "job_sftp" {
-  name                  = local.container_name
+  name                  = "upload" #local.container_name
   storage_account_id    = data.azurerm_storage_account.storage.id
   container_access_type = "private"
 }
@@ -47,7 +47,7 @@ resource "tls_private_key" "sftp_ssh_key" {
 resource "azurerm_storage_account_local_user" "sftp_user" {
   name                 = random_string.username.result
   storage_account_id   = data.azurerm_storage_account.storage.id
-  home_directory       = azurerm_storage_container.job_sftp.name
+  home_directory       = "${data.azurerm_storage_account.storage.name}/${azurerm_storage_container.job_sftp.name}"
   ssh_password_enabled = true
   ssh_key_enabled      = true
 
