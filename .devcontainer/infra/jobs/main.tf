@@ -47,7 +47,7 @@ resource "tls_private_key" "sftp_ssh_key" {
 resource "azurerm_storage_account_local_user" "sftp_user" {
   name                 = random_string.username.result
   storage_account_id   = data.azurerm_storage_account.storage.id
-  home_directory       = "${data.azurerm_storage_account.storage.name}/${azurerm_storage_container.job_sftp.name}"
+  # home_directory       = "${data.azurerm_storage_account.storage.name}/${azurerm_storage_container.job_sftp.name}"
   ssh_password_enabled = true
   ssh_key_enabled      = true
 
@@ -60,7 +60,7 @@ resource "azurerm_storage_account_local_user" "sftp_user" {
       create = true
     }
     service       = "blob"
-    resource_name = data.azurerm_storage_account.storage.name
+    resource_name = azurerm_storage_container.job_sftp.name
   }
 
   ssh_authorized_key {
