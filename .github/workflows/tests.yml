@@ -34,12 +34,12 @@ jobs:
     - name: Terraform Init
       id: init
       run: terraform init
-      working-directory: .devcontainer/infra/backbone
+      working-directory: infra/backbone
 
     - name: Terraform Apply
       id: apply
       run: terraform apply -auto-approve
-      working-directory: .devcontainer/infra/backbone
+      working-directory: infra/backbone
       env:
         TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -49,18 +49,18 @@ jobs:
     - name: Cache Terraform State
       uses: actions/cache/save@v3
       with:
-        path: .devcontainer/infra/backbone/terraform.tfstate
+        path: infra/backbone/terraform.tfstate
         key: terraform-state-${{ github.run_id }}
 
     - name: Get Storage Account Name
       id: get-storage-account
       run: terraform output -no-color -raw storage_account_name
-      working-directory: .devcontainer/infra/backbone
+      working-directory: infra/backbone
 
     - name: Get Resource Group Name
       id: get-resource-group
       run: terraform output -no-color -raw resource_group_name
-      working-directory: .devcontainer/infra/backbone
+      working-directory: infra/backbone
 
     - name: Set Outputs
       id: terraform-outputs
@@ -97,12 +97,12 @@ jobs:
     - name: Terraform Init (Job Container)
       id: init-job
       run: terraform init
-      working-directory: .devcontainer/infra/jobs
+      working-directory: infra/jobs
 
     - name: Create Job Container
       id: job-container
       run: terraform apply -auto-approve
-      working-directory: .devcontainer/infra/jobs
+      working-directory: infra/jobs
       env:
         TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -119,7 +119,7 @@ jobs:
         SFTP_NAME=$(terraform output -no-color -raw sftp_name)
         echo "::add-mask::$SFTP_NAME"
         echo "SFTP_FOLDER=$SFTP_NAME" >> $GITHUB_ENV
-      working-directory: .devcontainer/infra/jobs
+      working-directory: infra/jobs
 
     - name: Get SFTP Username
       id: get-sftp-username
@@ -127,7 +127,7 @@ jobs:
         SFTP_USER=$(terraform output -no-color -raw sftp_username)
         echo "::add-mask::$SFTP_USER"
         echo "SFTP_USERNAME=$SFTP_USER" >> $GITHUB_ENV
-      working-directory: .devcontainer/infra/jobs
+      working-directory: infra/jobs
 
     - name: Get SFTP Password
       id: get-sftp-password
@@ -135,12 +135,12 @@ jobs:
         SFTP_PASS=$(terraform output -no-color -raw sftp_password)
         echo "::add-mask::$SFTP_PASS"
         echo "SFTP_PASSWORD=$SFTP_PASS" >> $GITHUB_ENV
-      working-directory: .devcontainer/infra/jobs
+      working-directory: infra/jobs
 
     - name: Get SFTP SSH Private Key
       id: get-sftp-ssh-key
       run: terraform output -no-color -raw sftp_ssh_private_key_rsa > /tmp/sftp_key_rsa_key
-      working-directory: .devcontainer/infra/jobs
+      working-directory: infra/jobs
 
     - name: Install uv
       uses: astral-sh/setup-uv@v3
@@ -216,19 +216,19 @@ jobs:
     - name: Restore Terraform State
       uses: actions/cache/restore@v3
       with:
-        path: .devcontainer/infra/backbone/terraform.tfstate
+        path: infra/backbone/terraform.tfstate
         key: terraform-state-${{ github.run_id }}
         fail-on-cache-miss: true
 
     - name: Terraform Init
       id: init
       run: terraform init
-      working-directory: .devcontainer/infra/backbone
+      working-directory: infra/backbone
 
     - name: Terraform Destroy
       id: destroy
       run: terraform destroy -auto-approve
-      working-directory: .devcontainer/infra/backbone
+      working-directory: infra/backbone
       env:
         TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -238,5 +238,5 @@ jobs:
     - name: Delete Terraform State Cache
       run: |
         echo "Cleaning up Terraform state cache..."
-        rm -f .devcontainer/infra/backbone/terraform.tfstate*
+        rm -f infra/backbone/terraform.tfstate*
       shell: bash

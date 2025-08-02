@@ -1,8 +1,6 @@
 """
 Ensure the standard behavior of the API works as expected in real scenarios.
 """
-import os
-
 import pytest
 
 import cshelve
