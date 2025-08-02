@@ -368,13 +368,18 @@ class SFTP(ProviderInterface):
     def _iter(self, folder):
         with self._lock:
             files = self.sftp_client.listdir(folder)
+
         for item in files:
             full_path = f"{folder}/{item}"
 
             with self._lock:
                 is_dir = self._is_dir(full_path)
+
             if is_dir:
                 yield from self._iter(full_path)
             else:
                 self.logger.debug(f"Yielding key: {item}")
-                yield full_path.encode("utf-8")
+                full_path = full_path.encode("utf-8")[len(self.remote_path) :]
+                if full_path.startswith(b"/"):
+                    full_path = full_path[1:]
+                yield full_path

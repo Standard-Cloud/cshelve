@@ -3,4 +3,5 @@ FROM node
 
 RUN npm install -g azurite
 
-CMD azurite --debug /azurite/debug.log --inMemoryPersistence --blobHost 0.0.0.0
+# The option: --skipApiVersionCheck is temporary https://github.com/Azure/Azurite/issues/2562#issuecomment-3095055757
+CMD azurite --debug /azurite/debug.log --inMemoryPersistence --blobHost 0.0.0.0 --skipApiVersionCheck
