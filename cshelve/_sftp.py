@@ -379,7 +379,8 @@ class SFTP(ProviderInterface):
                 yield from self._iter(full_path)
             else:
                 self.logger.debug(f"Yielding key: {item}")
-                full_path = full_path.encode("utf-8")[len(self.remote_path) :]
-                if full_path.startswith(b"/"):
-                    full_path = full_path[1:]
+
+                # Remove the remote path prefix from the full path
+                full_path = full_path.encode("utf-8")[len(self.remote_path) + 1:]
+
                 yield full_path
