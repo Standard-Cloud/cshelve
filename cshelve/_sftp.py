@@ -258,7 +258,7 @@ class SFTP(ProviderInterface):
         Check if the remote directory exists.
         """
         try:
-            self.sftp_client.stat(self.remote_path)  # + "/.")
+            self.sftp_client.stat(self.remote_path)
         except FileNotFoundError:
             self.logger.info(f"Remote path '{self.remote_path}' does not exist.")
             return False
@@ -349,7 +349,7 @@ class SFTP(ProviderInterface):
         """
         try:
             stat = self.sftp_client.stat(key)
-            return stat.st_mode & 0o170000 == 0o040000  # Check if it's a directory
+            return stat.st_mode & 0o170000 == 0o040000
         except Exception as e:
             self.logger.error(f"Error checking if '{key}' is a directory: {e}")
             return False

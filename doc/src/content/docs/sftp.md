@@ -26,7 +26,7 @@ The following table lists the configuration options available for the SFTP provi
 | `default` | `password`                 | Password for password-based authentication               | -            | For password auth |
 | `default` | `key_filename`             | Path to private key file for key-based authentication    | -            | For key auth    |
 | `default` | `remote_path`              | Path on the remote server to store data                  | ""           | No       |
-| `default` | `accept_unknown_host_keys` | Accept unknown host keys (`true` or `false`)            | false        | No       |
+| `default` | `accept_unknown_host_keys` | Accept unknown host keys (`true` or `false`)             | false        | No       |
 
 ### Configuration Precedence
 
@@ -110,11 +110,11 @@ with cshelve.open('sftp.ini', provider_params=provider_params) as db:
 
 ## Security Considerations
 
-- For production environments, key-based authentication is generally recommended over password authentication
-- The `accept_unknown_host_keys` parameter should be set to `false` in production environments to prevent man-in-the-middle attacks
-- Store sensitive information such as passwords or private keys securely, preferably using environment variables or a secrets management system
-- Ensure SSH private key files have restrictive permissions (600 or 400)
-- Use strong passwords and consider implementing key rotation policies
+- For production environments, key-based authentication is generally recommended over password authentication.
+- The `accept_unknown_host_keys` parameter should be set to `false` in production environments to prevent man-in-the-middle attacks.
+- Store sensitive information such as passwords or private keys securely, preferably using environment variables or a secrets management system.
+- Ensure SSH private key files have restrictive permissions (600 or 400).
+- Use strong passwords and consider implementing key rotation policies.
 
 ## Notes
 
@@ -146,24 +146,24 @@ provider_params = {
 #### Authentication Failed
 **Problem**: `cshelve.AuthError: Authentication failed for SFTP connection`
 **Solutions**:
-- Verify username and password/key file are correct
-- Ensure the SSH key has proper permissions (600 for private keys)
-- Check if the server allows the authentication method you're using
-- Verify the hostname and port are correct
+- Verify username and password/key file are correct.
+- Ensure the SSH key has proper permissions (600 for private keys).
+- Check if the server allows the authentication method you're using.
+- Verify the hostname and port are correct.
 
 #### Host Key Verification Failed
-**Problem**: Connection refused due to unknown host key
+**Problem**: Connection refused due to unknown host key.
 **Solutions**:
 - For development/testing: Set `accept_unknown_host_keys = true`
-- For production: Add the server's host key to your known_hosts file
-- Use SSH to connect manually first to accept the host key
+- For production: Add the server's host key to your known_hosts file.
+- Use SSH to connect manually first to accept the host key.
 
 #### Permission Denied
-**Problem**: Cannot create directories or write files
+**Problem**: Cannot create directories or write files.
 **Solutions**:
-- Verify the user has write permissions to the `remote_path`
-- Check if the `remote_path` directory exists and is writable
-- Ensure the user can create subdirectories if using nested keys
+- Verify the user has write permissions to the `remote_path`.
+- Check if the `remote_path` directory exists and is writable.
+- Ensure the user can create subdirectories if using nested keys.
 
 #### Missing Dependencies
 **Problem**: `ImportError: The paramiko package is required`
