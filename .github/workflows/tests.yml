@@ -120,6 +120,7 @@ jobs:
         echo "::add-mask::$SFTP_NAME"
         echo "SFTP_FOLDER=$SFTP_NAME" >> $GITHUB_ENV
       working-directory: infra/jobs
+      shell: bash
 
     - name: Get SFTP Username
       id: get-sftp-username
@@ -128,6 +129,7 @@ jobs:
         echo "::add-mask::$SFTP_USER"
         echo "SFTP_USERNAME=$SFTP_USER" >> $GITHUB_ENV
       working-directory: infra/jobs
+      shell: bash
 
     - name: Get SFTP Password
       id: get-sftp-password
@@ -136,11 +138,13 @@ jobs:
         echo "::add-mask::$SFTP_PASS"
         echo "SFTP_PASSWORD=$SFTP_PASS" >> $GITHUB_ENV
       working-directory: infra/jobs
+      shell: bash
 
     - name: Get SFTP SSH Private Key
       id: get-sftp-ssh-key
       run: terraform output -no-color -raw sftp_ssh_private_key_rsa > /tmp/sftp_key_rsa_key
       working-directory: infra/jobs
+      shell: bash
 
     - name: Install uv
       uses: astral-sh/setup-uv@v3
