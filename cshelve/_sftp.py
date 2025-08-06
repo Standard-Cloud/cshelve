@@ -381,6 +381,6 @@ class SFTP(ProviderInterface):
                 self.logger.debug(f"Yielding key: {item}")
 
                 # Remove the remote path prefix from the full path
-                full_path = full_path.encode("utf-8")[len(self.remote_path) + 1:]
+                full_path = full_path.encode("utf-8")[len(self.remote_path) + 1 :]
 
                 yield full_path
