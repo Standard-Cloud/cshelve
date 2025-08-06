@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.0] - 2025-08-06
+### Added
+- SFTP provider.
+
 ## [1.3.0] - 2025-05-28
 ### Fixed
 - AWS S3 provider now raises `cshelve.KeyNotFoundError` when trying to access a non-existing key.
