@@ -20,7 +20,7 @@ locals {
   clean_python_version = replace(replace(var.python_version, ".", ""), "[^a-z0-9_]", "")
 
   # Create a unique container name for this job
-  container_name = lower("${local.clean_os}") #${local.clean_python_version}")
+  container_name = lower("${local.clean_os}${local.clean_python_version}")
 }
 
 # Generate a random string for storage account name
@@ -32,7 +32,7 @@ resource "random_string" "username" {
 
 # Create a container for this specific job
 resource "azurerm_storage_container" "job_sftp" {
-  name                  = "upload" #local.container_name
+  name                  = local.container_name
   storage_account_id    = data.azurerm_storage_account.storage.id
   container_access_type = "private"
 }
