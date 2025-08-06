@@ -98,6 +98,7 @@ jobs:
       id: init-job
       run: terraform init
       working-directory: infra/jobs
+      shell: bash
 
     - name: Create Job Container
       id: job-container
@@ -112,6 +113,7 @@ jobs:
         TF_VAR_python_version: ${{ matrix.python-version }}
         TF_VAR_storage_account_name: ${{ needs.infrastructure.outputs.storage_account_name }}
         TF_VAR_resource_group_name: ${{ needs.infrastructure.outputs.resource_group_name }}
+      shell: bash
 
     - name: Get SFTP Name
       id: get-sftp-name
