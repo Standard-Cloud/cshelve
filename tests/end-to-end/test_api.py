@@ -1,8 +1,6 @@
 """
 Ensure the standard behavior of the API works as expected in real scenarios.
 """
-import os
-
 import pytest
 
 import cshelve
@@ -20,30 +18,37 @@ CONFIG_FILES = [
     "tests/configurations/in-memory/compression.ini",
     "tests/configurations/in-memory/encryption.ini",
     "tests/configurations/in-memory/persisted.ini",
+    "tests/configurations/sftp/compression.ini",
+    "tests/configurations/sftp/encryption.ini",
+    "tests/configurations/sftp/standard.ini",
 ]
 
 CONFIG_FILES_ITER = [
     "tests/configurations/aws-s3/iter.ini",
     "tests/configurations/azure-blob/iter.ini",
     "tests/configurations/in-memory/iter.ini",
+    "tests/configurations/sftp/iter.ini",
 ]
 
 CONFIG_FILES_LEN = [
     "tests/configurations/aws-s3/len.ini",
     "tests/configurations/azure-blob/len.ini",
     "tests/configurations/in-memory/len.ini",
+    "tests/configurations/sftp/len.ini",
 ]
 
 CONFIG_FILES_DEL = [
     "tests/configurations/aws-s3/del.ini",
     "tests/configurations/azure-blob/del.ini",
     "tests/configurations/in-memory/del.ini",
+    "tests/configurations/sftp/del.ini",
 ]
 
 CONFIG_FILES_FLAG_N = [
     "tests/configurations/aws-s3/flag-n.ini",
     "tests/configurations/azure-blob/flag-n.ini",
     "tests/configurations/in-memory/flag-n.ini",
+    "tests/configurations/sftp/flag-n.ini",
 ]
 
 
@@ -174,7 +179,7 @@ def test_clear_db(config_file):
     """
     Ensure the database is cleared when using the 'n' flag.
     """
-    key_pattern = "test_clear_db"
+    key_pattern = f"{unique_key}-test_clear_db-{config_file}"
     data_pattern = "test_clear_db"
 
     def rewrite_db():
@@ -210,7 +215,7 @@ def test_del(config_file):
     """
     Ensure we can delete a record from the DB.
     """
-    key_pattern = "test_del"
+    key_pattern = f"{unique_key}-test_del-{config_file}"
     data_pattern = "test_del"
 
     def _del_data():
@@ -238,7 +243,7 @@ def test_len(config_file):
     """
     db = cshelve.open(config_file)
 
-    key_pattern = "test_len"
+    key_pattern = f"{unique_key}-test_len-{config_file}"
     data_pattern = "test_len"
 
     del_data(config_file)
@@ -262,7 +267,7 @@ def test_iter(config_file):
     res = set()
     db = cshelve.open(config_file)
 
-    key_pattern = "test_iter"
+    key_pattern = f"{unique_key}-test_iter-{config_file}"
     data_pattern = "test_iter"
     del_data(config_file)
 

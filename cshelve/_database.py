@@ -130,7 +130,8 @@ class _Database(MutableMapping):
             if clear_db(self.flag):
                 self.logger.info(f"Purging the database...")
                 # Retrieve all the keys and delete them.
-                # Retrieving keys is quick, but deletion synchronously is slow, so we use threads to speed up the process.
+                # Retrieving keys is quick, but deletion synchronously is slow, so we use threads to speed up the process when possible.
+                # If the provider does not support multithreading, it must handle it internally.
                 with ThreadPoolExecutor() as executor:
                     list(executor.map(self.db.delete, self.db.iter()))
                 self.logger.info(f"Database purged.")

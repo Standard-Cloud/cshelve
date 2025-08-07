@@ -1,6 +1,8 @@
 """
 This Interface defines the interface for storage provider supporting the `MutableMapping` interface.
 This class is used by the `Shelf` class to interact with the cloud storage provider.
+
+If the provider is not thread-safe, it must handle the locking mechanism itself.
 """
 from abc import abstractmethod
 from typing import Any, Dict, Iterator

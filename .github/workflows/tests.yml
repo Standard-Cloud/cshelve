@@ -8,17 +8,19 @@ permissions:
   contents: read
 
 jobs:
-  tests:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+  infrastructure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     environment: azure
+    outputs:
+      resource_group_name: ${{ steps.terraform-outputs.outputs.RESOURCE_GROUP_NAME }}
+      sftp_hostname: ${{ steps.terraform-outputs.outputs.SFTP_HOSTNAME }}
+      storage_account_name: ${{ steps.terraform-outputs.outputs.STORAGE_ACCOUNT_NAME }}
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
     - name: 'Az CLI login'
       uses: azure/login@v1
       with:
@@ -26,13 +28,125 @@ jobs:
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    # Nodejs is used to install Azurite.
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 18
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
 
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      working-directory: infra/backbone
+
+    - name: Terraform Apply
+      id: apply
+      run: terraform apply -auto-approve
+      working-directory: infra/backbone
+      env:
+        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        TF_VAR_run_id: ${{ github.run_id }}
+
+    - name: Cache Terraform State
+      uses: actions/cache/save@v3
+      with:
+        path: infra/backbone/terraform.tfstate
+        key: terraform-state-${{ github.run_id }}
+
+    - name: Get Storage Account Name
+      id: get-storage-account
+      run: terraform output -no-color -raw storage_account_name
+      working-directory: infra/backbone
+
+    - name: Get Resource Group Name
+      id: get-resource-group
+      run: terraform output -no-color -raw resource_group_name
+      working-directory: infra/backbone
+
+    - name: Set Outputs
+      id: terraform-outputs
+      run: |
+        echo "STORAGE_ACCOUNT_NAME=${{ steps.get-storage-account.outputs.stdout }}" >> $GITHUB_OUTPUT
+        echo "SFTP_HOSTNAME=${{ steps.get-storage-account.outputs.stdout }}.blob.core.windows.net" >> $GITHUB_OUTPUT
+        echo "RESOURCE_GROUP_NAME=${{ steps.get-resource-group.outputs.stdout }}" >> $GITHUB_OUTPUT
+
+  tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    needs: infrastructure
+    environment: azure
+
+    steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Init (Job Container)
+      id: init-job
+      run: terraform init
+      working-directory: infra/jobs
+      shell: bash
+
+    - name: Create Job Container
+      id: job-container
+      run: terraform apply -auto-approve
+      working-directory: infra/jobs
+      env:
+        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        TF_VAR_run_id: ${{ github.run_id }}
+        TF_VAR_os: ${{ matrix.os }}
+        TF_VAR_python_version: ${{ matrix.python-version }}
+        TF_VAR_storage_account_name: ${{ needs.infrastructure.outputs.storage_account_name }}
+        TF_VAR_resource_group_name: ${{ needs.infrastructure.outputs.resource_group_name }}
+      shell: bash
+
+    - name: Get SFTP Name
+      id: get-sftp-name
+      run: |
+        SFTP_NAME=$(terraform output -no-color -raw sftp_name)
+        echo "::add-mask::$SFTP_NAME"
+        echo "SFTP_FOLDER=$SFTP_NAME" >> $GITHUB_ENV
+      working-directory: infra/jobs
+      shell: bash
+
+    - name: Get SFTP Username
+      id: get-sftp-username
+      run: |
+        SFTP_USER=$(terraform output -no-color -raw sftp_username)
+        echo "::add-mask::$SFTP_USER"
+        echo "SFTP_USERNAME=$SFTP_USER" >> $GITHUB_ENV
+      working-directory: infra/jobs
+      shell: bash
+
+    - name: Get SFTP Password
+      id: get-sftp-password
+      run: |
+        SFTP_PASS=$(terraform output -no-color -raw sftp_password)
+        echo "::add-mask::$SFTP_PASS"
+        echo "SFTP_PASSWORD=$SFTP_PASS" >> $GITHUB_ENV
+      working-directory: infra/jobs
+      shell: bash
+
+    - name: Get SFTP SSH Private Key
+      id: get-sftp-ssh-key
+      run: terraform output -no-color -raw sftp_ssh_private_key_rsa > /tmp/sftp_key_rsa_key
+      working-directory: infra/jobs
+      shell: bash
 
     - name: Install uv
       uses: astral-sh/setup-uv@v3
@@ -51,14 +165,20 @@ jobs:
     - name: Run tests without dependencies
       run: uv run pytest tests/units
 
-    - name: Run end-to-end tests interracting with Azure and AWS
-      run: uv run --python ${{ matrix.python-version }} pytest -m "azure or aws" tests/end-to-end
+    - name: Run end-to-end tests interracting with Azure, AWS and SFTP
+      run: uv run --python ${{ matrix.python-version }} pytest -m "azure or aws or sftp" tests/end-to-end
       env:
         AWS_KEY_ID: ${{ secrets.AWS_ENVIRONMENT_KEY }}
         AWS_KEY_SECRET: ${{ secrets.AWS_ENVIRONMENT_SECRET }}
         AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
         ENCRYPTION_KEY: "Sixteen byte key"
+        SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
+        SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
+        SFTP_USERNAME: ${{ env.SFTP_USERNAME }}
+        SFTP_PASSWORD: ${{ env.SFTP_PASSWORD }}
+        SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
+      shell: bash
 
     - name: Run end-to-end tests with simulator
       run: |
@@ -67,10 +187,62 @@ jobs:
         moto_server -p9000 &
 
         # Run tests
-        uv run --python ${{ matrix.python-version }} pytest -m "(not azure) and (not aws)" tests/end-to-end
+        uv run --python ${{ matrix.python-version }} pytest -m "(not azure) and (not aws) and (not sftp)" tests/end-to-end
       env:
         AWS_ENDPOINT_URL: "http://127.0.0.1:9000"
         AWS_KEY_ID: "moto"
         AWS_KEY_SECRET: "moto"
         AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
         ENCRYPTION_KEY: "Sixteen byte key"
+        SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
+        SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
+        SFTP_USERNAME: ${{ env.SFTP_USERNAME }}
+        SFTP_PASSWORD: ${{ env.SFTP_PASSWORD }}
+        SFTP_SSH_KEY_RSA: /tmp/sftp_key_rsa_key
+
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [infrastructure, tests]
+    if: always()
+    environment: azure
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Restore Terraform State
+      uses: actions/cache/restore@v3
+      with:
+        path: infra/backbone/terraform.tfstate
+        key: terraform-state-${{ github.run_id }}
+        fail-on-cache-miss: true
+
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      working-directory: infra/backbone
+
+    - name: Terraform Destroy
+      id: destroy
+      run: terraform destroy -auto-approve
+      working-directory: infra/backbone
+      env:
+        TF_VAR_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+        TF_VAR_run_id: ${{ github.run_id }}
+
+    - name: Delete Terraform State Cache
+      run: |
+        echo "Cleaning up Terraform state cache..."
+        rm -f infra/backbone/terraform.tfstate*
+      shell: bash
