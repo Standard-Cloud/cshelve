@@ -31,10 +31,10 @@ export default defineConfig({
 				{
 					label: 'Providers',
 					items: [
-						{ label: 'AWS S3 Provider', link: './aws-s3' },
+						{ label: 'AWS S3', link: './aws-s3' },
 						{ label: 'Azure Blob Storage', link: './azure-blob' },
-						{ label: 'In-Memory Provider', link: './in-memory' },
-						{ label: 'SFTP Provider', link: './sftp' },
+						{ label: 'In-Memory', link: './in-memory' },
+						{ label: 'SFTP', link: './sftp' },
 					],
 				},
 				{
