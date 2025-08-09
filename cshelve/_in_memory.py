@@ -19,7 +19,7 @@ class InMemory(ProviderInterface):
 
     def __init__(self, logger) -> None:
         super().__init__(logger)
-        self.db: dict[bytes, bytes] = {}
+        self.db: Union[dict[bytes, bytes], None] = {}
         self.persist_key: Union[str, None] = None
 
         # Following variables are for testing purposes.
@@ -77,7 +77,7 @@ class InMemory(ProviderInterface):
         Close the database by setting the internal dictionary to None.
         This ensures an error if the user tries to reuse the object.
         """
-        self.db = {}
+        self.db = None
 
     def sync(self) -> None:
         """
