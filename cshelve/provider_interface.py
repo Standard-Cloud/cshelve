@@ -28,9 +28,10 @@ class ProviderInterface:
         raise NotImplementedError
 
     @abstractmethod
-    def configure_default(self, config: Dict[str, str]) -> None:
+    def configure_default(self, config: Dict[str, Any]) -> None:
         """
         Default configuration of the provider.
+        The `config` can comes from a configuration file or dict.
         """
         raise NotImplementedError
 

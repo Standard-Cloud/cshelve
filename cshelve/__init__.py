@@ -13,7 +13,10 @@ from typing import Any
 
 from ._cloud_shelf import CloudShelf
 from ._factory import factory as _factory
-from ._parser import load_from_file as _config_loader_from_file
+from ._parser import (
+    load_from_file as _config_loader_from_file,
+    load_from_dict as _config_loader_from_dict,
+)
 from ._parser import use_local_shelf
 from .exceptions import (
     AuthArgumentError,
@@ -84,6 +87,34 @@ def open(
     config = config_loader(logger, filename)
 
     logger.debug("Opening a cloud shelf.")
+    return CloudShelf(
+        flag.lower(),
+        protocol,
+        writeback,
+        config,
+        factory,
+        logger,
+        provider_params,
+    )
+
+
+def open_from_dict(
+    config: dict[str, Any],
+    flag="c",
+    protocol=DEFAULT_PICKLE_PROTOCOL,
+    writeback=False,
+    config_loader=_config_loader_from_dict,
+    factory=_factory,
+    logger=logging.getLogger("cshelve"),
+    provider_params={},
+) -> shelve.Shelf:
+    """
+    Open and configure a Cloud Shelve database from a configuration dictionary.
+    """
+    # Load the configuration to retrieve the provider and its configuration.
+    config = config_loader(logger, config)
+    logger.debug("Opening a cloud shelf.")
+
     return CloudShelf(
         flag.lower(),
         protocol,
