@@ -2,7 +2,8 @@ import pickle
 from unittest.mock import Mock
 
 import pytest
-from cshelve import DataProcessing, DataProcessingSignatureError
+from cshelve import DataProcessingSignatureError
+from cshelve._data_processing import DataProcessing
 
 
 def add_one(x):
