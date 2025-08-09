@@ -19,12 +19,33 @@ repository = "https://github.com/Standard-Cloud/cshelve"
 homepage = "https://github.com/Standard-Cloud/cshelve"
 documentation = "https://github.com/Standard-Cloud/cshelve"
 
+[tool.mypy]
+#ignore_missing_imports = true
+#strict = true
+#show_error_codes = true
+#pretty = true
+#check_untyped_defs = true
+#disallow_untyped_defs = true
+#disallow_incomplete_defs = true
+#warn_unused_ignores = true
+#warn_return_any = true
+#warn_unused_configs = true
+exclude = [
+    "doc/",
+    "examples/",
+    "performances/",
+    "infra/",
+    "tests/",
+    "compatibility/"
+]
+
 [tool.uv]
 dev-dependencies = [
     "azure-identity>=1.19.0",
     "azure-storage-blob>=12.23.1",
     "boto3>=1.36",
     "furo>=2024.8.6",
+    "mypy>=1.17",
     "pandas>=1.4",
     "paramiko>=3.5.1",
     "pre-commit>=4.0.1",
