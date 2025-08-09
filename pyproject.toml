@@ -25,7 +25,6 @@ dev-dependencies = [
     "azure-storage-blob>=12.23.1",
     "boto3>=1.36",
     "furo>=2024.8.6",
-    "mypy>=1.17",
     "pandas>=1.4",
     "paramiko>=3.5.1",
     "pre-commit>=4.0.1",
