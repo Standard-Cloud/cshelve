@@ -1,14 +1,14 @@
 """
 In-memory storage implementation. Mainly for testing purposes.
 """
-from typing import Any, Dict, Iterator
+from typing import Any, Dict, Iterator, Union
 
 from .provider_interface import ProviderInterface
 from .exceptions import key_access
 
 
 # Contains in-memory databases persisted between open/close during the same program execution.
-DB_PERSISTED = {}
+DB_PERSISTED: dict[str, dict[bytes, bytes]] = {}
 
 
 class InMemory(ProviderInterface):
@@ -19,15 +19,15 @@ class InMemory(ProviderInterface):
 
     def __init__(self, logger) -> None:
         super().__init__(logger)
-        self.db = {}
-        self.persist_key = None
+        self.db: Union[dict[bytes, bytes], None] = {}
+        self.persist_key: Union[str, None] = None
 
         # Following variables are for testing purposes.
         self._created = False
         self._exists = False
         self._synced = False
-        self._logging = None
-        self._provider_params = None
+        self._logging: Union[dict[str, str], None] = None
+        self._provider_params: Union[dict[str, Any], None] = None
 
     def configure_default(self, config: Dict[str, str]) -> None:
         """

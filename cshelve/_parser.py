@@ -10,7 +10,6 @@ from logging import Logger
 from collections import namedtuple
 import configparser
 from pathlib import Path
-from typing import Dict, Tuple
 
 from ._config import from_env
 

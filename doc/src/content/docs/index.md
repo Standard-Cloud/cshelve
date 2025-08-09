@@ -1,64 +1,80 @@
 ---
 title: Cloud Shelve
-description: What is *cshelve*?
+description: Store and retrieve Python objects locally, in the cloud, or on-premise with a simple dictionary-like interface.
 ---
 
-**Cloud Shelve (cshelve)** is a Python package that provides a seamless way to store and manage data in the cloud using the familiar [Python Shelve interface](https://docs.python.org/3/library/shelve.html). It is designed for efficient and scalable storage solutions, allowing you to leverage cloud providers for persistent storage while keeping the simplicity of the *shelve* API.
+# Cloud Shelve (`cshelve`)
 
-We welcome your feedback, contributions, and support! Feel free to star the project on [GitHub](https://github.com/Standard-Cloud/cshelve).
+**CShelve** is a Python package that lets you store and retrieve Python objects—lists, DataFrames, JSON, binary files—across **local files**, **cloud storage** (AWS S3, Azure Blob), or **on-premise via SFTP**, all with the same easy dictionary-like interface.
 
-## Installation
+If you know how to use:
+```python
+mydict['key'] = value
+````
 
-```console
+you already know how to use CShelve.
+No database servers. No complex setup. Just install, configure, and start saving.
+
+We welcome your feedback and contributions! ⭐ Star the project on [GitHub](https://github.com/Standard-Cloud/cshelve) to support development.
+
+---
+
+## 🚀 Installation
+
+```bash
+# Local storage only
 pip install cshelve
+
+# With Azure Blob support
+pip install cshelve[azure-blob]
+
+# With AWS S3 support
+pip install cshelve[aws-s3]
+
+# With SFTP support (on-premise or self-hosted)
+pip install cshelve[sftp]
 ```
 
-## Usage
+---
 
-Locally, *cshelve* works just like the built-in *shelve* module:
+## 📝 Local Usage
+
+Using CShelve locally is just like Python’s built-in [`shelve`](https://docs.python.org/3/library/shelve.html):
 
 ```python
 import cshelve
 
-d = cshelve.open('local.db')  # Open the local database file
+db = cshelve.open('local.db')  # Create or open a local storage file
 
-key = 'key'
-data = 'data'
+db['key'] = 'data'             # Store
+print(db['key'])               # Retrieve
+del db['key']                  # Delete
 
-d[key] = data                 # Store data at the key (overwrites existing data)
-data = d[key]                 # Retrieve a copy of data (raises KeyError if not found)
-del d[key]                    # Delete data at the key (raises KeyError if not found)
+print('key' in db)             # Check if a key exists
+print(list(db.keys()))         # List all keys (may be slow for huge datasets)
 
-flag = key in d               # Check if the key exists in the database
-klist = list(d.keys())        # List all existing keys (could be slow for large datasets)
+# Example with mutable objects (without writeback=True)
+db['numbers'] = [0, 1, 2]
+temp = db['numbers']
+temp.append(3)
+db['numbers'] = temp           # Re-store to persist changes
 
-# Note: Since writeback=True is not used, handle data carefully:
-d['xx'] = [0, 1, 2]           # Store a list
-d['xx'].append(3)             # This won't persist since writeback=True is not used
-
-# Correct approach:
-temp = d['xx']                # Extract the stored list
-temp.append(5)                # Modify the list
-d['xx'] = temp                # Store it back to persist changes
-
-d.close()                     # Close the database
+db.close()
 ```
 
-Refer to the [Python official documentation of the Shelve module](https://docs.python.org/3/library/shelve.html) for more information.
+> 📚 Tip: For more details on how `shelve` works under the hood, see the [official Python documentation](https://docs.python.org/3/library/shelve.html).
 
-### Cloud Storage Example
+---
 
-*cshelve* also supports cloud storage. You can use the same API to store data in the cloud. You just need to install the targeted provider and create an `.ini` file with your configuration.
+## ☁ Cloud Storage Example – Azure Blob
 
-Here is an example using Azure Blob Storage:
+**1️⃣ Install provider**
 
-First, install the provider (first time only):
-
-```console
+```bash
 pip install cshelve[azure-blob]
 ```
 
-Then create a configuration file `my_configuration.ini`:
+**2️⃣ Create `azure-blob.ini`**
 
 ```ini
 [default]
@@ -68,10 +84,106 @@ auth_type       = passwordless
 container_name  = mycontainer
 ```
 
-Finally, specify the configuration file when opening the database:
+**3️⃣ Use in Python**
 
 ```python
 import cshelve
 
-d = cshelve.open('my_configuration.ini')
+db = cshelve.open('azure-blob.ini')
+db['message'] = 'Hello from Azure!'
+print(db['message'])
+db.close()
 ```
+
+---
+
+## ☁ Cloud Storage Example – AWS S3
+
+**1️⃣ Install provider**
+
+```bash
+pip install cshelve[aws-s3]
+```
+
+**2️⃣ Create `aws-s3.ini`**
+
+```ini
+[default]
+provider    = aws-s3
+bucket_name = mybucket
+auth_type   = access_key
+key_id      = $AWS_KEY_ID
+key_secret  = $AWS_KEY_SECRET
+```
+
+**3️⃣ Set environment variables**
+
+```bash
+export AWS_KEY_ID=your_access_key_id
+export AWS_KEY_SECRET=your_secret_access_key
+```
+
+**4️⃣ Use in Python**
+
+```python
+import cshelve
+
+db = cshelve.open('aws-s3.ini')
+db['cloud_key'] = 'Stored in S3!'
+print(db['cloud_key'])
+db.close()
+```
+
+---
+
+## 🖥 On-Premise / Private Hosting Example – SFTP
+
+**1️⃣ Install provider**
+
+```bash
+pip install cshelve[sftp]
+```
+
+**2️⃣ Create `sftp.ini`**
+
+```ini
+[default]
+provider                    = sftp
+hostname                    = $SFTP_PASSWORD_HOSTNAME
+username                    = $SFTP_USERNAME
+password                    = $SFTP_PASSWORD
+auth_type                   = password
+
+[provider_params]
+remote_path                 = myuser
+```
+
+**3️⃣ Set environment variables**
+
+```bash
+export SFTP_PASSWORD_HOSTNAME=your-sftp-host
+export SFTP_USERNAME=your-username
+export SFTP_PASSWORD=your-password
+```
+
+**4️⃣ Use in Python**
+
+```python
+import cshelve
+
+db = cshelve.open('sftp.ini')
+db['local_backup'] = 'Stored via SFTP on-prem'
+print(db['local_backup'])
+db.close()
+```
+
+---
+
+## 🌟 Why Use CShelve?
+
+* **Familiar** – Works like a Python dictionary.
+* **Cloud-Ready** – Switch between local and cloud storage without code changes.
+* **On-Prem Capable** – Use SFTP for private or internal storage.
+* **Lightweight** – No servers or SQL required.
+* **Flexible** – Store any picklable object or raw bytes (JSON, CSV, images, etc.).
+* **Scalable** – Leverage cloud or on-prem solutions for affordable, persistent storage.

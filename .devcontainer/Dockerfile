@@ -23,3 +23,6 @@ USER $USERNAME
 
 # Create the virtual environment
 RUN uv venv --python 3.9 /build/package/venv
+
+# Update git config
+RUN git config --global push.autoSetupRemote true
