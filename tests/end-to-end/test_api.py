@@ -1,6 +1,7 @@
 """
 Ensure the standard behavior of the API works as expected in real scenarios.
 """
+import json
 import pytest
 
 import cshelve
@@ -21,6 +22,13 @@ CONFIG_FILES = [
     "tests/configurations/sftp/compression.ini",
     "tests/configurations/sftp/encryption.ini",
     "tests/configurations/sftp/standard.ini",
+]
+
+CONFIG_FILES_JSON = [
+    "tests/configurations/aws-s3/standard.json",
+    "tests/configurations/azure-blob/standard.json",
+    "tests/configurations/in-memory/persisted.json",
+    "tests/configurations/sftp/standard.json",
 ]
 
 CONFIG_FILES_ITER = [
@@ -63,6 +71,33 @@ def test_write_then_read(config_file: str):
     with cshelve.open(config_file) as db:
         key_pattern = f"{unique_key}-test_write_and_read-{config_file}"
         data_pattern = "test_write_and_read"
+
+        for i in range(10):
+            key = f"{key_pattern}{i}"
+
+            # Write data to the DB.
+            db[key] = f"{data_pattern}{i}"
+            # Data must be present in the DB.
+            assert db[key] == f"{data_pattern}{i}"
+            # Delete the data from the DB.
+            del db[key]
+
+    db.close()
+
+
+@pytest.mark.parametrize(
+    "config_file",
+    CONFIG_FILES_JSON,
+)
+def test_write_then_read_from_json(config_file: str):
+    """
+    Ensure we can read and write data to the DB from a config as dict.
+    """
+    config = json.load(open(config_file))
+
+    with cshelve.open_from_dict(config) as db:
+        key_pattern = f"{unique_key}-test_write_then_read_from_json-{config_file}"
+        data_pattern = "test_write_then_read_from_json"
 
         for i in range(10):
             key = f"{key_pattern}{i}"

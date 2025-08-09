@@ -1,0 +1,12 @@
+{
+  "default": {
+    "provider": "in-memory",
+    "persist-key": "standard-from-json",
+    "exists": true
+  },
+  "logging": {
+    "http": true,
+    "credentials": false,
+    "level": "INFO"
+  }
+}

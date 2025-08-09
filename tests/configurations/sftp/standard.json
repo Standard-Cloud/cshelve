@@ -1,0 +1,18 @@
+{
+  "default": {
+    "provider": "sftp",
+    "hostname": "$SFTP_PASSWORD_HOSTNAME",
+    "username": "$SFTP_USERNAME",
+    "password": "$SFTP_PASSWORD",
+    "auth_type": "password"
+  },
+  "provider_params": {
+    "accept_unknown_host_keys": true,
+    "remote_path": "upload/standard-from-json"
+  },
+  "logging": {
+    "http": true,
+    "credentials": false,
+    "level": "INFO"
+  }
+}

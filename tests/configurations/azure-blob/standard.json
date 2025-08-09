@@ -1,0 +1,13 @@
+{
+  "default": {
+    "provider": "azure-blob",
+    "auth_type": "connection_string",
+    "environment_key": "AZURE_STORAGE_CONNECTION_STRING",
+    "container_name": "standard-from-json"
+  },
+  "logging": {
+    "http": true,
+    "credentials": false,
+    "level": "INFO"
+  }
+}
