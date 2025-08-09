@@ -1,10 +1,10 @@
 """
 In-memory storage implementation. Mainly for testing purposes.
 """
-from typing import Any, Dict, Iterator
+from typing import Any, Dict, Iterator, Union
 
 from .provider_interface import ProviderInterface
-from .exceptions import key_access, KeyNotFoundError
+from .exceptions import key_access
 
 
 # Contains in-memory databases persisted between open/close during the same program execution.
@@ -19,15 +19,15 @@ class InMemory(ProviderInterface):
 
     def __init__(self, logger) -> None:
         super().__init__(logger)
-        self.db: dict[bytes, bytes] | None = {}
-        self.persist_key: str | None = None
+        self.db: dict[bytes, bytes] = {}
+        self.persist_key: Union[str, None] = None
 
         # Following variables are for testing purposes.
         self._created = False
         self._exists = False
         self._synced = False
-        self._logging: dict[str, str] | None = None
-        self._provider_params: dict[str, Any] | None = None
+        self._logging: Union[dict[str, str], None] = None
+        self._provider_params: Union[dict[str, Any], None] = None
 
     def configure_default(self, config: Dict[str, str]) -> None:
         """
@@ -77,7 +77,7 @@ class InMemory(ProviderInterface):
         Close the database by setting the internal dictionary to None.
         This ensures an error if the user tries to reuse the object.
         """
-        self.db = None
+        self.db = {}
 
     def sync(self) -> None:
         """
