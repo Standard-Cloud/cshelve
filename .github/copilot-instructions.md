@@ -250,7 +250,7 @@ db.close()
 ### Coding Standards
 - Follow PEP 8 style guide
 - Type hints for all public APIs
-- Use `mypy` for type checking
 - Use `black` for code formatting
 - Put docstrings in all public methods and classes
 - Use `pytest` for testing with fixtures and parameterized tests
+- `assert` statements can only be used in tests

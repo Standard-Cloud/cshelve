@@ -283,7 +283,7 @@ class AzureBlobStorage(ProviderInterface):
             f"Invalid auth_type: {auth_type}. Supported values are: {', '.join(supported_auth.keys())}"
         )
 
-    def __get_credentials(self, environment_key: str) -> str:
+    def __get_credentials(self, environment_key: Optional[str]) -> str:
         """
         Retrieve the credentials from the environment variable or raise the corresponding error.
         """
