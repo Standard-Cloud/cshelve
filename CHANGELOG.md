@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.5.0] - 2025-08-x
+### Added
+- Configuration as `dict`.
+
 ## [1.4.0] - 2025-08-06
 ### Added
 - SFTP provider.

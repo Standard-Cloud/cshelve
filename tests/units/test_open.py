@@ -65,11 +65,12 @@ def test_load_cloud_shelf_config_memory():
 
     with cshelve.open(filename) as cs:
         # Ensure the default configuration is loaded.
-        cs.persist_key = False
-        # Ensure the logging is loaded.
-        cs._config = {"enabled": "true"}
+        assert cs.dict.db.persist_key is None
+        # Ensure the logging is provided.
+        # The memory database store it as it provided.
+        assert cs.dict.db._logging == {"enabled": "true", "level": "INFO"}
         # Ensure the database is created.
-        cs._created = True
+        assert cs.dict.db._created is False
 
 
 def test_load_cloud_shelf_config_as_dict_memory():
@@ -83,11 +84,12 @@ def test_load_cloud_shelf_config_as_dict_memory():
 
     with cshelve.open_from_dict(config) as cs:
         # Ensure the default configuration is loaded.
-        cs.persist_key = False
-        # Ensure the logging is loaded.
-        cs._config = {"enabled": "true"}
+        assert cs.dict.db.persist_key is None
+        # Ensure the logging is provided.
+        # The memory database store it as it provided.
+        assert cs.dict.db._logging == {"enabled": True, "level": "INFO"}
         # Ensure the database is created.
-        cs._created = True
+        assert cs.dict.db._created is False
 
 
 def test_load_local_shelf_config():
