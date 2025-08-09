@@ -1,9 +1,9 @@
 ---
-title: Configure CShelve from a Python dict
+title: Configure CShelve from a Python dictionary
 description: Use cshelve.open_from_dict() to configure providers without .ini files—perfect for serverless, CI/CD, or dynamic configs.
 ---
 
-# Configure from a Python dict
+# Configure from a Python dictionary
 
 `open_from_dict()` lets you pass configuration **directly as a Python dictionary** instead of a `.ini` file.
 This is ideal when you generate settings at runtime, pull secrets from a vault, or run in environments where writing to disk is inconvenient.

@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.5.0] - 2025-08-x
+## [1.5.0] - 2025-08-09
 ### Added
 - Configuration as `dict`.
 
