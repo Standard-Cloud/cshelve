@@ -131,7 +131,7 @@ class SFTP(ProviderInterface):
         """
         self.config = config
         self.hostname = config.get("hostname")
-        self.port = int(config.get("port", "22"))
+        self.port = int(config.get("port", 22))
         self.auth_type = config.get("auth_type")
         self.remote_path = config.get("remote_path")
         self._provider_auth_parameters["username"] = config.get("username")
@@ -149,7 +149,7 @@ class SFTP(ProviderInterface):
         """
         # The configuration provided from the config overrides the configuration provided from the provider_params
         self.hostname = self.hostname or provider_params.get("hostname")
-        self.port = self.port or int(provider_params.get("port", "22"))
+        self.port = self.port or int(provider_params.get("port", 22))
 
         # Take the value from the config if it exists, otherwise from the provider_params or default to False.
         if self.accept_unknown_host_keys is None:

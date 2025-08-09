@@ -4,7 +4,7 @@ The cloud shelve module is used when the filename has a specific extension, and 
 """
 from pathlib import Path
 from unittest.mock import Mock
-from cshelve._parser import load, use_local_shelf
+from cshelve._parser import load_from_file, use_local_shelf
 
 
 def test_use_local_shelf():
@@ -32,7 +32,9 @@ def test_azure_configuration():
     """
     Load the Azure configuration file and return it as a dictionary.
     """
-    config = load(Mock(), Path("tests/configurations/azure-blob/standard.ini"))
+    config = load_from_file(
+        Mock(), Path("tests/configurations/azure-blob/standard.ini")
+    )
 
     assert config.provider == "azure-blob"
 

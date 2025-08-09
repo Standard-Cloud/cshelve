@@ -126,10 +126,10 @@ class AzureBlobStorage(ProviderInterface):
         Configure the logging for the InMemory client based on the configuration dictionary.
         """
         if http := config.get("http"):
-            self._client_configuration["logging_enable"] = http.lower() == "true"
+            self._client_configuration["logging_enable"] = str(http).lower() == "true"
         if credentials := config.get("credentials"):
             self._credentials_configuration["logging_enable"] = (
-                credentials.lower() == "true"
+                str(credentials).lower() == "true"
             )
 
     # If an `ResourceNotFoundError` is raised by the SDK, it is converted to a `KeyError` to follow the `dbm` behavior based on a custom module error.

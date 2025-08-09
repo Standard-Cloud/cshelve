@@ -54,7 +54,7 @@ def use_local_shelf(filename: Path) -> bool:
     return not filename.suffix == ".ini"
 
 
-def load(logger: Logger, filename: Path) -> Config:
+def load_from_file(logger: Logger, filename: Path) -> Config:
     """
     Load the configuration file and return it as a dictionary.
     """
@@ -62,6 +62,18 @@ def load(logger: Logger, filename: Path) -> Config:
     config = configparser.ConfigParser()
     config.read(filename)
 
+    return _load_configuration(logger, config)
+
+
+def load_from_dict(logger: Logger, config: dict) -> Config:
+    """
+    Load the configuration from a dict and return it.
+    """
+    logger.debug(f"Loading configuration from a dict.")
+    return _load_configuration(logger, config)
+
+
+def _load_configuration(logger: Logger, config: dict) -> Config:
     c = config[DEFAULT_CONFIG_STORE]
     logging_config = config[LOGGING_KEY_STORE] if LOGGING_KEY_STORE in config else {}
     compression_config = (
@@ -72,7 +84,7 @@ def load(logger: Logger, filename: Path) -> Config:
     )
     provider_params = config[PROVIDER_PARAMS] if PROVIDER_PARAMS in config else {}
 
-    logger.debug(f"Configuration file '{filename}' loaded.")
+    logger.debug(f"Configuration loaded.")
     return Config(
         provider=c[PROVIDER_KEY],
         default=from_env(dict(c)),
