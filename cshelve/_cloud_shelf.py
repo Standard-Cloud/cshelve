@@ -3,7 +3,7 @@ import shelve
 from ._compression import configure as _configure_compression
 from ._encryption import configure as _configure_encryption
 from ._database import _Database
-from ._parser import load as Config
+from ._parser import load_from_file as Config
 from ._data_processing import DataProcessing
 
 

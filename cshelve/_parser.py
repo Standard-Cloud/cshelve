@@ -54,7 +54,7 @@ def use_local_shelf(filename: Path) -> bool:
     return not filename.suffix == ".ini"
 
 
-def load(logger: Logger, filename: Path) -> Config:
+def load_from_file(logger: Logger, filename: Path) -> Config:
     """
     Load the configuration file and return it as a dictionary.
     """

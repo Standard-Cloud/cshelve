@@ -63,8 +63,25 @@ def test_load_cloud_shelf_config_memory():
     """
     filename = "tests/configurations/in-memory/not-persisted.ini"
 
-    # Replace the default parser with the mock parser.
     with cshelve.open(filename) as cs:
+        # Ensure the default configuration is loaded.
+        cs.persist_key = False
+        # Ensure the logging is loaded.
+        cs._config = {"enabled": "true"}
+        # Ensure the database is created.
+        cs._created = True
+
+
+def test_load_cloud_shelf_config_as_dict_memory():
+    """
+    Test the open_from_dict function and the configuration.
+    """
+    config = {
+        "default": {"provider": "in-memory", "exists": True},
+        "logging": {"enabled": True, "level": "INFO"},
+    }
+
+    with cshelve.open_from_dict(config) as cs:
         # Ensure the default configuration is loaded.
         cs.persist_key = False
         # Ensure the logging is loaded.

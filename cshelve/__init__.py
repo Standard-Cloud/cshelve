@@ -9,10 +9,11 @@ If the file extension is `.ini`, the file is considered a configuration file and
 import logging
 from pathlib import Path
 import shelve
+from typing import Any
 
 from ._cloud_shelf import CloudShelf
 from ._factory import factory as _factory
-from ._parser import load as _config_loader
+from ._parser import load_from_file as _config_loader_from_file
 from ._parser import use_local_shelf
 from .exceptions import (
     AuthArgumentError,
@@ -62,7 +63,7 @@ def open(
     flag="c",
     protocol=DEFAULT_PICKLE_PROTOCOL,
     writeback=False,
-    config_loader=_config_loader,
+    config_loader=_config_loader_from_file,
     factory=_factory,
     logger=logging.getLogger("cshelve"),
     provider_params={},
