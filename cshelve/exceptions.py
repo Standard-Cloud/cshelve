@@ -118,7 +118,7 @@ class ConfigurationError(RuntimeError):
     pass
 
 
-def key_access(exception: Type[Exception]) -> KeyNotFoundError:
+def key_access(exception: Type[Exception]):
     """
     Create a KeyNotFoundError exception if the key is not found.
     """
