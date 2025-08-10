@@ -1,0 +1,2 @@
+flask
+cshelve[azure-blob, aws-s3]
