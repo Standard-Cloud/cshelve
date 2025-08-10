@@ -9,14 +9,15 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'Cloud Shelve',
-			social: {
-				github: 'https://github.com/standard-cloud/cshelve',
-			},
+			social: [
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/standard-cloud/cshelve' },
+			],
 			sidebar: [
 				{
-					label: 'Advanced Usage',
+					label: 'Tutorials',
 					items: [
-						{ label: 'Writeback', link: './writeback' },
+						{ label: 'Getting started', link: './tutorial' },
+						{ label: 'Introduction', link: './introduction' },
 					],
 				},
 				{
@@ -39,12 +40,11 @@ export default defineConfig({
 					],
 				},
 				{
-					label: 'Tutorials',
+					label: 'Advanced Usage',
 					items: [
-						{ label: 'Getting started', link: './tutorial' },
-						{ label: 'Introduction', link: './introduction' },
+						{ label: 'Writeback', link: './writeback' },
 					],
-				},
+				}
 			],
 		}),
 	],
