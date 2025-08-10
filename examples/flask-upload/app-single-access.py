@@ -35,9 +35,11 @@ def upload_file():
         if file and file.filename:
             filename = secure_filename(file.filename)
             data = file.read()
+            mimetype = file.content_type
             # Store the uploaded file in the CShelve database.
             with cshelve.open(app.config["DB_PATH"]) as db:
-                db[filename] = data  # Save the file data with the filename as the key.
+                # Save the file's mimetype and data with the filename as the key.
+                db[filename] = mimetype, data
         return redirect(url_for("upload_file"))
     # Retrieve the list of uploaded files from the CShelve database.
     with cshelve.open(app.config["DB_PATH"]) as db:
@@ -52,8 +54,9 @@ def get_image(key):
         data = db.get(key)
         if not data:
             return "Image not found", 404
+        mimetype, data = data
         # Serve the file data as an image.
-        return send_file(io.BytesIO(data), mimetype="image/jpeg")
+        return send_file(io.BytesIO(data), mimetype=mimetype)
 
 
 if __name__ == "__main__":

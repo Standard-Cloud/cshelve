@@ -1,3 +1,4 @@
+import atexit
 from flask import Flask, request, redirect, url_for, render_template_string, send_file
 import cshelve
 import io
@@ -15,6 +16,15 @@ else:
     # By default, use the development database.
     db = cshelve.open("dev.ini")  # Open the default CShelve database.
 
+# Ensure the database is closed properly when the application exits.
+def close_db():
+    try:
+        db.close()
+    except Exception:
+        pass
+
+
+atexit.register(close_db)
 
 HTML = """
 <!doctype html>
@@ -43,8 +53,9 @@ def upload_file():
         if file and file.filename:
             filename = secure_filename(file.filename)
             data = file.read()
-            # Store the uploaded file in the CShelve database.
-            db[filename] = data
+            mimetype = file.content_type
+            # Save the file's mimetype and data with the filename as the key.
+            db[filename] = mimetype, data
         return redirect(url_for("upload_file"))
     # Retrieve the list of uploaded files from the CShelve database.
     images = list(db.keys())
@@ -57,8 +68,9 @@ def get_image(key):
     data = db.get(key)
     if not data:
         return "Image not found", 404
+    mimetype, data = data
     # Serve the file data as an image.
-    return send_file(io.BytesIO(data), mimetype="image/jpeg")
+    return send_file(io.BytesIO(data), mimetype=mimetype)
 
 
 if __name__ == "__main__":
