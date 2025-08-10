@@ -1,7 +1,15 @@
 # Following tests are using Cloud services to ensure the quality of the project.
 
 name: End to end tests
-on: [pull_request]
+on:
+  push:
+    paths:
+      - 'cshelve/**'
+      - 'tests/**'
+  pull_request:
+    paths:
+      - 'cshelve/**'
+      - 'tests/**'
 
 permissions:
   id-token: write
