@@ -24,7 +24,7 @@ This example demonstrates how to use [CShelve](https://github.com/Standard-Cloud
     Replace `<provider>` with "aws" or "azure", and make sure to set the appropriate credentials.
 3. Open [http://localhost:5000](http://localhost:5000) in your browser.
 
-## Two Approaches to Using CShelve in Flask
+## Two Approaches in This Example
 
 This project demonstrates two ways to integrate CShelve with Flask:
 

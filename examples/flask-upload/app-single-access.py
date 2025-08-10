@@ -59,9 +59,8 @@ def get_image(key):
 if __name__ == "__main__":
     # Set DB_PATH in Flask config
     if len(sys.argv) > 1:
-        app.config["DB_PATH"] = sys.argv[
-            1
-        ]  # Use the database path provided as a command-line argument.
+        # Use the database path provided as a command-line argument.
+        app.config["DB_PATH"] = sys.argv[1]
     else:
         # By default, use the development database.
         app.config["DB_PATH"] = "dev.ini"
