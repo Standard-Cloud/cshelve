@@ -18,7 +18,17 @@
 				"ms-python.debugpy"
 			],
 			"settings": {
-				"python.defaultInterpreterPath": "/build/package/venv/bin/python"
+				"python.defaultInterpreterPath": "/build/package/venv/bin/python",
+				"python.testing.pytestArgs": [
+					"-n",
+					"auto",
+					"-m",
+					"not azure",
+					"tests",
+					"cshelve"
+				],
+				"python.testing.unittestEnabled": false,
+				"python.testing.pytestEnabled": true
             }
 		}
 	}
