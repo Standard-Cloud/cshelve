@@ -196,7 +196,7 @@ jobs:
       env:
         AWS_KEY_ID: ${{ secrets.AWS_ENVIRONMENT_KEY }}
         AWS_KEY_SECRET: ${{ secrets.AWS_ENVIRONMENT_SECRET }}
-        AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
+        AZURE_STORAGE_ACCESS_KEY: ${{ env.AZURE_STORAGE_ACCESS_KEY }}
         AZURE_STORAGE_CONNECTION_STRING: ${{ env.STORAGE_CONNECTION_STRING }}
         ENCRYPTION_KEY: "Sixteen byte key"
         SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
