@@ -2,10 +2,6 @@
 
 name: End to end tests
 on:
-  push:
-    paths:
-      - 'cshelve/**'
-      - 'tests/**'
   pull_request:
     paths:
       - 'cshelve/**'

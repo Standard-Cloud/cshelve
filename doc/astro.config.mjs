@@ -35,6 +35,7 @@ export default defineConfig({
 					items: [
 						{ label: 'AWS S3', link: './aws-s3' },
 						{ label: 'Azure Blob Storage', link: './azure-blob' },
+						{ label: 'Filesystem', link: './filesystem' },
 						{ label: 'In-Memory', link: './in-memory' },
 						{ label: 'SFTP', link: './sftp' },
 					],
