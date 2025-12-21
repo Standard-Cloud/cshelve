@@ -166,7 +166,7 @@ jobs:
       shell: bash
 
     - name: Get storage account connection string
-      id: get-storage-connection-string
+      id: get-storage-access-key
       run: |
         AZURE_STORAGE_ACCESS_KEY=$(terraform output -no-color -raw storage_acccess_key)
         echo "::add-mask::$AZURE_STORAGE_ACCESS_KEY"
