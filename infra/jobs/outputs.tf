@@ -26,7 +26,12 @@ output "storage_connection_string" {
   sensitive = true
 }
 
-output "storage_acccess_key" {
+output "storage_access_key" {
   value     = data.azurerm_storage_account.storage.primary_access_key
+  sensitive = true
+}
+
+output "storage_blob_endpoint" {
+  value     = data.azurerm_storage_account.storage.primary_blob_endpoint
   sensitive = true
 }
