@@ -208,7 +208,7 @@ class TestFileSystemIteration:
             provider.set(key, value)
 
         # Align between platforms
-        keys = [k.as_posix() for k in provider.iter()]
+        keys = [str(Path(k).as_posix()) for k in provider.iter()]
         assert len(keys) == 3
         for key, _ in keys_values:
             assert key in keys
