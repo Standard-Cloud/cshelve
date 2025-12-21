@@ -14,9 +14,9 @@ locals {
   ]
 }
 
-resource "azurerm_storage_container" "job_containers" {
+resource "azurerm_storage_container" "storage_containers" {
   for_each = toset(local.containers)
   name                  = each.key
-  storage_account_id    = data.azurerm_storage_account.storage.id
+  storage_account_id    = azurerm_storage_account.storage.id
   container_access_type = "private"
 }
