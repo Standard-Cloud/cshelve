@@ -14,6 +14,7 @@ from helpers import unique_key
 CONFIG_FILES = [
     "tests/configurations/aws-s3/standard.ini",
     "tests/configurations/azure-blob/standard.ini",
+    "tests/configurations/filesystem/standard.ini",
     "tests/configurations/in-memory/persisted.ini",
 ]
 
