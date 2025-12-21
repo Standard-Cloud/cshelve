@@ -14,7 +14,7 @@ locals {
   ]
 }
 
-resource "azurerm_storage_container" "job_sftp" {
+resource "azurerm_storage_container" "job_containers" {
   for_each = toset(local.containers)
   name                  = each.key
   storage_account_id    = data.azurerm_storage_account.storage.id
