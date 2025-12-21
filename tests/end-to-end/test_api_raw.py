@@ -13,6 +13,7 @@ from helpers import unique_key
 CONFIG_FILES_RAW = [
     "tests/configurations/aws-s3/no_pickle.ini",
     "tests/configurations/azure-blob/no_pickle.ini",
+    "tests/configurations/filesystem/no_pickle.ini",
     "tests/configurations/in-memory/no_pickle.ini",
     "tests/configurations/sftp/no_pickle.ini",
 ]

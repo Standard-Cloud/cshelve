@@ -13,6 +13,8 @@ CONFIG_FILES = [
     "tests/configurations/aws-s3/standard.ini",
     "tests/configurations/azure-blob/encryption.ini",
     "tests/configurations/azure-blob/standard.ini",
+    "tests/configurations/filesystem/encryption.ini",
+    "tests/configurations/filesystem/standard.ini",
     "tests/configurations/in-memory/encryption.ini",
     "tests/configurations/in-memory/persisted.ini",
 ]

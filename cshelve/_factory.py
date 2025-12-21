@@ -35,6 +35,10 @@ def _factory(logger: Logger, provider: str):
         from ._sftp import SFTP
 
         return SFTP(logger)
+    elif provider == "filesystem":
+        from ._filesystem import FileSystem
+
+        return FileSystem(logger)
 
     logger.critical("Provider not found.")
     raise UnknownProviderError(f"Provider Interface '{provider}' is not supported.")

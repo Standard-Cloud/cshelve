@@ -13,6 +13,7 @@ from helpers import write_data, del_data, unique_key
 CONFIG_FILES = [
     "tests/configurations/aws-s3/flag.ini",
     "tests/configurations/azure-blob/flag.ini",
+    "tests/configurations/filesystem/flag.ini",
     "tests/configurations/in-memory/persisted.ini",
 ]
 

@@ -20,3 +20,18 @@ output "sftp_ssh_private_key_rsa" {
   value     = tls_private_key.sftp_ssh_key_rsa.private_key_pem
   sensitive = true
 }
+
+output "storage_connection_string" {
+  value     = data.azurerm_storage_account.storage.primary_connection_string
+  sensitive = true
+}
+
+output "storage_access_key" {
+  value     = data.azurerm_storage_account.storage.primary_access_key
+  sensitive = true
+}
+
+output "storage_blob_endpoint" {
+  value     = data.azurerm_storage_account.storage.primary_blob_endpoint
+  sensitive = true
+}

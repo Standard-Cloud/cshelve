@@ -2,10 +2,6 @@
 
 name: End to end tests
 on:
-  push:
-    paths:
-      - 'cshelve/**'
-      - 'tests/**'
   pull_request:
     paths:
       - 'cshelve/**'
@@ -156,6 +152,33 @@ jobs:
       working-directory: infra/jobs
       shell: bash
 
+    - name: Get storage account URL
+      id: get-storage-account-url
+      run: |
+        AZURE_BLOB_ENDPOINT=$(terraform output -no-color -raw storage_blob_endpoint)
+        echo "::add-mask::$AZURE_BLOB_ENDPOINT"
+        echo "AZURE_BLOB_ENDPOINT=$AZURE_BLOB_ENDPOINT" >> $GITHUB_ENV
+      working-directory: infra/jobs
+      shell: bash
+
+    - name: Get storage account connection string
+      id: get-storage-connection-string
+      run: |
+        AZURE_STORAGE_CONNECTION_STRING=$(terraform output -no-color -raw storage_connection_string)
+        echo "::add-mask::$AZURE_STORAGE_CONNECTION_STRING"
+        echo "AZURE_STORAGE_CONNECTION_STRING=$AZURE_STORAGE_CONNECTION_STRING" >> $GITHUB_ENV
+      working-directory: infra/jobs
+      shell: bash
+
+    - name: Get storage account connection string
+      id: get-storage-access-key
+      run: |
+        AZURE_STORAGE_ACCESS_KEY=$(terraform output -no-color -raw storage_access_key)
+        echo "::add-mask::$AZURE_STORAGE_ACCESS_KEY"
+        echo "AZURE_STORAGE_ACCESS_KEY=$AZURE_STORAGE_ACCESS_KEY" >> $GITHUB_ENV
+      working-directory: infra/jobs
+      shell: bash
+
     - name: Install uv
       uses: astral-sh/setup-uv@v3
 
@@ -178,8 +201,9 @@ jobs:
       env:
         AWS_KEY_ID: ${{ secrets.AWS_ENVIRONMENT_KEY }}
         AWS_KEY_SECRET: ${{ secrets.AWS_ENVIRONMENT_SECRET }}
-        AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
-        AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        AZURE_BLOB_ENDPOINT: ${{ env.AZURE_BLOB_ENDPOINT }}
+        AZURE_STORAGE_ACCESS_KEY: ${{ env.AZURE_STORAGE_ACCESS_KEY }}
+        AZURE_STORAGE_CONNECTION_STRING: ${{ env.AZURE_STORAGE_CONNECTION_STRING }}
         ENCRYPTION_KEY: "Sixteen byte key"
         SFTP_PASSWORD_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
         SFTP_SSH_HOSTNAME: ${{ needs.infrastructure.outputs.sftp_hostname }}
