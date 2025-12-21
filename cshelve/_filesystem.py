@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from typing import Any, Dict, Iterator, List
 
@@ -21,7 +20,7 @@ class FileSystem(ProviderInterface):
     def __init__(self, logger) -> None:
         super().__init__(logger)
         self._config: Dict[str, Any] = {}
-        self.folder_path: str | None = None
+        self.folder_path: Path | None = None
         self.encoding: str = "utf-8"
 
     def close(self) -> None:
@@ -29,35 +28,8 @@ class FileSystem(ProviderInterface):
         self.logger.debug("Closing filesystem provider (no-op)")
 
     def configure_default(self, config: Dict[str, Any]) -> None:
-        """
-        Default configuration of the provider.
-
-        Required parameters:
-        - folder_path: target folder. If starts with '/', treated as absolute.
-                       Otherwise, treated as relative to current working dir.
-
-        Optional parameters:
-        - encoding: string encoding for keys (default: 'utf-8').
-        """
-        self._config = config or {}
-        folder_path = self._config.get("folder_path")
-        if not folder_path:
-            raise ConfigurationError(
-                "'folder_path' must be provided for filesystem provider"
-            )
-
-        # Respect absolute vs relative paths cross-platform.
-        # If absolute (os.path.isabs), use as-is; else resolve relative to cwd.
-        if os.path.isabs(folder_path) or folder_path.startswith("/"):
-            self.folder_path = folder_path
-        else:
-            self.folder_path = str(Path.cwd() / folder_path)
-
-        self.encoding = self._config.get("encoding", "utf-8")
-
-        self.logger.debug(
-            f"Configured filesystem provider: folder_path='{self.folder_path}', encoding='{self.encoding}'"
-        )
+        # No op
+        self._config = config
 
     def configure_logging(self, config: Dict[str, str]) -> None:
         """Filesystem provider does not require special logging configuration."""
@@ -69,38 +41,33 @@ class FileSystem(ProviderInterface):
         Allow overriding parameters that can't be included in the config directly.
         Values from `configure_default` take precedence if provided.
         """
-        if self.folder_path is None:
-            folder_path = provider_params.get("folder_path")
-            if folder_path:
-                if os.path.isabs(folder_path) or folder_path.startswith("/"):
-                    self.folder_path = folder_path
-                else:
-                    self.folder_path = str(Path.cwd() / folder_path)
+        config = {
+            **provider_params,
+            **self._config,
+        }
 
-        # Encoding: default utf-8, config value wins over provider_params.
-        if not self._config.get("encoding"):
-            self.encoding = provider_params.get("encoding", self.encoding)
+        # Use the current folder path as default.
+        self.folder_path = Path(config.get("folder_path", "."))
+        # By default, use utf-8 encoding if not provided.
+        self.encoding = config.get("encoding", "utf-8")
 
-        if self.folder_path is None:
-            raise ConfigurationError(
-                "'folder_path' must be provided for filesystem provider"
-            )
+        self.logger.debug(
+            f"Configured filesystem provider with folder_path='{self.folder_path}', "
+            f"encoding='{self.encoding}'"
+        )
 
     def contains(self, key: bytes) -> bool:
         """Check if the file for `key` exists."""
         path = self._key_to_path(key)
-        exists = os.path.isfile(path)
+        exists = path.is_file()
         self.logger.debug(f"Contains check for '{path}': {exists}")
         return exists
 
     def create(self) -> None:
         """Create the root folder. No-op if it already exists and is a directory."""
-        assert (
-            self.folder_path is not None
-        ), "Provider not configured: folder_path is missing"
         root = self.folder_path
-        if os.path.exists(root):
-            if os.path.isdir(root):
+        if root.exists():
+            if root.is_dir():
                 self.logger.debug(
                     f"Folder '{root}' already exists; create() is a no-op"
                 )
@@ -108,7 +75,7 @@ class FileSystem(ProviderInterface):
             # Path exists but is not a directory => configuration problem
             raise ConfigurationError(f"Path '{root}' exists and is not a directory")
         self.logger.debug(f"Creating folder '{root}'")
-        os.makedirs(root, exist_ok=True)
+        root.mkdir(parents=True)
         self.logger.info(f"Folder '{root}' created")
 
     @key_access(FileNotFoundError)
@@ -116,15 +83,14 @@ class FileSystem(ProviderInterface):
         """Delete the file for `key`. Leaves empty parent directories intact."""
         path = self._key_to_path(key)
         self.logger.debug(f"Deleting file '{path}'")
-        os.remove(path)
-        # Do not remove empty directories by design.
+        path.unlink()
 
     def exists(self) -> bool:
         """Check if the root folder exists."""
         root = self.folder_path
         if not root:
             return False
-        exists = os.path.isdir(root)
+        exists = root.is_dir()
         self.logger.debug(f"Exists check for '{root}': {exists}")
         return exists
 
@@ -133,38 +99,28 @@ class FileSystem(ProviderInterface):
         """Read and return the bytes stored for `key`."""
         path = self._key_to_path(key)
         self.logger.debug(f"Reading file '{path}'")
-        with open(path, "rb") as f:
-            return f.read()
+        return path.read_bytes()
 
     def iter(self) -> Iterator[bytes]:
         """Yield all keys (relative paths) as bytes, recursively."""
-        assert (
-            self.folder_path is not None
-        ), "Provider not configured: folder_path is missing"
-        root = self.folder_path
-        for rel in self._list_files_recursive(root):
+        for rel_path in self._list_files_recursive(self.folder_path):
             # Normalize to POSIX-style separators for keys, then encode.
-            yield rel.encode(self.encoding)
+            yield str(rel_path.relative_to(self.folder_path)).encode(self.encoding)
 
     def len(self) -> int:
         """Return the number of files (keys) recursively."""
-        assert (
-            self.folder_path is not None
-        ), "Provider not configured: folder_path is missing"
-        count = len(self._list_files_recursive(self.folder_path))
+        count = len(list(self._list_files_recursive(self.folder_path)))
         self.logger.debug(f"Len for '{self.folder_path}': {count}")
         return count
 
     def set(self, key: bytes, value: bytes) -> None:
         """Write bytes to the file represented by `key`, creating parent dirs as needed."""
         path = self._key_to_path(key)
-        parent = os.path.dirname(path)
-        if parent and not os.path.exists(parent):
-            self.logger.debug(f"Creating parent directories '{parent}'")
-            os.makedirs(parent, exist_ok=True)
+        if not path.parent.exists():
+            self.logger.debug(f"Creating parent directories '{path.parent}'")
+            path.parent.mkdir(parents=True, exist_ok=True)
         self.logger.debug(f"Writing file '{path}' ({len(value)} bytes)")
-        with open(path, "wb") as f:
-            f.write(value)
+        path.write_bytes(value)
 
     def sync(self) -> None:
         """No-op for filesystem provider (writes are immediate)."""
@@ -172,28 +128,14 @@ class FileSystem(ProviderInterface):
         return None
 
     # Helpers
-    def _key_to_path(self, key: bytes) -> str:
-        assert (
-            self.folder_path is not None
-        ), "Provider not configured: folder_path is missing"
-        key_str = key.decode(self.encoding)
-        # Split on POSIX '/' to support nested keys cross-platform.
-        parts: List[str] = key_str.split("/") if key_str else []
-        path = (
-            os.path.join(self.folder_path, *parts)
-            if parts
-            else os.path.join(self.folder_path, "")
-        )
-        return path
+    def _key_to_path(self, key: bytes) -> Path:
+        return self.folder_path / Path(key.decode(self.encoding))
 
-    def _list_files_recursive(self, root: str) -> List[str]:
-        """Return list of relative file paths (POSIX style) under `root`."""
-        results: List[str] = []
-        for dirpath, _, filenames in os.walk(root):
-            for filename in filenames:
-                full = os.path.join(dirpath, filename)
-                rel = os.path.relpath(full, root)
-                # Normalize separators to POSIX for key representation
-                rel_posix = Path(rel).as_posix()
-                results.append(rel_posix)
-        return results
+    def _list_files_recursive(self, root: Path) -> Iterator[Path]:
+        """Return absolute file paths."""
+        for item in root.iterdir():
+            if item.is_file():
+                yield item
+            elif item.is_dir():
+                # Recursively traverse subdirectories
+                yield from self._list_files_recursive(item)

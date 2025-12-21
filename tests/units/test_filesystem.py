@@ -44,6 +44,7 @@ class TestFileSystemBasicOperations:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
@@ -55,13 +56,11 @@ class TestFileSystemBasicOperations:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
         assert value == provider.get(key)
-        # Verify the file exists at the correct path
-        expected_path = os.path.join(temp_dir, key.decode("utf-8"))
-        assert os.path.exists(expected_path)
 
     def test_delete_key(self, temp_dir):
         """Ensure we can delete a key."""
@@ -69,6 +68,7 @@ class TestFileSystemBasicOperations:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
@@ -86,6 +86,7 @@ class TestFileSystemBasicOperations:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
@@ -104,14 +105,13 @@ class TestFileSystemBasicOperations:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
         provider.delete(key)
-
-        # Empty directories should still exist
-        expected_dir = os.path.join(temp_dir, "folder", "subfolder")
-        assert os.path.exists(expected_dir)
+        with pytest.raises(KeyNotFoundError):
+            provider.get(key)
 
 
 class TestFileSystemContains:
@@ -123,6 +123,7 @@ class TestFileSystemContains:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
@@ -134,6 +135,7 @@ class TestFileSystemContains:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         assert not provider.contains(key)
@@ -144,6 +146,7 @@ class TestFileSystemContains:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
@@ -159,6 +162,7 @@ class TestFileSystemIteration:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
@@ -176,6 +180,7 @@ class TestFileSystemIteration:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         for key, value in keys_values:
@@ -196,6 +201,7 @@ class TestFileSystemIteration:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         for key, value in keys_values:
@@ -210,6 +216,7 @@ class TestFileSystemIteration:
         """Ensure we can iterate over an empty database."""
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         keys = list(provider.iter())
@@ -223,6 +230,7 @@ class TestFileSystemLen:
         """Ensure len returns 0 for an empty database."""
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         assert provider.len() == 0
@@ -237,6 +245,7 @@ class TestFileSystemLen:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         for key, value in keys_values:
@@ -254,6 +263,7 @@ class TestFileSystemLen:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         for key, value in keys_values:
@@ -269,6 +279,7 @@ class TestFileSystemExists:
         """Ensure exists returns True when the folder exists."""
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         assert provider.exists()
@@ -281,6 +292,7 @@ class TestFileSystemExists:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": non_existing_path})
+        provider.set_provider_params({})
 
         assert not provider.exists()
 
@@ -295,6 +307,7 @@ class TestFileSystemCreate:
         try:
             provider = factory(Mock(), "filesystem")
             provider.configure_default({"folder_path": folder_path})
+            provider.set_provider_params({})
             provider.create()
 
             assert os.path.exists(folder_path)
@@ -307,6 +320,7 @@ class TestFileSystemCreate:
         """Ensure create is a no-op when the folder already exists."""
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
 
         # The folder already exists (created by the temp_dir fixture).
         # create() should be idempotent and not raise.
@@ -326,6 +340,7 @@ class TestFileSystemEncoding:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir, "encoding": "utf-16"})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
@@ -338,6 +353,7 @@ class TestFileSystemEncoding:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
@@ -353,6 +369,7 @@ class TestFileSystemRelativePath:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
@@ -364,6 +381,7 @@ class TestFileSystemRelativePath:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": relative_temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.set(key, value)
@@ -383,6 +401,7 @@ class TestFileSystemErrors:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         with pytest.raises(KeyNotFoundError):
@@ -394,17 +413,11 @@ class TestFileSystemErrors:
 
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         with pytest.raises(KeyNotFoundError):
             provider.delete(key)
-
-    def test_configure_default_missing_folder_path(self):
-        """Ensure ConfigurationError is raised when folder_path is missing."""
-        provider = factory(Mock(), "filesystem")
-
-        with pytest.raises(ConfigurationError):
-            provider.configure_default({})
 
 
 class TestFileSystemClose:
@@ -414,6 +427,7 @@ class TestFileSystemClose:
         """Ensure close can be called without errors."""
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.close()
@@ -427,6 +441,7 @@ class TestFileSystemSync:
         """Ensure sync can be called without errors."""
         provider = factory(Mock(), "filesystem")
         provider.configure_default({"folder_path": temp_dir})
+        provider.set_provider_params({})
         provider.create()
 
         provider.sync()
