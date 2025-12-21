@@ -8,7 +8,7 @@ import cshelve
 
 CONFIG_FILES_KEY_NOT_FOUND = [
     "tests/configurations/azure-blob/standard.ini",
-    "tests/configurations/filesystem/persisted.ini",
+    "tests/configurations/filesystem/standard.ini",
     "tests/configurations/in-memory/persisted.ini",
     "tests/configurations/aws-s3/standard.ini",
 ]
