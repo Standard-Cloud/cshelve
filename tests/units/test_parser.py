@@ -14,6 +14,7 @@ from cshelve._parser import (
     _load_configuration,
     _parse_ini_to_nested_dict,
     load_from_file,
+    load_from_dict,
     use_local_shelf,
 )
 from cshelve.exceptions import ConfigurationError
@@ -65,66 +66,78 @@ def test_azure_configuration():
     assert config.providers is None
 
 
-def test_multi_provider_configuration():
+def _assert_multi_provider_config(config):
     """
-    Load a multi-provider configuration file and verify all providers and settings are parsed correctly.
-    Each provider should be a Config object maintaining the same structure as a single-provider config.
+    Helper function to validate multi-provider configuration structure.
+    Used by both load_from_file and load_from_dict tests.
     """
-    with patch.dict(
-        os.environ,
-        {
-            "AWS_KEY_ID": "ID123",
-            "AWS_KEY_SECRET": "SECRET456",
-        },
-    ):
-        config = load_from_file(
-            Mock(), Path("tests/configurations/config/multi-providers.ini")
-        )
-
     # Should detect multi-provider mode
     assert config.strategy == "all"
     assert config.providers is not None
     assert len(config.providers) == 3
 
-    # Check fast-local provider (should be a Config object)
+    # Check fast-local provider
     fast_local = config.providers[0]
     assert fast_local.provider == "filesystem"
     assert fast_local.default["path"] == "/tmp/cache"
-    # Should have provider_params
+    # Verify provider_params are set
     assert fast_local.provider_params["whatever"] == "value"
-    # Should inherit global compression
+    # Verify global compression is inherited
     assert fast_local.compression["algorithm"] == "zlib"
     assert fast_local.compression["level"] == "1"
-    # Should inherit global encryption
+    # Verify global encryption is inherited
     assert fast_local.encryption["algorithm"] == "aes256"
     assert fast_local.encryption["environment_key"] == "ENCRYPTION_KEY"
 
-    # Check aws-remote provider (should be a Config object)
+    # Check aws-remote provider
     aws_remote = config.providers[1]
     assert aws_remote.provider == "aws-s3"
     assert aws_remote.default["bucket_name"] == "cshelve"
     assert aws_remote.default["auth_type"] == "access_key"
     assert aws_remote.default["key_id"] == "ID123"
     assert aws_remote.default["key_secret"] == "SECRET456"
+    # Verify provider_params are empty (not set for this provider)
     assert aws_remote.provider_params == {}
-    # Should have overridden compression
+    # Verify compression override is applied
     assert aws_remote.compression["algorithm"] == "zlib"
     assert aws_remote.compression["level"] == "9"
-    # Should inherit global encryption
+    # Verify global encryption is inherited (not overridden)
     assert aws_remote.encryption["algorithm"] == "aes256"
+    assert aws_remote.encryption["environment_key"] == "ENCRYPTION_KEY"
 
-    # Check azure provider (should be a Config object)
+    # Check azure provider
     azure = config.providers[2]
     assert azure.provider == "azure-blob"
     assert azure.default["auth_type"] == "connection_string"
     assert azure.default["environment_key"] == "AZURE_STORAGE_CONNECTION_STRING"
     assert azure.default["container_name"] == "cshelve"
+    # Verify provider_params are empty
     assert azure.provider_params == {}
-    # Should inherit global compression
+    # Verify global compression is inherited (not overridden)
     assert azure.compression["algorithm"] == "zlib"
     assert azure.compression["level"] == "1"
-    # Should have overridden encryption (disabled)
+    # Verify encryption override is applied
     assert azure.encryption["algorithm"] == "None"
+
+
+def test_multi_provider_configuration():
+    """
+    Load a multi-provider configuration from INI file and verify all providers and settings.
+    """
+    with patch.dict(
+        os.environ,
+        {
+            "AWS_KEY_ID": "ID123",
+            "AWS_KEY_SECRET": "SECRET456",
+            "ENCRYPTION_KEY": "key12345",
+            "AZURE_STORAGE_CONNECTION_STRING": "azure_conn_str",
+        },
+    ):
+        config = load_from_file(
+            Mock(), Path("tests/configurations/config/multi-providers.ini")
+        )
+
+    _assert_multi_provider_config(config)
 
 
 def test_provider_and_providers_conflict_raises_configuration_error():
@@ -192,3 +205,66 @@ key = secret
     assert "encryption" in result["azure"]
     assert result["azure"]["encryption"]["algorithm"] == "aes256"
     assert result["azure"]["encryption"]["key"] == "secret"
+
+
+def test_load_from_dict_multi_provider():
+    """
+    Load a multi-provider configuration from a dict and verify all providers and settings.
+    Uses the same configuration structure as test_multi_provider_configuration but in dict format.
+    """
+    config_dict = {
+        "default": {
+            "providers": "fast-local, aws-remote, azure",
+            "strategy": "all",
+            "use_pickle": "true",
+            "use_versionning": "true",
+        },
+        "compression": {
+            "algorithm": "zlib",
+            "level": "1",
+        },
+        "encryption": {
+            "algorithm": "aes256",
+            "environment_key": "ENCRYPTION_KEY",
+        },
+        "fast-local": {
+            "provider": "filesystem",
+            "path": "/tmp/cache",
+            "provider_params": {
+                "whatever": "value",
+            },
+        },
+        "aws-remote": {
+            "provider": "aws-s3",
+            "bucket_name": "cshelve",
+            "auth_type": "access_key",
+            "key_id": "$AWS_KEY_ID",
+            "key_secret": "$AWS_KEY_SECRET",
+            "compression": {
+                "algorithm": "zlib",
+                "level": "9",
+            },
+        },
+        "azure": {
+            "provider": "azure-blob",
+            "auth_type": "connection_string",
+            "environment_key": "AZURE_STORAGE_CONNECTION_STRING",
+            "container_name": "cshelve",
+            "encryption": {
+                "algorithm": "None",
+            },
+        },
+    }
+
+    with patch.dict(
+        os.environ,
+        {
+            "AWS_KEY_ID": "ID123",
+            "AWS_KEY_SECRET": "SECRET456",
+            "ENCRYPTION_KEY": "key12345",
+            "AZURE_STORAGE_CONNECTION_STRING": "azure_conn_str",
+        },
+    ):
+        config = load_from_dict(Mock(), config_dict)
+
+    _assert_multi_provider_config(config)
