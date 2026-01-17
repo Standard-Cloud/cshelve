@@ -80,6 +80,7 @@ def _assert_multi_provider_config(config):
     fast_local = config.providers[0]
     assert fast_local.provider == "filesystem"
     assert fast_local.default["path"] == "/tmp/cache"
+    assert fast_local.use_versionning == True
     # Verify provider_params are set
     assert fast_local.provider_params["whatever"] == "value"
     # Verify global compression is inherited
@@ -96,6 +97,7 @@ def _assert_multi_provider_config(config):
     assert aws_remote.default["auth_type"] == "access_key"
     assert aws_remote.default["key_id"] == "ID123"
     assert aws_remote.default["key_secret"] == "SECRET456"
+    assert aws_remote.use_versionning == True
     # Verify provider_params are empty (not set for this provider)
     assert aws_remote.provider_params == {}
     # Verify compression override is applied
@@ -111,6 +113,7 @@ def _assert_multi_provider_config(config):
     assert azure.default["auth_type"] == "connection_string"
     assert azure.default["environment_key"] == "AZURE_STORAGE_CONNECTION_STRING"
     assert azure.default["container_name"] == "cshelve"
+    assert azure.use_versionning == True
     # Verify provider_params are empty
     assert azure.provider_params == {}
     # Verify global compression is inherited (not overridden)

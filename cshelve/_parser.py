@@ -41,7 +41,6 @@ ProviderConfig = namedtuple(
     "ProviderConfig",
     [
         "provider",
-        "use_pickle",
         "use_versionning",
         "default",
         "logging",
@@ -272,6 +271,5 @@ def _load_provider_config(
         compression=from_env(compression_config),
         encryption=from_env(encryption_config),
         provider_params=from_env(provider_params),
-        use_pickle=provider_section.get(USE_PICKLE, "true").lower() == "true",
         use_versionning=provider_section.get(USE_VERSIONNING, "true").lower() == "true",
     )
