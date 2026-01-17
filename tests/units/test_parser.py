@@ -12,6 +12,7 @@ from cshelve._parser import (
     _load_multi_provider_configuration,
     _load_single_provider_configuration,
     _load_configuration,
+    _parse_ini_to_nested_dict,
     load_from_file,
     use_local_shelf,
 )
@@ -124,73 +125,6 @@ def test_multi_provider_configuration():
     assert azure.encryption["algorithm"] == "None"
 
 
-def test__load_single_provider_configuration():
-    """
-    Ensure the internal single-provider loader returns the same structure used externally.
-    """
-    cfg = configparser.ConfigParser()
-    cfg.read("tests/configurations/azure-blob/standard.ini")
-
-    config = _load_single_provider_configuration(Mock(), cfg)
-
-    assert config.provider == "azure-blob"
-    assert config.strategy is None
-    assert config.providers is None
-
-    assert config.default["auth_type"] == "connection_string"
-    assert config.default["environment_key"] == "AZURE_STORAGE_CONNECTION_STRING"
-    assert config.default["container_name"] == "standard"
-
-    assert config.logging["http"] == "true"
-    assert config.logging["credentials"] == "false"
-    assert config.logging["level"] == "INFO"
-
-
-def test__load_multi_provider_configuration():
-    """
-    Verify the internal multi-provider loader builds ProviderConfig objects with overrides applied.
-    """
-    cfg = configparser.ConfigParser()
-    cfg.read("tests/configurations/config/multi-providers.ini")
-
-    with patch.dict(
-        os.environ,
-        {
-            "AWS_KEY_ID": "ID123",
-            "AWS_KEY_SECRET": "SECRET456",
-        },
-    ):
-        config = _load_multi_provider_configuration(Mock(), cfg)
-
-    assert config.provider is None
-    assert config.strategy == "all"
-    assert len(config.providers) == 3
-
-    fast_local, aws_remote, azure = config.providers
-
-    # fast-local inherits global compression/encryption and has provider_params override
-    assert fast_local.provider == "filesystem"
-    assert fast_local.default["path"] == "/tmp/cache"
-    assert fast_local.compression["algorithm"] == "zlib"
-    assert fast_local.compression["level"] == "1"
-    assert fast_local.encryption["algorithm"] == "aes256"
-    assert fast_local.encryption["environment_key"] == "ENCRYPTION_KEY"
-    assert fast_local.provider_params["whatever"] == "value"
-
-    # aws-remote overrides compression and inherits encryption
-    assert aws_remote.provider == "aws-s3"
-    assert aws_remote.default["bucket_name"] == "cshelve"
-    assert aws_remote.default["key_id"] == "ID123"
-    assert aws_remote.default["key_secret"] == "SECRET456"
-    assert aws_remote.compression["level"] == "9"
-    assert aws_remote.encryption["algorithm"] == "aes256"
-
-    # azure overrides encryption and inherits compression
-    assert azure.provider == "azure-blob"
-    assert azure.compression["level"] == "1"
-    assert azure.encryption["algorithm"] == "None"
-
-
 def test_provider_and_providers_conflict_raises_configuration_error():
     cfg = configparser.ConfigParser()
     cfg.read_string(
@@ -203,3 +137,56 @@ providers = one, two
 
     with pytest.raises(ConfigurationError):
         _load_configuration(Mock(), cfg)
+
+
+def test_parse_ini_to_nested_dict():
+    """
+    Test the INI to nested dict converter handles dot notation sections.
+    """
+    cfg = configparser.ConfigParser()
+    cfg.read_string(
+        """
+[default]
+provider = aws-s3
+bucket_name = my-bucket
+
+[compression]
+algorithm = zlib
+level = 1
+
+[azure]
+provider = azure-blob
+container_name = mycontainer
+
+[azure.compression]
+algorithm = zlib
+level = 9
+
+[azure.encryption]
+algorithm = aes256
+key = secret
+"""
+    )
+
+    result = _parse_ini_to_nested_dict(cfg)
+
+    # Top-level sections
+    assert "default" in result
+    assert result["default"]["provider"] == "aws-s3"
+    assert result["default"]["bucket_name"] == "my-bucket"
+
+    assert "compression" in result
+    assert result["compression"]["algorithm"] == "zlib"
+    assert result["compression"]["level"] == "1"
+
+    # Nested sections
+    assert "azure" in result
+    assert result["azure"]["provider"] == "azure-blob"
+    assert result["azure"]["container_name"] == "mycontainer"
+    # Overrides should be nested dicts
+    assert "compression" in result["azure"]
+    assert result["azure"]["compression"]["algorithm"] == "zlib"
+    assert result["azure"]["compression"]["level"] == "9"
+    assert "encryption" in result["azure"]
+    assert result["azure"]["encryption"]["algorithm"] == "aes256"
+    assert result["azure"]["encryption"]["key"] == "secret"

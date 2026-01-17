@@ -71,6 +71,27 @@ Config = namedtuple(
 )
 
 
+def _parse_ini_to_nested_dict(config_parser) -> dict:
+    """
+    Convert ConfigParser sections to nested dict using dot notation.
+    Sections like [provider.encryption] become config['provider']['encryption'].
+    """
+    result = {}
+
+    for section in config_parser.sections():
+        if "." in section:
+            # e.g., "azure.encryption" -> parent="azure", child="encryption"
+            parent, child = section.split(".", 1)
+            if parent not in result:
+                result[parent] = {}
+            result[parent][child] = dict(config_parser[section])
+        else:
+            # Regular section at top level
+            result[section] = dict(config_parser[section])
+
+    return result
+
+
 def use_local_shelf(filename: Path) -> bool:
     """
     If the user specify a filename with an extension different of '.ini', a local shelf (the standard library) must be used.
@@ -85,6 +106,8 @@ def load_from_file(logger: Logger, filename: Path) -> Config:
     logger.debug(f"Loading configuration file: {filename}.")
     config = configparser.ConfigParser()
     config.read(filename)
+    # Convert flat section names with dots into nested dicts
+    config = _parse_ini_to_nested_dict(config)
 
     return _load_configuration(logger, config)
 
@@ -220,33 +243,31 @@ def _load_provider_config(
 
     provider_section = config[provider_name]
 
-    # Check for provider-specific overrides (e.g., [provider-name.compression])
-    provider_logging_key = f"{provider_name}.{LOGGING_KEY_STORE}"
-    provider_compression_key = f"{provider_name}.{COMPRESSION_KEY_STORE}"
-    provider_encryption_key = f"{provider_name}.{ENCRYPTION_KEY_STORE}"
-    provider_params_key = f"{provider_name}.{PROVIDER_PARAMS}"
-
-    # Merge global settings with provider-specific overrides
+    # Merge global settings with provider-specific overrides (nested dict access)
     logging_config = dict(global_logging)
-    if provider_logging_key in config:
-        logging_config.update(config[provider_logging_key])
+    if LOGGING_KEY_STORE in provider_section:
+        logging_config.update(provider_section[LOGGING_KEY_STORE])
 
     compression_config = dict(global_compression)
-    if provider_compression_key in config:
-        compression_config.update(config[provider_compression_key])
+    if COMPRESSION_KEY_STORE in provider_section:
+        compression_config.update(provider_section[COMPRESSION_KEY_STORE])
 
     encryption_config = dict(global_encryption)
-    if provider_encryption_key in config:
-        encryption_config.update(config[provider_encryption_key])
+    if ENCRYPTION_KEY_STORE in provider_section:
+        encryption_config.update(provider_section[ENCRYPTION_KEY_STORE])
 
     provider_params = dict(global_provider_params)
-    if provider_params_key in config:
-        provider_params.update(config[provider_params_key])
+    if PROVIDER_PARAMS in provider_section:
+        provider_params.update(provider_section[PROVIDER_PARAMS])
 
     logger.debug(f"Loaded configuration for provider '{provider_name}'.")
+    # Extract only scalar values for 'default' (skip nested dicts like compression, encryption, etc.)
+    default_section = {
+        k: v for k, v in provider_section.items() if not isinstance(v, dict)
+    }
     return ProviderConfig(
         provider=provider_section[PROVIDER_KEY],
-        default=from_env(dict(provider_section)),
+        default=from_env(default_section),
         logging=from_env(logging_config),
         compression=from_env(compression_config),
         encryption=from_env(encryption_config),

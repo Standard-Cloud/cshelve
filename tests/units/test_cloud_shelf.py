@@ -25,7 +25,16 @@ def test_factory_usage():
     logger = Mock()
 
     config = Config(
-        provider, True, True, config, config, compression, encryption, provider_params
+        provider,  # provider
+        True,  # use_pickle
+        True,  # use_versionning
+        config,  # default
+        config,  # logging
+        compression,  # compression
+        encryption,  # encryption
+        provider_params,  # provider_params
+        None,  # strategy
+        None,  # providers
     )
     factory.return_value = cloud_database
     cloud_database.exists.return_value = False
