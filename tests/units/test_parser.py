@@ -6,13 +6,16 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 import configparser
 import os
+import pytest
 
 from cshelve._parser import (
     _load_multi_provider_configuration,
     _load_single_provider_configuration,
+    _load_configuration,
     load_from_file,
     use_local_shelf,
 )
+from cshelve.exceptions import ConfigurationError
 
 
 def test_use_local_shelf():
@@ -186,3 +189,17 @@ def test__load_multi_provider_configuration():
     assert azure.provider == "azure-blob"
     assert azure.compression["level"] == "1"
     assert azure.encryption["algorithm"] == "None"
+
+
+def test_provider_and_providers_conflict_raises_configuration_error():
+    cfg = configparser.ConfigParser()
+    cfg.read_string(
+        """
+[default]
+provider = aws-s3
+providers = one, two
+"""
+    )
+
+    with pytest.raises(ConfigurationError):
+        _load_configuration(Mock(), cfg)

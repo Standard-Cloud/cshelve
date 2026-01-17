@@ -12,6 +12,7 @@ import configparser
 from pathlib import Path
 
 from ._config import from_env
+from .exceptions import ConfigurationError
 
 
 # Default ini section containing the provider and its configuration.
@@ -98,6 +99,12 @@ def load_from_dict(logger: Logger, config: dict) -> Config:
 
 def _load_configuration(logger: Logger, config: dict) -> Config:
     c = config[DEFAULT_CONFIG_STORE]
+
+    # `provider` (single) and `providers` (multi) are mutually exclusive.
+    if PROVIDER_KEY in c and PROVIDERS_KEY in c:
+        raise ConfigurationError(
+            "'provider' and 'providers' cannot be specified together in [default]."
+        )
 
     # Check if multi-provider mode
     if PROVIDERS_KEY in c:
