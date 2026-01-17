@@ -106,6 +106,7 @@ def test_multi_provider_configuration():
     assert aws_remote.default["auth_type"] == "access_key"
     assert aws_remote.default["key_id"] == "ID123"
     assert aws_remote.default["key_secret"] == "SECRET456"
+    assert aws_remote.provider_params == {}
     # Should have overridden compression
     assert aws_remote.compression["algorithm"] == "zlib"
     assert aws_remote.compression["level"] == "9"
@@ -118,6 +119,7 @@ def test_multi_provider_configuration():
     assert azure.default["auth_type"] == "connection_string"
     assert azure.default["environment_key"] == "AZURE_STORAGE_CONNECTION_STRING"
     assert azure.default["container_name"] == "cshelve"
+    assert azure.provider_params == {}
     # Should inherit global compression
     assert azure.compression["algorithm"] == "zlib"
     assert azure.compression["level"] == "1"
