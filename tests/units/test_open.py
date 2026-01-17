@@ -36,14 +36,16 @@ def test_load_cloud_shelf_config():
 
     factory.return_value = cloud_database
     loader.return_value = Config(
-        provider,
-        True,
-        True,
+        provider,  # provider
+        True,  # use_pickle
+        True,  # use_versionning
         default_config,
         logging_config,
         compression_config,
         encryption_config,
         provider_params_config,
+        None,  # strategy
+        None,  # providers
     )
     cloud_database.exists.return_value = False
 
