@@ -54,9 +54,13 @@ def test_load_cloud_shelf_config():
         filename, config_loader=loader, factory=factory, logger=logger
     ) as cs:
         loader.assert_called_once_with(logger, attended_filename)
-        assert isinstance(cs.dict.db, Mock)
-        cs.dict.db.configure_default.assert_called_once_with(default_config)
-        cs.dict.db.configure_logging.assert_called_once_with(logging_config)
+        assert isinstance(cs.dict.databases[0].db, Mock)
+        cs.dict.databases[0].db.configure_default.assert_called_once_with(
+            default_config
+        )
+        cs.dict.databases[0].db.configure_logging.assert_called_once_with(
+            logging_config
+        )
 
 
 def test_load_cloud_shelf_config_memory():
@@ -67,12 +71,12 @@ def test_load_cloud_shelf_config_memory():
 
     with cshelve.open(filename) as cs:
         # Ensure the default configuration is loaded.
-        assert cs.dict.db.persist_key is None
+        assert cs.dict.databases[0].db.persist_key is None
         # Ensure the logging is provided.
         # The memory database store it as it provided.
-        assert cs.dict.db._logging == {"enabled": "true", "level": "INFO"}
+        assert cs.dict.databases[0].db._logging == {"enabled": "true", "level": "INFO"}
         # Ensure the database is created.
-        assert cs.dict.db._created is False
+        assert cs.dict.databases[0].db._created is False
 
 
 def test_load_cloud_shelf_config_as_dict_memory():
@@ -86,12 +90,12 @@ def test_load_cloud_shelf_config_as_dict_memory():
 
     with cshelve.open_from_dict(config) as cs:
         # Ensure the default configuration is loaded.
-        assert cs.dict.db.persist_key is None
+        assert cs.dict.databases[0].db.persist_key is None
         # Ensure the logging is provided.
         # The memory database store it as it provided.
-        assert cs.dict.db._logging == {"enabled": True, "level": "INFO"}
+        assert cs.dict.databases[0].db._logging == {"enabled": True, "level": "INFO"}
         # Ensure the database is created.
-        assert cs.dict.db._created is False
+        assert cs.dict.databases[0].db._created is False
 
 
 def test_load_local_shelf_config():

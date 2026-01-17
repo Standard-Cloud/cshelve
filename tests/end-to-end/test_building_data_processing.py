@@ -41,7 +41,9 @@ def test_encryption():
     with cshelve.open(standard_configuration) as db:
         db[key_pattern] = data
 
-        assert data == pickle.loads(db.dict.db.db[key_pattern.encode()][wrapper_size:])
+        assert data == pickle.loads(
+            db.dict.databases[0].db.db[key_pattern.encode()][wrapper_size:]
+        )
 
     # Ensure the data is encrypted.
     with cshelve.open(encryption_configuration) as db:
@@ -49,5 +51,5 @@ def test_encryption():
 
         with pytest.raises(Exception):
             assert data != pickle.loads(
-                db.dict.db.db[key_pattern.encode()][wrapper_size:]
+                db.dict.databases[0].db.db[key_pattern.encode()][wrapper_size:]
             )

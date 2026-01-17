@@ -44,7 +44,7 @@ def test_raw(config_file: str):
             # Data must be present in the DB.
             assert db[key] == data
             # Ensure data doesn't contains any processing.
-            assert db.dict.db.get(key.encode()) == data
+            assert db.dict.databases[0].db.get(key.encode()) == data
             # Delete the data from the DB.
             del db[key]
 
