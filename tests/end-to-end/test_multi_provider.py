@@ -60,6 +60,22 @@ def _verify_data_deleted_from_all_databases(shelf, test_key):
             database[test_key.encode("utf-8")]
 
 
+def check_data_processing_configuration(shelf):
+    """
+    Verify that data processing (compression/encryption) configurations are applied correctly.
+
+    Args:
+        shelf: The CloudShelf instance
+    """
+    write_local = shelf.dict.databases[0]
+    memory_cache = shelf.dict.databases[1]
+
+    assert memory_cache.data_processing._encryption_enabled() is True
+    assert write_local.data_processing._encryption_enabled() is False
+    assert write_local.data_processing._compression_enabled() is True
+    assert memory_cache.data_processing._compression_enabled() is True
+
+
 def test_multi_provider_write_read_delete():
     """
     End-to-end test for multi-provider configuration.
@@ -98,6 +114,8 @@ def test_multi_provider_write_read_delete():
                 read_value = shelf[key]
                 assert read_value == expected_value, f"Read mismatch for {key}"
                 print(f"Read: {key} = {read_value}")
+
+            check_data_processing_configuration(shelf)
 
         # Part 2: Reopen shelf and verify data persists
         print("\n=== Part 2: Verify data persists across opens ===")

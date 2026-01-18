@@ -197,3 +197,21 @@ class _SignedDataProcessing(DataProcessing):
         )
 
         return metadata
+
+    def _encryption_enabled(self) -> bool:
+        """
+        Check if encryption is enabled in the data processing pipeline.
+
+        Returns:
+            bool: True if encryption is enabled, False otherwise.
+        """
+        return SIGNATURES["ENCRYPTION"] in self.signature
+
+    def _compression_enabled(self) -> bool:
+        """
+        Check if compression is enabled in the data processing pipeline.
+
+        Returns:
+            bool: True if compression is enabled, False otherwise.
+        """
+        return SIGNATURES["COMPRESSION"] in self.signature
