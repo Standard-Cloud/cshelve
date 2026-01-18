@@ -84,7 +84,7 @@ def test_multi_provider_write_read_delete():
     }
 
     # Set required environment variable for encryption
-    with patch.dict(os.environ, {"ENCRYPTION_KEY": "test-encryption-key-12345"}):
+    with patch.dict(os.environ, {"ENCRYPTION_KEY": "Sixteen byte key"}):
         # Part 1: Write and read data using cshelve normally
         print("\n=== Part 1: Write and read data ===")
         with cshelve.open(config_file, logger=logger) as shelf:
