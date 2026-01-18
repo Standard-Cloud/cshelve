@@ -8,7 +8,7 @@ import tempfile
 from unittest.mock import Mock
 
 import cshelve
-from cshelve._parser import Config
+from cshelve._parser import Config, ProviderConfig
 
 
 def test_load_cloud_shelf_config():
@@ -35,17 +35,21 @@ def test_load_cloud_shelf_config():
     attended_filename = Path(filename)
 
     factory.return_value = cloud_database
+
+    provider_config = ProviderConfig(
+        provider=provider,
+        use_versionning=True,
+        default=default_config,
+        logging=logging_config,
+        compression=compression_config,
+        encryption=encryption_config,
+        provider_params=provider_params_config,
+    )
+
     loader.return_value = Config(
-        provider,  # provider
-        True,  # use_pickle
-        True,  # use_versionning
-        default_config,
-        logging_config,
-        compression_config,
-        encryption_config,
-        provider_params_config,
-        None,  # strategy
-        None,  # providers
+        providers=[provider_config],
+        strategy="all",
+        use_pickle=True,
     )
     cloud_database.exists.return_value = False
 

@@ -7,7 +7,7 @@ import pickle
 from unittest.mock import Mock
 
 import cshelve
-from cshelve._parser import Config
+from cshelve._parser import Config, ProviderConfig
 
 
 def test_use_protocol():
@@ -28,17 +28,21 @@ def test_use_protocol():
     loader = Mock()
 
     factory.return_value = cdit
+
+    provider_config = ProviderConfig(
+        provider=provider,
+        use_versionning=True,
+        default=config,
+        logging={},
+        compression={},
+        encryption={},
+        provider_params={},
+    )
+
     loader.return_value = Config(
-        provider,  # provider
-        True,  # use_pickle
-        True,  # use_versionning
-        config,  # default
-        {},  # logging
-        {},  # compression
-        {},  # encryption
-        {},  # provider_params
-        None,  # strategy
-        None,  # providers
+        providers=[provider_config],
+        strategy="all",
+        use_pickle=True,
     )
 
     # Replace the default parser with the mock parser.

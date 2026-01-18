@@ -5,7 +5,7 @@ import pickle
 from unittest.mock import Mock
 
 from cshelve import CloudShelf
-from cshelve._parser import Config
+from cshelve._parser import Config, ProviderConfig
 
 
 def test_factory_usage():
@@ -14,7 +14,7 @@ def test_factory_usage():
     This test ensures that the factory provided is used.
     """
     provider = "fake"
-    config = {42: 42}
+    default_config = {42: 42}
     compression, encryption, provider_params = {}, {}, {}
     flag = "c"
     protocol = pickle.HIGHEST_PROTOCOL
@@ -24,17 +24,20 @@ def test_factory_usage():
     factory = Mock()
     logger = Mock()
 
+    provider_config = ProviderConfig(
+        provider=provider,
+        use_versionning=True,
+        default=default_config,
+        logging=default_config,
+        compression=compression,
+        encryption=encryption,
+        provider_params=provider_params,
+    )
+
     config = Config(
-        provider,  # provider
-        True,  # use_pickle
-        True,  # use_versionning
-        config,  # default
-        config,  # logging
-        compression,  # compression
-        encryption,  # encryption
-        provider_params,  # provider_params
-        None,  # strategy
-        None,  # providers
+        providers=[provider_config],
+        strategy="all",
+        use_pickle=True,
     )
     factory.return_value = cloud_database
     cloud_database.exists.return_value = False
