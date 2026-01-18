@@ -49,13 +49,12 @@ def configure(
         logger.info("No encryption algorithm specified.")
         return
 
-    algorithm = config[ALGORITHMS_NAME_KEY]
+    algorithm = config.get(ALGORITHMS_NAME_KEY, "").lower()
 
-    if algorithm is None or algorithm.lower() == "none":
+    if algorithm in ["", "none"]:
         logger.info("Encryption is disabled.")
         return
 
-    algorithm = algorithm.lower()
     key = _get_key(logger, config)
 
     supported_algorithms = {

@@ -102,72 +102,56 @@ def test_multi_provider_write_read_delete():
     # Set required environment variable for encryption
     with patch.dict(os.environ, {"ENCRYPTION_KEY": "Sixteen byte key"}):
         # Part 1: Write and read data using cshelve normally
-        print("\n=== Part 1: Write and read data ===")
         with cshelve.open(config_file, logger=logger) as shelf:
             # Write all test data
             for key, value in test_data.items():
                 shelf[key] = value
-                print(f"Written: {key} = {value}")
 
             # Read all test data back
             for key, expected_value in test_data.items():
                 read_value = shelf[key]
                 assert read_value == expected_value, f"Read mismatch for {key}"
-                print(f"Read: {key} = {read_value}")
 
             check_data_processing_configuration(shelf)
 
         # Part 2: Reopen shelf and verify data persists
-        print("\n=== Part 2: Verify data persists across opens ===")
         with cshelve.open(config_file, logger=logger) as shelf:
             for key, expected_value in test_data.items():
                 read_value = shelf[key]
                 assert (
                     read_value == expected_value
                 ), f"Data persistence failed for {key}"
-                print(f"Verified persistent: {key} = {read_value}")
 
         # Part 3: Verify data exists in all underlying databases
-        print("\n=== Part 3: Verify data in all databases ===")
         with cshelve.open(str(config_file), logger=logger) as shelf:
             for key, expected_value in test_data.items():
                 _verify_data_in_all_databases(shelf, key, expected_value)
-                print(f"Verified in all databases: {key}")
 
         # Part 4: Delete data and verify cshelve cannot read it
-        print("\n=== Part 4: Delete data ===")
         with cshelve.open(str(config_file), logger=logger) as shelf:
             # Delete one key at a time and verify
             for key_to_delete in list(test_data.keys())[:2]:
                 del shelf[key_to_delete]
-                print(f"Deleted from shelf: {key_to_delete}")
 
                 # Verify cshelve cannot read deleted key
                 with pytest.raises(Exception):
                     _ = shelf[key_to_delete]
-                print(f"Verified deleted from shelf: {key_to_delete}")
 
                 # Verify data is deleted from all databases
                 _verify_data_deleted_from_all_databases(shelf, key_to_delete)
-                print(f"Verified deleted from all databases: {key_to_delete}")
 
         # Part 5: Verify data is still deleted after reopening
-        print("\n=== Part 5: Verify deletions persist ===")
         with cshelve.open(str(config_file), logger=logger) as shelf:
             # Check deleted keys are still gone
             for key_to_check in list(test_data.keys())[:2]:
                 with pytest.raises(Exception):
                     _ = shelf[key_to_check]
-                print(f"Verified still deleted: {key_to_check}")
 
             # Check remaining key still exists
             remaining_key = list(test_data.keys())[2]
             remaining_value = shelf[remaining_key]
             assert remaining_value == test_data[remaining_key]
             del shelf[remaining_key]
-            print(f"Verified remaining data still exists: {remaining_key}")
-
-        print("\n=== Test completed successfully ===")
 
 
 @pytest.mark.skipif(
@@ -202,31 +186,24 @@ def test_multi_in_memory_providers():
     }
 
     with patch.dict(os.environ, {"ENCRYPTION_KEY": "Sixteen byte key"}):
-        print("\n=== Part 1: Write data to all providers ===")
         with cshelve.open(config_file, logger=logger) as shelf:
             assert (
                 len(shelf.dict.databases) == 4
             ), "Should have 4 providers (3 in-memory + AWS S3)"
-            print(f"Confirmed {len(shelf.dict.databases)} providers configured")
 
             # Write all test data
             for key, value in test_data.items():
                 shelf[key] = value
-                print(f"Written: {key} (size: {len(value)} bytes)")
 
             # Read and verify
             for key, expected_value in test_data.items():
                 read_value = shelf[key]
                 assert read_value == expected_value, f"Read mismatch for {key}"
-                print(f"Verified read: {key}")
 
-        print("\n=== Part 2: Verify data in all 4 providers ===")
         with cshelve.open(config_file, logger=logger) as shelf:
             for key, expected_value in test_data.items():
                 _verify_data_in_all_databases(shelf, key, expected_value)
-                print(f"Verified in all 4 providers (3 in-memory + AWS): {key}")
 
-        print("\n=== Part 3: Verify different compression settings ===")
         with cshelve.open(config_file, logger=logger) as shelf:
             # All in-memory providers have compression, AWS may have encryption
             primary = shelf.dict.databases[0]
@@ -246,35 +223,147 @@ def test_multi_in_memory_providers():
             assert aws_remote.data_processing._compression_enabled() is False
             assert aws_remote.data_processing._encryption_enabled() is True
 
-        print("\n=== Part 4: Update data and verify propagation ===")
         with cshelve.open(config_file, logger=logger) as shelf:
             updated_key = "document:1"
             updated_value = b"Updated content for document 1 - different text. " * 5
 
             shelf[updated_key] = updated_value
-            print(f"Updated: {updated_key}")
 
             # Verify update propagated to all providers
             _verify_data_in_all_databases(shelf, updated_key, updated_value)
-            print(f"Verified update in all providers: {updated_key}")
 
-        print("\n=== Part 5: Delete data and verify ===")
         with cshelve.open(config_file, logger=logger) as shelf:
             # Delete all keys
             for key_to_delete in test_data.keys():
                 del shelf[key_to_delete]
-                print(f"Deleted from shelf: {key_to_delete}")
 
                 # Verify deletion in all databases
                 _verify_data_deleted_from_all_databases(shelf, key_to_delete)
-                print(f"Verified deleted from all providers: {key_to_delete}")
 
-        print("\n=== Part 6: Verify deletions persist ===")
         with cshelve.open(config_file, logger=logger) as shelf:
             # Verify all keys are still deleted after reopening
             for key in test_data.keys():
                 with pytest.raises(Exception):
                     _ = shelf[key]
-                print(f"Confirmed still deleted: {key}")
 
-        print("\n=== Test completed successfully ===")
+
+def test_open_from_dict_multi_provider():
+    """
+    End-to-end test demonstrating multi-provider configuration using open_from_dict.
+
+    This test serves as a user example showing how to configure and use CShelve
+    with multiple storage backends programmatically using a Python dictionary
+    instead of an INI file.
+
+    Scenario:
+    1. Define a multi-provider configuration dictionary with:
+       - Local filesystem storage for persistent data
+       - In-memory cache for fast access
+    2. Use cshelve.open_from_dict() to initialize with the config
+    3. Perform write, read, and delete operations
+    4. Verify data is replicated across all providers
+
+    This approach is ideal for applications that generate configurations dynamically
+    or prefer to configure everything in Python code.
+    """
+    logger = Mock(spec=Logger)
+
+    # Example 1: Simple multi-provider configuration with filesystem + in-memory
+    # This is a real-world scenario where you want persistent storage + fast caching
+    import uuid
+
+    # Use unique persist key to avoid conflicts with other tests
+    unique_id = str(uuid.uuid4())[:8]
+
+    config = {
+        "default": {
+            "providers": "filesystem, memory",  # Comma-separated string
+            "strategy": "all",
+            "use_pickle": "true",  # String, not boolean
+        },
+        "compression": {  # Global compression settings
+            "algorithm": "zlib",
+            "level": "1",
+        },
+        "filesystem": {
+            "provider": "filesystem",
+            "folder_path": f"/tmp/cshelve-dict-test-{unique_id}",
+            "encryption": {  # Encryption for  the filesystem provider
+                "algorithm": "aes256",
+                "environment_key": "ENCRYPTION_KEY",
+            },
+        },
+        "memory": {
+            "provider": "in-memory",
+            "persist-key": f"dict-test-{unique_id}",
+            "compression": {
+                "algorithm": "none",  # No compression for in-memory
+            },
+        },
+    }
+
+    logger.info("Multi-provider configuration created programmatically")
+
+    # Test data
+    test_data = {
+        "user:alice": b"Alice's profile data",
+        "user:bob": b"Bob's profile data",
+        "config:timeout": b"30000",
+    }
+
+    with patch.dict(os.environ, {"ENCRYPTION_KEY": "Sixteen byte key"}):
+        # Part 1: Open using open_from_dict and write data
+        with cshelve.open_from_dict(config, logger=logger) as shelf:
+            # Verify we have 2 databases (filesystem + in-memory)
+            assert len(shelf.dict.databases) == 2, "Should have 2 providers"
+
+            # Write test data
+            for key, value in test_data.items():
+                shelf[key] = value
+
+            # Verify read works from first provider
+            for key, expected_value in test_data.items():
+                read_value = shelf[key]
+                assert read_value == expected_value, f"Read mismatch for {key}"
+
+            assert (
+                shelf.dict.databases[0].data_processing._compression_enabled() is True
+            )
+            assert shelf.dict.databases[0].data_processing._encryption_enabled() is True
+            assert (
+                shelf.dict.databases[1].data_processing._compression_enabled() is False
+            )
+            assert (
+                shelf.dict.databases[1].data_processing._encryption_enabled() is False
+            )
+
+        # Part 2: Verify data persists across opens
+        with cshelve.open_from_dict(config, logger=logger) as shelf:
+            for key, expected_value in test_data.items():
+                read_value = shelf[key]
+                assert (
+                    read_value == expected_value
+                ), f"Persistence check failed for {key}"
+
+        # Part 3: Update data and verify it propagates
+        with cshelve.open_from_dict(config, logger=logger) as shelf:
+            updated_key = "config:timeout"
+            updated_value = b"60000"  # Changed timeout value
+
+            shelf[updated_key] = updated_value
+
+            # Verify update in all providers
+            _verify_data_in_all_databases(shelf, updated_key, updated_value)
+
+        # Part 4: Delete data and verify deletion across providers
+        with cshelve.open_from_dict(config, logger=logger) as shelf:
+            key_to_delete = "user:bob"
+            del shelf[key_to_delete]
+
+            # Verify it's deleted from all databases
+            _verify_data_deleted_from_all_databases(shelf, key_to_delete)
+
+        # Part 5: Verify deletions persist
+        with cshelve.open_from_dict(config, logger=logger) as shelf:
+            with pytest.raises(Exception):
+                _ = shelf["user:bob"]

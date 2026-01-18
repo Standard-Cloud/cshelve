@@ -28,7 +28,11 @@ def configure(
         logger.info("No compression algorithm specified.")
         return
 
-    algorithm = config[ALGORITHMS_NAME_KEY]
+    algorithm = config.get(ALGORITHMS_NAME_KEY, "").lower()
+
+    if algorithm in ["", "none"]:
+        logger.info("Compression is disabled.")
+        return
 
     supported_algorithms = {
         "zlib": _zlib,
