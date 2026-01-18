@@ -79,7 +79,7 @@ def _assert_multi_provider_config(config):
     # Check fast-local provider
     fast_local = config.providers[0]
     assert fast_local.provider == "filesystem"
-    assert fast_local.default["path"] == "/tmp/cache"
+    assert fast_local.default["folder_path"] == "/tmp/cache"
     assert fast_local.use_versionning == True
     # Verify provider_params are set
     assert fast_local.provider_params["whatever"] == "value"
@@ -232,7 +232,7 @@ def test_load_from_dict_multi_provider():
         },
         "fast-local": {
             "provider": "filesystem",
-            "path": "/tmp/cache",
+            "folder_path": "/tmp/cache",
             "provider_params": {
                 "whatever": "value",
             },
