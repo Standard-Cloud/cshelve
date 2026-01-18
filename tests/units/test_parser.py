@@ -9,8 +9,6 @@ import os
 import pytest
 
 from cshelve._parser import (
-    _load_multi_provider_configuration,
-    _load_single_provider_configuration,
     _load_configuration,
     _parse_ini_to_nested_dict,
     load_from_file,
@@ -28,7 +26,7 @@ def test_use_local_shelf():
 
     for filename in fallback_default_module:
         assert use_local_shelf(filename) is True
-        # assert use_local_shelf(Path(filename)) is True
+        assert use_local_shelf(Path(filename)) is True
 
 
 def test_use_cloud_shelf():
@@ -44,26 +42,28 @@ def test_use_cloud_shelf():
 def test_azure_configuration():
     """
     Load the Azure configuration file and return it as a dictionary.
-    Ensure backward compatibility: single-provider configs should work as before.
+    Single-provider configs are now transformed into a providers list with one item.
     """
     config = load_from_file(
         Mock(), Path("tests/configurations/azure-blob/standard.ini")
     )
 
-    # Single provider mode: should have provider set
-    assert config.provider == "azure-blob"
+    # Config should only have strategy, providers, and use_pickle
+    assert config.use_pickle == True
+    assert config.strategy is not None  # Default strategy for single provider
+    assert config.providers is not None
+    assert len(config.providers) == 1
 
-    assert config.default["auth_type"] == "connection_string"
-    assert config.default["environment_key"] == "AZURE_STORAGE_CONNECTION_STRING"
-    assert config.default["container_name"] == "standard"
+    # Access provider details through providers list
+    provider = config.providers[0]
+    assert provider.provider == "azure-blob"
+    assert provider.default["auth_type"] == "connection_string"
+    assert provider.default["environment_key"] == "AZURE_STORAGE_CONNECTION_STRING"
+    assert provider.default["container_name"] == "standard"
 
-    assert config.logging["http"] == "true"
-    assert config.logging["credentials"] == "false"
-    assert config.logging["level"] == "INFO"
-
-    # Single provider mode: should not have multi-provider fields set
-    assert config.strategy is None
-    assert config.providers is None
+    assert provider.logging["http"] == "true"
+    assert provider.logging["credentials"] == "false"
+    assert provider.logging["level"] == "INFO"
 
 
 def _assert_multi_provider_config(config):
