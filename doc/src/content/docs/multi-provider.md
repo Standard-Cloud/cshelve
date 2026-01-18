@@ -3,13 +3,11 @@ title: Multi-Provider Support
 description: Use multiple storage backends simultaneously with cshelve.
 ---
 
-*cshelve* supports writing data to multiple storage providers at the same time. This enables powerful patterns like data replication for backup, performance optimization with caching, and multi-cloud deployments.
+`cshelve` supports writing data to multiple storage providers at the same time. This enables powerful patterns like data replication for backup, performance optimization with caching, and multi-cloud deployments.
 
 ---
 
 ## Why Use Multiple Providers?
-
-### Common Use Cases
 
 1. **Backup & Redundancy** – Primary storage + automatic backup to another provider
 2. **Multi-Cloud Resilience** – Replicate data across AWS, Azure, and other providers
@@ -19,10 +17,6 @@ description: Use multiple storage backends simultaneously with cshelve.
 ---
 
 ## How It Works
-
-### The "all" Strategy – Currently the Only Available Strategy
-
-When you configure multiple providers with the `all` strategy:
 
 - **Writes** are sent to **all providers**
 - **Reads** come from the **first provider** (for performance)
@@ -132,10 +126,10 @@ providers = provider1, provider2, provider3
 ### Provider Configuration
 
 Each provider section follows the standard configuration. Check their documentation for more information:
-- [AWS S3 Provider](./aws-s3.md)
-- [Azure Blob Provider](./azure-blob.md)
-- [Filesystem Provider](./filesystem.md)
-- [In-Memory Provider](./in-memory.md)
+- [AWS S3 Provider](./aws-s3)
+- [Azure Blob Provider](./azure-blob)
+- [Filesystem Provider](./filesystem)
+- [In-Memory Provider](./in-memory)
 
 ---
 
@@ -162,6 +156,6 @@ Writing to multiple providers takes longer than writing to a single provider.
 
 ## Next Steps
 
-- Learn about [Compression](./compression.md) to optimize storage per provider
-- Learn about [Encryption](./encryption.md) to secure your data
-- See [Configuration as Dictionary](./configuration-as-dictionary.md) for programmatic setup
+- Learn about [Compression](./compression) to optimize storage per provider
+- Learn about [Encryption](./encryption) to secure your data
+- See [Configuration as Dictionary](./configuration-as-dictionary) for programmatic setup
