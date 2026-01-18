@@ -56,16 +56,9 @@ ProviderConfig = namedtuple(
 Config = namedtuple(
     "Config",
     [
-        "provider",
-        "use_pickle",
-        "use_versionning",
-        "default",
-        "logging",
-        "compression",
-        "encryption",
-        "provider_params",
-        "strategy",
         "providers",
+        "strategy",
+        "use_pickle",
     ],
 )
 
@@ -139,33 +132,20 @@ def _load_configuration(logger: Logger, config: dict) -> Config:
 
 def _load_single_provider_configuration(logger: Logger, config: dict) -> Config:
     """
-    Load configuration for single-provider mode (backward compatible).
+    Load configuration for single-provider mode.
+    Transforms single-provider config dict into multi-provider format, then delegates to _load_multi_provider_configuration.
     """
-    c = config[DEFAULT_CONFIG_STORE]
-    logging_config = config[LOGGING_KEY_STORE] if LOGGING_KEY_STORE in config else {}
-    compression_config = (
-        config[COMPRESSION_KEY_STORE] if COMPRESSION_KEY_STORE in config else {}
-    )
-    encryption_config = (
-        config[ENCRYPTION_KEY_STORE] if ENCRYPTION_KEY_STORE in config else {}
-    )
-    provider_params = config[PROVIDER_PARAMS] if PROVIDER_PARAMS in config else {}
+    auto_generated_provider_name = "default_provider"
+    transformed_config = {
+        **config,
+        auto_generated_provider_name: config[DEFAULT_CONFIG_STORE],
+    }
+    transformed_config[DEFAULT_CONFIG_STORE][
+        PROVIDERS_KEY
+    ] = auto_generated_provider_name
 
-    logger.debug(f"Single-provider configuration loaded.")
-    return Config(
-        provider=c[PROVIDER_KEY],
-        default=from_env(dict(c)),
-        logging=from_env(dict(logging_config)),
-        compression=from_env(dict(compression_config)),
-        encryption=from_env(dict(encryption_config)),
-        provider_params=from_env(dict(provider_params)),
-        # These configurations is checked here to avoid redundant checks.
-        use_pickle=c.get(USE_PICKLE, "true").lower() == "true",
-        use_versionning=c.get(USE_VERSIONNING, "true").lower() == "true",
-        # Multi-provider fields are None for single-provider mode
-        strategy=None,
-        providers=None,
-    )
+    logger.debug(f"Single-provider configuration transformed to multi-provider format.")
+    return _load_multi_provider_configuration(logger, transformed_config)
 
 
 def _load_multi_provider_configuration(logger: Logger, config: dict) -> Config:
@@ -208,16 +188,9 @@ def _load_multi_provider_configuration(logger: Logger, config: dict) -> Config:
         f"Multi-provider configuration loaded with {len(provider_configs)} providers."
     )
     return Config(
-        provider=None,  # Not used in multi-provider mode
-        default=from_env(dict(c)),
-        logging=from_env(dict(global_logging)),
-        compression=from_env(dict(global_compression)),
-        encryption=from_env(dict(global_encryption)),
-        provider_params=from_env(dict(global_provider_params)),
-        use_pickle=c.get(USE_PICKLE, "true").lower() == "true",
-        use_versionning=c.get(USE_VERSIONNING, "true").lower() == "true",
-        strategy=strategy,
         providers=provider_configs,
+        strategy=strategy,
+        use_pickle=c.get(USE_PICKLE, "true").lower() == "true",
     )
 
 
