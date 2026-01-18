@@ -46,7 +46,7 @@ class _DatabaseManager(MutableMapping):
         - sync(): Syncs all managed databases
     """
 
-    def __init__(self, logger: Logger, databases: list) -> None:
+    def __init__(self, logger: Logger, databases: list[_Database]) -> None:
         """
         Initialize the DatabaseManager with a list of _Database instances.
 
