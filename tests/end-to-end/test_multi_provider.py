@@ -146,6 +146,7 @@ def test_multi_provider_write_read_delete():
             remaining_key = list(test_data.keys())[2]
             remaining_value = shelf[remaining_key]
             assert remaining_value == test_data[remaining_key]
+            del shelf[remaining_key]
             print(f"Verified remaining data still exists: {remaining_key}")
 
         print("\n=== Test completed successfully ===")

@@ -28,6 +28,18 @@ def test_no_encryption(data_processing):
     assert len(data_processing.pre_processing) == 0
 
 
+def test_encryption_disabled(data_processing):
+    """
+    Ensure nothing si configure when the config is empty.
+    """
+    logger = Mock()
+    for config in [{"algorithm": "None"}, {"algorithm": None}, {"algorithm": "NONE"}]:
+        configure(logger, data_processing, config)
+
+        assert len(data_processing.post_processing) == 0
+        assert len(data_processing.pre_processing) == 0
+
+
 def test_default_aes256_config(data_processing):
     """
     Ensure AES256 is configured when defined.
