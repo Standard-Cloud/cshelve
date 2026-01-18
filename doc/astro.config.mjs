@@ -24,9 +24,10 @@ export default defineConfig({
 					label: 'Configuration',
 					items: [
 						{ label: 'Compression', link: './compression' },
-						{ label: 'From a dictionary', link: './configuration-as-dictionary' },
 						{ label: 'Encryption', link: './encryption' },
+						{ label: 'From a dictionary', link: './configuration-as-dictionary' },
 						{ label: 'Logging', link: './logging' },
+						{ label: 'Multi-Provider', link: './multi-provider' },
 						{ label: 'Storage Options', link: './storage-options' },
 					],
 				},
