@@ -89,7 +89,7 @@ def test_multi_provider_write_read_delete():
     6. Verify cshelve cannot read the deleted data
     7. Verify data is deleted from all underlying _Database objects
     """
-    config_file = Path("tests/configurations/config/local-mutli-providers.ini")
+    config_file = Path("tests/configurations/config/local-multi-providers.ini")
     logger = Mock(spec=Logger)
 
     # Test data
@@ -288,7 +288,7 @@ def test_open_from_dict_multi_provider():
         "filesystem": {
             "provider": "filesystem",
             "folder_path": f"/tmp/cshelve-dict-test-{unique_id}",
-            "encryption": {  # Encryption for  the filesystem provider
+            "encryption": {  # Encryption for the filesystem provider
                 "algorithm": "aes256",
                 "environment_key": "ENCRYPTION_KEY",
             },

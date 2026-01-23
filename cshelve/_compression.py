@@ -35,7 +35,7 @@ def configure(
         return
 
     algorithm = algorithm.lower()
-    if algorithm in ["", "none"]:
+    if algorithm == "none":
         logger.info("Compression is disabled.")
         return
 

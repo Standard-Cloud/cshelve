@@ -31,7 +31,7 @@ def test_no_compression(data_processing):
 
 def test_compression_disabled(data_processing):
     """
-    Ensure nothing si configure when the config is empty.
+    Ensure nothing is configure when the config is empty.
     """
     logger = Mock()
     for config in [{"algorithm": "None"}, {"algorithm": None}, {"algorithm": "NONE"}]:

@@ -49,7 +49,7 @@ def test_azure_configuration():
     )
 
     # Config should only have strategy, providers, and use_pickle
-    assert config.use_pickle == True
+    assert config.use_pickle is True
     assert config.strategy == "all"  # Default strategy for single provider
     assert config.providers is not None
     assert len(config.providers) == 1

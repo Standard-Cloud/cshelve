@@ -154,7 +154,7 @@ with cshelve.open('azure-blob.ini') as db:
 
 ---
 
-## � Multi-Provider Support
+## 🔄 Multi-Provider Support
 
 **Store data across multiple backends simultaneously for redundancy and performance.**
 
@@ -237,7 +237,7 @@ db.close()
 
 ---
 
-## �🛠 Supported Providers
+## 🛠 Supported Providers
 
 | Provider   | Install Extra         | Notes                                                                        |
 | ---------- | --------------------- | ---------------------------------------------------------------------------- |
