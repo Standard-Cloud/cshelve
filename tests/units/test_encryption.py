@@ -30,7 +30,7 @@ def test_no_encryption(data_processing):
 
 def test_encryption_disabled(data_processing):
     """
-    Ensure nothing si configure when the config is empty.
+    Ensure nothing is configure when the config is empty.
     """
     logger = Mock()
     for config in [{"algorithm": "None"}, {"algorithm": None}, {"algorithm": "NONE"}]:
