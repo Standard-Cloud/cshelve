@@ -139,3 +139,55 @@ os.environ.update({
 with cshelve.open_from_dict(config) as db:
     db["local_backup"] = "Stored via SFTP"
 ```
+
+### Multi-Provider with Provider-Specific Compression
+
+Store data to both local filesystem and AWS S3 simultaneously, with different compression levels:
+
+```python
+import os
+
+config = {
+    "default": {
+        "providers": "filesystem, s3",
+        "strategy": "all",
+    },
+    "filesystem": {
+        "provider": "filesystem",
+        "folder_path": "/data/local",
+    },
+    "filesystem.compression": {
+        "algorithm": "zlib",
+        "level": "6",
+    },
+    "s3": {
+        "provider": "aws-s3",
+        "bucket_name": "my-backup-bucket",
+        "auth_type": "access_key",
+        "key_id": "$AWS_ACCESS_KEY_ID",
+        "key_secret": "$AWS_SECRET_ACCESS_KEY",
+    },
+    "s3.compression": {
+        "algorithm": "zlib",
+        "level": "9",
+    },
+}
+
+os.environ.update({
+    "AWS_ACCESS_KEY_ID": "AKIA...snip...",
+    "AWS_SECRET_ACCESS_KEY": "secret...snip...",
+})
+
+with cshelve.open_from_dict(config) as db:
+    # Written to both filesystem (level 6) and S3 (level 9)
+    db["backup_data"] = "Replicated to local and cloud"
+
+    # Read from first provider (filesystem) - fast access
+    print(db["backup_data"])
+```
+
+In this example:
+- **Filesystem** uses compression level 6 (moderate – faster I/O)
+- **AWS S3** uses compression level 9 (maximum – cheaper bandwidth)
+- All writes are replicated to both providers
+- Reads only use the filesystem (first provider)

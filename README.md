@@ -154,6 +154,89 @@ with cshelve.open('azure-blob.ini') as db:
 
 ---
 
+## 🔄 Multi-Provider Support
+
+**Store data across multiple backends simultaneously for redundancy and performance.**
+
+CShelve supports writing to multiple storage providers at once. Perfect for:
+- **Backup strategies** – Primary storage + cloud backup
+- **Multi-region deployment** – Replicate across multiple cloud providers
+
+### Using Multiple Providers
+
+Real-world example: Replicate data from Azure Blob Storage to AWS S3 for disaster recovery.
+
+**multi-cloud.ini**
+
+```ini
+[default]
+providers = azure-primary, aws-backup, local-backup
+
+[azure-primary]
+provider        = azure-blob
+auth_type       = connection_string
+environment_key = AZURE_STORAGE_CONNECTION_STRING
+container_name  = standard
+
+[aws-backup]
+provider    = aws-s3
+bucket_name = cshelve
+auth_type   = access_key
+key_id      = $AWS_KEY_ID
+key_secret  = $AWS_KEY_SECRET
+
+[local-backup]
+provider = filesystem
+folder_path = /data/cache
+```
+
+**Python**
+
+```python
+import cshelve
+
+# Write to both Azure AND AWS
+with cshelve.open('multi-cloud.ini') as db:
+    db['user'] = {'name': 'Alice'}      # Written to both Azure and AWS
+    print(db['user'])                   # Read from first provider (Azure)
+
+# Data persists in both clouds
+with cshelve.open('multi-cloud.ini') as db:
+    print(db['user'])  # Available in both Azure and AWS
+```
+
+**Dictionary Format - Multi-Cloud Example**
+
+```python
+import cshelve
+
+config = {
+    "default": {
+        "providers": "aws, azure",
+        "strategy": "all",
+    },
+    "aws": {
+        "provider": "aws-s3",
+        "bucket_name": "my-bucket",
+        "auth_type": "access_key",
+        "key_id": "$AWS_ACCESS_KEY_ID",
+        "key_secret": "$AWS_SECRET_ACCESS_KEY",
+    },
+    "azure": {
+        "provider": "azure-blob",
+        "auth_type": "connection_string",
+        "environment_key": "AZURE_STORAGE_CONNECTION_STRING",
+        "container_name": "my-container",
+    },
+}
+
+db = cshelve.open_from_dict(config)
+db['key'] = 'value'  # Written to both AWS and Azure
+db.close()
+```
+
+---
+
 ## 🛠 Supported Providers
 
 | Provider   | Install Extra         | Notes                                                                        |

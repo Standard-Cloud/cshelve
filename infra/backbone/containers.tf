@@ -1,6 +1,7 @@
 locals {
   containers = [
     "compression",
+    "cshelve",
     "dedicated-iter",
     "dedicated-len",
     "del",

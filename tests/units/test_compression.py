@@ -29,6 +29,18 @@ def test_no_compression(data_processing):
     assert len(data_processing.pre_processing) == 0
 
 
+def test_compression_disabled(data_processing):
+    """
+    Ensure nothing is configure when the config is empty.
+    """
+    logger = Mock()
+    for config in [{"algorithm": "None"}, {"algorithm": None}, {"algorithm": "NONE"}]:
+        configure(logger, data_processing, config)
+
+        assert len(data_processing.post_processing) == 0
+        assert len(data_processing.pre_processing) == 0
+
+
 def test_default_zlib_config(data_processing):
     """
     Ensure Zlib is configured when defined.

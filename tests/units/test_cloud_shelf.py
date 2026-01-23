@@ -5,7 +5,7 @@ import pickle
 from unittest.mock import Mock
 
 from cshelve import CloudShelf
-from cshelve._parser import Config
+from cshelve._parser import Config, ProviderConfig
 
 
 def test_factory_usage():
@@ -14,7 +14,7 @@ def test_factory_usage():
     This test ensures that the factory provided is used.
     """
     provider = "fake"
-    config = {42: 42}
+    default_config = {42: 42}
     compression, encryption, provider_params = {}, {}, {}
     flag = "c"
     protocol = pickle.HIGHEST_PROTOCOL
@@ -24,8 +24,20 @@ def test_factory_usage():
     factory = Mock()
     logger = Mock()
 
+    provider_config = ProviderConfig(
+        provider=provider,
+        use_versionning=True,
+        default=default_config,
+        logging=default_config,
+        compression=compression,
+        encryption=encryption,
+        provider_params=provider_params,
+    )
+
     config = Config(
-        provider, True, True, config, config, compression, encryption, provider_params
+        providers=[provider_config],
+        strategy="all",
+        use_pickle=True,
     )
     factory.return_value = cloud_database
     cloud_database.exists.return_value = False
@@ -42,4 +54,4 @@ def test_factory_usage():
         cloud_database.exists.assert_called_once()
         factory.assert_called_once_with(logger, provider)
         # The mock returned by the factory must be the MuttableMapping object used by the shelve.Shelf object.
-        assert isinstance(cs.dict.db, Mock)
+        assert isinstance(cs.dict.databases[0].db, Mock)

@@ -215,7 +215,7 @@ jobs:
     - name: Run end-to-end tests with simulator
       run: |
         # Start dependencies
-        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
+        azurite --silent --location c:\azurite --debug c:\azurite\debug.log --skipApiVersionCheck &
         moto_server -p9000 &
 
         # Run tests

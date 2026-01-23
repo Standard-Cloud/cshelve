@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.7.0] - 2026-01-23
+### Added
+- Multi-provider support: Write to multiple storage backends simultaneously
+
+## [1.6.0] - 2025-12-21
+### Added
+- Only run ci when code changed
+- Add flask-upload example
+- Add filesystem provider
+
 ## [1.5.0] - 2025-08-09
 ### Added
 - Configuration as `dict`.
