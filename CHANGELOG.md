@@ -3,8 +3,6 @@
 ## [1.7.0] - 2026-01-23
 ### Added
 - Multi-provider support: Write to multiple storage backends simultaneously
-- `open_from_dict()` now supports multi-provider configurations
-- `_DatabaseManager` class for managing multiple providers with configurable routing
 
 ## [1.6.0] - 2025-12-21
 ### Added
