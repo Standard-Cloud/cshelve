@@ -1,6 +1,6 @@
 """Unit tests for _DatabaseManager class."""
 import pytest
-from unittest.mock import Mock, MagicMock, call
+from unittest.mock import Mock
 from logging import Logger
 
 from cshelve._database_manager import _DatabaseManager
