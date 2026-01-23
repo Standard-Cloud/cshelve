@@ -45,7 +45,8 @@ class CloudShelf(shelve.Shelf):
         provider_params,
     ):
         databases = []
-        # Multi-provider mode: create a database for each provider config
+
+        # Initialize each provider's database
         for provider_config in config.providers:
             # Create provider interface and configure it
             provider_interface = factory(logger, provider_config.provider)
@@ -55,13 +56,18 @@ class CloudShelf(shelve.Shelf):
                 {**provider_params, **provider_config.provider_params}
             )
 
-            # Create data processing with compression and encryption
+            # If Pickle is not used, the data is neither signed nor versioned.
+            # Consequently, the user takes responsibility for the format of the data in the storage.
+            # This also allows the user to use the cloud shelf as a simple wrapper around cloud storage.
             data_signed_or_versionned = provider_config.use_versionning
+
+            # Data processing object used to apply pre and post processing to the data, by default compression and encryption.
             data_processing = DataProcessing(logger, data_signed_or_versionned)
             _configure_compression(logger, data_processing, provider_config.compression)
             _configure_encryption(logger, data_processing, provider_config.encryption)
 
-            # Create database for this provider
+            # The CloudDatabase object is the class that interacts with the cloud storage backend.
+            # This class doesn't perform or respect the shelve.Shelf logic and interface so we need to wrap it.
             database = _Database(
                 logger,
                 provider_interface,
