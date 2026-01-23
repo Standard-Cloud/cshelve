@@ -209,7 +209,7 @@ def _load_provider_config(
     """
     # Get provider's base configuration
     if provider_name not in config:
-        raise ValueError(
+        raise ConfigurationError(
             f"Provider section [{provider_name}] not found in configuration."
         )
 

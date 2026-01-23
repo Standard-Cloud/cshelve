@@ -271,3 +271,14 @@ def test_load_from_dict_multi_provider():
         config = load_from_dict(Mock(), config_dict)
 
     _assert_multi_provider_config(config)
+
+
+def test_error_missing_providers_configuration():
+    """
+    Test loading configuration with a provider that has invalid parameter names.
+    This test currently exposes the issue without fixing it.
+    """
+    with pytest.raises(ConfigurationError):
+        config = load_from_file(
+            Mock(), Path("tests/configurations/config/error-missing-providers.ini")
+        )
