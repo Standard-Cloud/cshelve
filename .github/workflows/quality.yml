@@ -167,7 +167,7 @@ jobs:
       working-directory: performances
       run: |
         # Start Azureit.
-        azurite --silent --location c:\azurite --debug c:\azurite\debug.log &
+        azurite --silent --location c:\azurite --debug c:\azurite\debug.log --skipApiVersionCheck &
         # Run performance tests.
         python main.py production.results.ini ${{ matrix.os }} ${{ matrix.python-version }} ${{ github.sha }}
       env:
