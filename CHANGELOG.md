@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.8.0] - 2026-01-25
+### Breaking change
+- The keyword "strategy" has been renamed to "provider_routing" in the configuration.
+
 ## [1.7.0] - 2026-01-23
 ### Added
 - Multi-provider support: Write to multiple storage backends simultaneously
