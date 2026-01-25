@@ -41,7 +41,7 @@ def test_use_protocol():
 
     loader.return_value = Config(
         providers=[provider_config],
-        strategy="all",
+        provider_routing="all",
         use_pickle=True,
     )
 

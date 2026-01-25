@@ -6,12 +6,12 @@ to enable multi-provider functionality. It allows cshelve to write data to multi
 backends simultaneously while serving reads from a single provider.
 
 Key Features:
-    - Write-all strategy: All write operations are replicated across all configured databases
-    - Read-first strategy: Read operations use only the first database for performance
+    - Write-all provider routing: All write operations are replicated across all configured databases
+    - Read-first provider routing: Read operations use only the first database for performance
     - Transparent interface: Implements MutableMapping for dict-like usage
     - Lifecycle management: Handles synchronization, and closing of all databases
 
-The DatabaseManager is the core component that enables redundancy and backup strategies
+The DatabaseManager is the core component that enables redundancy and backup provider routing
 in cshelve's multi-provider architecture.
 """
 from logging import Logger
@@ -30,14 +30,14 @@ class _DatabaseManager(MutableMapping):
     This class enables multi-provider support where data is written to multiple backends simultaneously
     while reads are served from a single (first) provider. This is useful for:
     - Data replication across multiple storage providers
-    - Backup strategies where data is written to primary and backup locations
+    - Backup provider routing where data is written to primary and backup locations
     - Multi-cloud deployments for redundancy
 
-    Read Strategy:
+    Read Provider Routing:
         All read operations (__getitem__, __iter__, __len__) are performed on the first database only.
         This avoids consistency issues and performance overhead of reading from multiple sources.
 
-    Write Strategy:
+    Write Provider Routing:
         All write operations (__setitem__, __delitem__, sync) are applied to ALL databases.
         Each database is updated sequentially in the order they were provided.
 
@@ -114,7 +114,7 @@ class _DatabaseManager(MutableMapping):
 
         Note:
             Only keys from the first database are iterated. This assumes all databases
-            contain the same keys (by design of the write-all strategy).
+            contain the same keys (by design of the write-all provider routing).
         """
         return iter(self.databases[0])
 
@@ -127,7 +127,7 @@ class _DatabaseManager(MutableMapping):
 
         Note:
             Only the first database's count is returned. This assumes all databases
-            contain the same number of keys (by design of the write-all strategy).
+            contain the same number of keys (by design of the write-all provider routing).
         """
         return len(self.databases[0])
 

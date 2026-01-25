@@ -213,7 +213,7 @@ import cshelve
 config = {
     "default": {
         "providers": "aws, azure",
-        "strategy": "all",
+        "provider_routing": "all",
     },
     "aws": {
         "provider": "aws-s3",

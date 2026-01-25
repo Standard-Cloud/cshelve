@@ -48,9 +48,11 @@ def test_azure_configuration():
         Mock(), Path("tests/configurations/azure-blob/standard.ini")
     )
 
-    # Config should only have strategy, providers, and use_pickle
+    # Config should only have provider_routing, providers, and use_pickle
     assert config.use_pickle is True
-    assert config.strategy == "all"  # Default strategy for single provider
+    assert (
+        config.provider_routing == "all"
+    )  # Default provider_routing for single provider
     assert config.providers is not None
     assert len(config.providers) == 1
 
@@ -72,7 +74,7 @@ def _assert_multi_provider_config(config):
     Used by both load_from_file and load_from_dict tests.
     """
     # Should detect multi-provider mode
-    assert config.strategy == "all"
+    assert config.provider_routing == "all"
     assert config.providers is not None
     assert len(config.providers) == 3
 
@@ -218,7 +220,7 @@ def test_load_from_dict_multi_provider():
     config_dict = {
         "default": {
             "providers": "fast-local, aws-remote, azure",
-            "strategy": "all",
+            "provider_routing": "all",
             "use_pickle": "true",
             "use_versionning": "true",
         },

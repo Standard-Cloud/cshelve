@@ -36,7 +36,7 @@ def test_factory_usage():
 
     config = Config(
         providers=[provider_config],
-        strategy="all",
+        provider_routing="all",
         use_pickle=True,
     )
     factory.return_value = cloud_database
