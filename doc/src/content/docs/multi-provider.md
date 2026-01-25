@@ -47,7 +47,7 @@ Create a configuration file with multiple provider sections:
 ```ini
 [default]
 providers = azure-primary, aws-backup
-strategy  = all
+provider_routing  = all
 
 [azure-primary]
 provider            = azure-blob
@@ -86,7 +86,7 @@ Different compression settings per provider:
 ```ini
 [default]
 providers = filesystem, s3
-strategy  = all
+provider_routing  = all
 
 [filesystem]
 provider = filesystem

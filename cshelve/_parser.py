@@ -21,8 +21,8 @@ DEFAULT_CONFIG_STORE = "default"
 PROVIDER_KEY = "provider"
 # Key for multi-provider mode - list of provider names.
 PROVIDERS_KEY = "providers"
-# Key for multi-provider strategy.
-STRATEGY_KEY = "strategy"
+# Key for multi-provider provider routing.
+PROVIDER_ROUTING_KEY = "provider_routing"
 # Key indicating if the usage of pickle is activated (True by default).
 USE_PICKLE = "use_pickle"
 # Key indicating if the usage of the versionning is activated (True by default).
@@ -51,13 +51,13 @@ ProviderConfig = namedtuple(
 )
 
 # Tuple containing the top-level configuration.
-# For single-provider mode: provider, use_pickle, etc. are set; strategy and providers are None.
-# For multi-provider mode: strategy and providers are set; provider may be None.
+# For single-provider mode: provider, use_pickle, etc. are set; provider_routing and providers are None.
+# For multi-provider mode: provider_routing and providers are set; provider may be None.
 Config = namedtuple(
     "Config",
     [
         "providers",
-        "strategy",
+        "provider_routing",
         "use_pickle",
     ],
 )
@@ -154,9 +154,9 @@ def _load_multi_provider_configuration(logger: Logger, config: dict) -> Config:
     """
     c = config[DEFAULT_CONFIG_STORE]
 
-    # Parse provider names and strategy
+    # Parse provider names and provider_routing
     provider_names = [name.strip() for name in c[PROVIDERS_KEY].split(",")]
-    strategy = c.get(STRATEGY_KEY, "all")
+    provider_routing = c.get(PROVIDER_ROUTING_KEY, "all")
 
     # Global settings (used as defaults for all providers)
     global_logging = config[LOGGING_KEY_STORE] if LOGGING_KEY_STORE in config else {}
@@ -189,7 +189,7 @@ def _load_multi_provider_configuration(logger: Logger, config: dict) -> Config:
     )
     return Config(
         providers=provider_configs,
-        strategy=strategy,
+        provider_routing=provider_routing,
         use_pickle=c.get(USE_PICKLE, "true").lower() == "true",
     )
 

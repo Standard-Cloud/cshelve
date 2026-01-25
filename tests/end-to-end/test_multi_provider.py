@@ -278,7 +278,7 @@ def test_open_from_dict_multi_provider():
     config = {
         "default": {
             "providers": "filesystem, memory",  # Comma-separated string
-            "strategy": "all",
+            "provider_routing": "all",
             "use_pickle": "true",  # String, not boolean
         },
         "compression": {  # Global compression settings

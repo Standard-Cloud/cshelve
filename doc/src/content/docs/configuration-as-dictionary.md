@@ -150,7 +150,7 @@ import os
 config = {
     "default": {
         "providers": "filesystem, s3",
-        "strategy": "all",
+        "provider_routing": "all",
     },
     "filesystem": {
         "provider": "filesystem",

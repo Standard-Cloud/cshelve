@@ -48,7 +48,7 @@ def test_load_cloud_shelf_config():
 
     loader.return_value = Config(
         providers=[provider_config],
-        strategy="all",
+        provider_routing="all",
         use_pickle=True,
     )
     cloud_database.exists.return_value = False
