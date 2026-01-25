@@ -114,7 +114,7 @@ class _DatabaseManager(MutableMapping):
 
         Note:
             Only keys from the first database are iterated. This assumes all databases
-            contain the same keys (by design of the write-all strategy).
+            contain the same keys (by design of the write-all provider routing).
         """
         return iter(self.databases[0])
 
@@ -127,7 +127,7 @@ class _DatabaseManager(MutableMapping):
 
         Note:
             Only the first database's count is returned. This assumes all databases
-            contain the same number of keys (by design of the write-all strategy).
+            contain the same number of keys (by design of the write-all provider routing).
         """
         return len(self.databases[0])
 

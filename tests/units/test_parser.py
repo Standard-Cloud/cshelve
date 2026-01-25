@@ -50,7 +50,9 @@ def test_azure_configuration():
 
     # Config should only have provider_routing, providers, and use_pickle
     assert config.use_pickle is True
-    assert config.provider_routing == "all"  # Default provider_routing for single provider
+    assert (
+        config.provider_routing == "all"
+    )  # Default provider_routing for single provider
     assert config.providers is not None
     assert len(config.providers) == 1
 
