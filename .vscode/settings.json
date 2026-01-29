@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd /workspaces/package && python3 -m pytest tests/units/test_provider_routing\\.py -v$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

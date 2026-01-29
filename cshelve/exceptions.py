@@ -22,6 +22,14 @@ class UnknownProviderError(RuntimeError):
     pass
 
 
+class UnknownProviderRoutingError(RuntimeError):
+    """
+    Raised when an unknown provider routing strategy is specified in the configuration.
+    """
+
+    pass
+
+
 class UnknownCompressionAlgorithmError(RuntimeError):
     """
     Raised when the compression algorithm provided is incorrect.
