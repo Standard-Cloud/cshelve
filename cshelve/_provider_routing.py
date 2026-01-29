@@ -1,7 +1,7 @@
 """
 Provider routing strategies for multi-provider support.
 
-This module defines routing strategies that determine which storage providers
+This module defines routing strategies that determine which providers
 should handle operations for a given key. Routing strategies enable different
 data distribution patterns across multiple providers.
 
@@ -11,7 +11,7 @@ Available Routing Strategies:
 """
 from abc import ABC, abstractmethod
 from logging import Logger
-from typing import Iterable
+from typing import TypeVar, Sequence
 
 from .exceptions import UnknownProviderRoutingError
 
@@ -23,12 +23,14 @@ __all__ = [
     "create_provider_routing",
 ]
 
+T = TypeVar("T")  # Generic type for any provider/item
 
-class ProviderRouting:
+
+class ProviderRouting(ABC):
     """
     Abstract base class for provider routing strategies.
 
-    A routing strategy determines which provider should handle operations
+    A routing strategy determines which items should handle operations
     for a given key in a multi-provider configuration.
     """
 
@@ -42,40 +44,40 @@ class ProviderRouting:
         self.logger = logger
 
     @abstractmethod
-    def get_read_databases(self, key: bytes, databases: list) -> Iterable:
+    def get_read_targets(self, key: bytes, targets: Sequence[T]) -> Sequence[T]:
         """
-        Determine which database(s) to read from for the given key.
+        Determine which target(s) to read from for the given key.
 
         Args:
             key: The key being read as bytes.
-            databases: List of available database instances.
+            targets: Sequence of available targets (providers, databases, etc.).
 
         Returns:
-            List of databases to read from (typically one database).
+            Sequence of targets to read from (typically one target).
         """
         ...
 
     @abstractmethod
-    def get_write_databases(self, key: bytes, databases: list) -> Iterable:
+    def get_write_targets(self, key: bytes, targets: Sequence[T]) -> Sequence[T]:
         """
-        Determine which database(s) to write to for the given key.
+        Determine which target(s) to write to for the given key.
 
         Args:
             key: The key being written as bytes.
-            databases: List of available database instances.
+            targets: Sequence of available targets (providers, databases, etc.).
 
         Returns:
-            List of databases to write to.
+            Sequence of targets to write to.
         """
         ...
 
 
 class AllProviderRouting(ProviderRouting):
     """
-    'All' routing strategy: replicate data to all providers.
+    'All' routing strategy: replicate data to all targets.
 
-    This strategy writes to all providers for redundancy and backup,
-    while reading from the first provider for performance.
+    This strategy writes to all targets for redundancy and backup,
+    while reading from the first target for performance.
 
     Use cases:
         - Data replication across multiple storage backends
@@ -83,27 +85,25 @@ class AllProviderRouting(ProviderRouting):
         - Multi-cloud redundancy
 
     Behavior:
-        - Writes: All providers
-        - Reads: First provider only
-        - Iteration: First provider only
-        - Length: First provider only
+        - Writes: All targets
+        - Reads: First target only
     """
 
-    def get_read_databases(self, key: bytes, databases: list):
-        """Read from first database only."""
-        return [databases[0]]
+    def get_read_targets(self, key: bytes, targets: Sequence[T]) -> Sequence[T]:
+        """Read from first target only."""
+        return targets[:1]
 
-    def get_write_databases(self, key: bytes, databases: list):
-        """Write to all databases."""
-        return databases
+    def get_write_targets(self, key: bytes, targets: Sequence[T]) -> Sequence[T]:
+        """Write to all targets."""
+        return targets
 
 
 class HashProviderRouting(ProviderRouting):
     """
-    'Hash' routing strategy: distribute keys across providers using hashing.
+    'Hash' routing strategy: distribute keys across targets using hashing.
 
     This strategy uses hash-based sharding to distribute keys evenly across
-    multiple providers. Each key is consistently routed to the same provider.
+    multiple targets. Each key is consistently routed to the same target.
 
     Use cases:
         - Load balancing across storage backends
@@ -111,37 +111,35 @@ class HashProviderRouting(ProviderRouting):
         - Cost optimization by distributing data
 
     Behavior:
-        - Writes: Single provider based on hash(key) % num_providers
-        - Reads: Same provider as writes (consistent routing)
-        - Iteration: All providers (aggregate keys)
-        - Length: All providers (sum counts)
+        - Writes: Single target based on hash(key) % num_targets
+        - Reads: Same target as writes (consistent routing)
     """
 
-    def get_read_databases(self, key: bytes, databases: list):
-        """Read from hash-routed database."""
-        index = self._hash_key(key, len(databases))
-        return [databases[index]]
+    def get_read_targets(self, key: bytes, targets: Sequence[T]) -> Sequence[T]:
+        """Read from hash-routed target."""
+        index = self._hash_key(key, len(targets))
+        return [targets[index]]
 
-    def get_write_databases(self, key: bytes, databases: list):
-        """Write to hash-routed database."""
-        index = self._hash_key(key, len(databases))
-        return [databases[index]]
+    def get_write_targets(self, key: bytes, targets: Sequence[T]) -> Sequence[T]:
+        """Write to hash-routed target."""
+        index = self._hash_key(key, len(targets))
+        return [targets[index]]
 
-    def _hash_key(self, key: bytes, num_databases: int) -> int:
+    def _hash_key(self, key: bytes, num_targets: int) -> int:
         """
-        Calculate database index for the given key.
+        Calculate target index for the given key.
 
         Uses Python's built-in hash function with modulo to ensure
-        consistent routing of keys to the same database.
+        consistent routing of keys to the same target.
 
         Args:
             key: The key to hash as bytes.
-            num_databases: Number of available databases.
+            num_targets: Number of available targets.
 
         Returns:
-            Database index (0 to num_databases-1).
+            Target index (0 to num_targets-1).
         """
-        return hash(key) % num_databases
+        return hash(key) % num_targets
 
 
 def create_provider_routing(routing_type: str, logger: Logger) -> ProviderRouting:

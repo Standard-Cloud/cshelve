@@ -16,30 +16,30 @@ from cshelve.exceptions import UnknownProviderRoutingError
 class TestAllProviderRouting:
     """Test the 'all' provider routing strategy."""
 
-    def test_get_read_databases_returns_first_only(self):
-        """All routing should read from first database only."""
+    def test_get_read_targets_returns_first_only(self):
+        """All routing should read from first target only."""
         logger = Mock(spec=Logger)
         routing = AllProviderRouting(logger)
 
         db1, db2, db3 = Mock(), Mock(), Mock()
-        databases = [db1, db2, db3]
+        targets = [db1, db2, db3]
 
-        result = routing.get_read_databases(b"any_key", databases)
+        result = routing.get_read_targets(b"any_key", targets)
 
         assert result == [db1]
         assert len(result) == 1
 
-    def test_get_write_databases_returns_all(self):
-        """All routing should write to all databases."""
+    def test_get_write_targets_returns_all(self):
+        """All routing should write to all targets."""
         logger = Mock(spec=Logger)
         routing = AllProviderRouting(logger)
 
         db1, db2, db3 = Mock(), Mock(), Mock()
-        databases = [db1, db2, db3]
+        targets = [db1, db2, db3]
 
-        result = routing.get_write_databases(b"any_key", databases)
+        result = routing.get_write_targets(b"any_key", targets)
 
-        assert result == databases
+        assert result == targets
         assert len(result) == 3
 
     def test_all_routing_consistent_across_keys(self):
@@ -48,108 +48,109 @@ class TestAllProviderRouting:
         routing = AllProviderRouting(logger)
 
         db1, db2 = Mock(), Mock()
-        databases = [db1, db2]
+        targets = [db1, db2]
 
         # Test multiple different keys
         for key in [b"key1", b"key2", b"another_key", b"test"]:
-            assert routing.get_read_databases(key, databases) == [db1]
-            assert routing.get_write_databases(key, databases) == databases
+            assert routing.get_read_targets(key, targets) == [db1]
+            assert routing.get_write_targets(key, targets) == targets
 
 
 class TestHashProviderRouting:
     """Test the 'hash' provider routing strategy."""
 
-    def test_get_read_databases_returns_single_based_on_hash(self):
-        """Hash routing should return single database based on hash."""
+    def test_get_read_targets_returns_single_based_on_hash(self):
+        """Hash routing should return single target based on hash."""
         logger = Mock(spec=Logger)
         routing = HashProviderRouting(logger)
 
         db1, db2, db3 = Mock(), Mock(), Mock()
-        databases = [db1, db2, db3]
+        targets = [db1, db2, db3]
 
-        result = routing.get_read_databases(b"test_key", databases)
+        result = routing.get_read_targets(b"test_key", targets)
 
         assert len(result) == 1
-        assert result[0] in databases
+        assert result[0] in targets
 
-    def test_get_write_databases_returns_single_based_on_hash(self):
-        """Hash routing should write to single database based on hash."""
+    def test_get_write_targets_returns_single_based_on_hash(self):
+        """Hash routing should write to single target based on hash."""
         logger = Mock(spec=Logger)
         routing = HashProviderRouting(logger)
 
         db1, db2, db3 = Mock(), Mock(), Mock()
-        databases = [db1, db2, db3]
+        targets = [db1, db2, db3]
 
-        result = routing.get_write_databases(b"test_key", databases)
+        result = routing.get_write_targets(b"test_key", targets)
 
         assert len(result) == 1
-        assert result[0] in databases
+        assert result[0] in targets
 
     def test_hash_routing_consistent_for_same_key(self):
-        """Same key should always route to same database."""
+        """Same key should always route to same target."""
         logger = Mock(spec=Logger)
         routing = HashProviderRouting(logger)
 
         db1, db2, db3 = Mock(), Mock(), Mock()
-        databases = [db1, db2, db3]
+        targets = [db1, db2, db3]
 
         key = b"consistent_key"
 
         # Call multiple times
-        result1 = routing.get_read_databases(key, databases)
-        result2 = routing.get_read_databases(key, databases)
-        result3 = routing.get_write_databases(key, databases)
+        result1 = routing.get_read_targets(key, targets)
+        result2 = routing.get_read_targets(key, targets)
+        result3 = routing.get_write_targets(key, targets)
 
         assert result1 == result2
         assert result1 == result3
 
-    def test_hash_routing_distributes_across_databases(self):
-        """Hash routing should distribute keys across databases."""
+    def test_hash_routing_with_different_provider_counts(self):
+        """Test hash routing with 1, 3, and 5 providers by calculating hash directly."""
         logger = Mock(spec=Logger)
         routing = HashProviderRouting(logger)
 
-        db1, db2, db3 = Mock(), Mock(), Mock()
-        databases = [db1, db2, db3]
+        # Test with 5 sample keys
+        sample_keys = [b"key1", b"key2", b"key3", b"key4", b"key5"]
 
-        # Test many keys to ensure distribution
-        results = {}
-        for i in range(100):
-            key = f"key_{i}".encode()
-            db = routing.get_read_databases(key, databases)[0]
-            db_index = databases.index(db)
-            results[db_index] = results.get(db_index, 0) + 1
+        for num_providers in [1, 3, 5]:
+            targets = [Mock() for _ in range(num_providers)]
 
-        # All databases should receive at least some keys
-        assert len(results) == 3
-        # Each should have received some keys (rough distribution)
-        for count in results.values():
-            assert count > 0
+            for key in sample_keys:
+                # Calculate expected index using same hash function
+                expected_index = hash(key) % num_providers
+                expected_target = targets[expected_index]
 
-    def test_hash_routing_with_single_database(self):
-        """Hash routing with single database should return that database."""
+                # Verify routing returns the expected target
+                result = routing.get_read_targets(key, targets)
+                assert result == [expected_target]
+
+                write_result = routing.get_write_targets(key, targets)
+                assert write_result == [expected_target]
+
+    def test_hash_routing_with_single_target(self):
+        """Hash routing with single target should return that target."""
         logger = Mock(spec=Logger)
         routing = HashProviderRouting(logger)
 
         db1 = Mock()
-        databases = [db1]
+        targets = [db1]
 
-        result = routing.get_read_databases(b"any_key", databases)
+        result = routing.get_read_targets(b"any_key", targets)
 
         assert result == [db1]
 
     def test_hash_routing_read_write_symmetry(self):
-        """Read and write should route to same database for hash strategy."""
+        """Read and write should route to same target for hash strategy."""
         logger = Mock(spec=Logger)
         routing = HashProviderRouting(logger)
 
         db1, db2, db3 = Mock(), Mock(), Mock()
-        databases = [db1, db2, db3]
+        targets = [db1, db2, db3]
 
         for i in range(20):
             key = f"key_{i}".encode()
-            read_db = routing.get_read_databases(key, databases)
-            write_db = routing.get_write_databases(key, databases)
-            assert read_db == write_db
+            read_target = routing.get_read_targets(key, targets)
+            write_target = routing.get_write_targets(key, targets)
+            assert read_target == write_target
 
 
 class TestCreateProviderRouting:

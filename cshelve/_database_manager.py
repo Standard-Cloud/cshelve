@@ -82,8 +82,8 @@ class _DatabaseManager(MutableMapping):
         Returns:
             The value associated with the key as bytes.
         """
-        databases = self.routing.get_read_databases(key, self.databases)
-        return databases[0][key]
+        targets = self.routing.get_read_targets(key, self.databases)
+        return targets[0][key]
 
     def __setitem__(self, key: bytes, value: bytes) -> None:
         """
@@ -95,8 +95,8 @@ class _DatabaseManager(MutableMapping):
             key: The key to set as bytes.
             value: The value to associate with the key as bytes.
         """
-        databases = self.routing.get_write_databases(key, self.databases)
-        for db in databases:
+        targets = self.routing.get_write_targets(key, self.databases)
+        for db in targets:
             db[key] = value
 
     def __delitem__(self, key: bytes) -> None:
@@ -108,28 +108,54 @@ class _DatabaseManager(MutableMapping):
         Args:
             key: The key to delete as bytes.
         """
-        databases = self.routing.get_write_databases(key, self.databases)
-        for db in databases:
+        targets = self.routing.get_write_targets(key, self.databases)
+        for db in targets:
             del db[key]
 
     def __iter__(self):
         """
-        Iterate over all backends.
+        Iterate over the keys based on the routing strategy.
+
+        For 'all' routing: returns keys from first database only.
+        For 'hash' routing: returns keys from all databases (aggregated).
 
         Returns:
             An iterator over the keys.
         """
-        for db in self.databases:
-            yield from db
+        # Import here to avoid circular dependency
+        from ._provider_routing import HashProviderRouting
+
+        # Hash routing distributes keys, so aggregate from all databases
+        if isinstance(self.routing, HashProviderRouting):
+            seen = set()
+            for db in self.databases:
+                for key in db:
+                    if key not in seen:
+                        seen.add(key)
+                        yield key
+        else:
+            # All routing replicates keys, so iterate first database only
+            yield from self.databases[0]
 
     def __len__(self) -> int:
         """
         Return the number of keys based on the routing strategy.
 
+        For 'all' routing: returns count from first database only.
+        For 'hash' routing: returns sum of counts from all databases.
+
         Returns:
-            The number of keys as an integer.
+            The count of keys.
         """
-        return len(self.databases)
+        # Import here to avoid circular dependency
+        from ._provider_routing import HashProviderRouting
+
+        # Hash routing distributes keys, so sum counts from all databases
+        if isinstance(self.routing, HashProviderRouting):
+            return sum(len(db) for db in self.databases)
+        else:
+            # All routing replicates keys, so count first database only
+            return len(self.databases[0])
 
     def close(self) -> None:
         """
