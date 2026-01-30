@@ -172,6 +172,27 @@ This module ensures data integrity and applies transformations like compression 
 
 Custom exceptions are defined in the `_exceptions.py` file. These exceptions should be reused consistently across the package to ensure uniform error handling. They also encapsulate low-level exceptions thrown by the underlying storage providers, providing a clear and standardized interface for error reporting.
 
+### Multi-Provider Support (`_database_manager.py`)
+
+The `DatabaseManager` class (`_database_manager.py`) enables using multiple storage providers simultaneously. It manages a collection of database instances, one per provider, and uses the provider routing strategy to determine which provider(s) handle each operation. This enables patterns like:
+
+- **Data Replication**: Write the same data to multiple backends for redundancy
+- **Distributed Storage**: Shard data across providers to scale storage capacity and balance load
+- **Hybrid Cloud**: Combine different storage backends (AWS S3, Azure, SFTP) in a single logical database
+
+The `DatabaseManager` transparently routes operations through the appropriate provider(s) based on the configured routing strategy.
+
+### Provider Routing Module (`_provider_routing.py`)
+
+The `_provider_routing.py` file provides routing strategies for multi-provider support. The `ProviderRouting` abstract base class defines three core methods:
+- `get_read_targets(key, targets)`: Determines which target(s) to read from
+- `get_write_targets(key, targets)`: Determines which target(s) to write to
+- `iter(targets)`: Determines which target(s) to iterate from
+
+Two implementations are available:
+- **AllProviderRouting**: Replicates writes to all targets, reads from first target only
+- **HashProviderRouting**: Distributes keys across targets using hash-based sharding for load balancing
+
 ## Supported Storage Backends
 
 1. **AWS S3** (`_aws_s3.py`)
