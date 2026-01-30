@@ -71,6 +71,19 @@ class ProviderRouting(ABC):
         """
         ...
 
+    @abstractmethod
+    def iter(self, targets: Sequence[T]) -> Sequence[T]:
+        """
+        Determine which target(s) to iterate from.
+
+        Args:
+            targets: Sequence of available targets.
+
+        Returns:
+            Sequence of targets to iterate from.
+        """
+        ...
+
 
 class AllProviderRouting(ProviderRouting):
     """
@@ -87,6 +100,7 @@ class AllProviderRouting(ProviderRouting):
     Behavior:
         - Writes: All targets
         - Reads: First target only
+        - Iteration: First target only
     """
 
     def get_read_targets(self, key: bytes, targets: Sequence[T]) -> Sequence[T]:
@@ -96,6 +110,10 @@ class AllProviderRouting(ProviderRouting):
     def get_write_targets(self, key: bytes, targets: Sequence[T]) -> Sequence[T]:
         """Write to all targets."""
         return targets
+
+    def iter(self, targets: Sequence[T]) -> Sequence[T]:
+        """Iterate first target only (all targets are replicated)."""
+        return targets[:1]
 
 
 class HashProviderRouting(ProviderRouting):
@@ -113,6 +131,7 @@ class HashProviderRouting(ProviderRouting):
     Behavior:
         - Writes: Single target based on hash(key) % num_targets
         - Reads: Same target as writes (consistent routing)
+        - Iteration: All targets (keys are distributed)
     """
 
     def get_read_targets(self, key: bytes, targets: Sequence[T]) -> Sequence[T]:
@@ -124,6 +143,10 @@ class HashProviderRouting(ProviderRouting):
         """Write to hash-routed target."""
         index = self._hash_key(key, len(targets))
         return [targets[index]]
+
+    def iter(self, targets: Sequence[T]) -> Sequence[T]:
+        """Iterate all targets (keys are distributed across them)."""
+        return targets
 
     def _hash_key(self, key: bytes, num_targets: int) -> int:
         """

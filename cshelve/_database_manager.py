@@ -116,46 +116,24 @@ class _DatabaseManager(MutableMapping):
         """
         Iterate over the keys based on the routing strategy.
 
-        For 'all' routing: returns keys from first database only.
-        For 'hash' routing: returns keys from all databases (aggregated).
-
         Returns:
             An iterator over the keys.
         """
-        # Import here to avoid circular dependency
-        from ._provider_routing import HashProviderRouting
-
-        # Hash routing distributes keys, so aggregate from all databases
-        if isinstance(self.routing, HashProviderRouting):
-            seen = set()
-            for db in self.databases:
-                for key in db:
-                    if key not in seen:
-                        seen.add(key)
-                        yield key
-        else:
-            # All routing replicates keys, so iterate first database only
-            yield from self.databases[0]
+        seen = set()
+        for t in self.routing.iter(self.databases):
+            for key in t.keys():
+                if key not in seen:
+                    seen.add(key)
+                    yield key
 
     def __len__(self) -> int:
         """
         Return the number of keys based on the routing strategy.
 
-        For 'all' routing: returns count from first database only.
-        For 'hash' routing: returns sum of counts from all databases.
-
         Returns:
             The count of keys.
         """
-        # Import here to avoid circular dependency
-        from ._provider_routing import HashProviderRouting
-
-        # Hash routing distributes keys, so sum counts from all databases
-        if isinstance(self.routing, HashProviderRouting):
-            return sum(len(db) for db in self.databases)
-        else:
-            # All routing replicates keys, so count first database only
-            return len(self.databases[0])
+        return sum(len(d) for d in self.routing.iter(self.databases))
 
     def close(self) -> None:
         """
