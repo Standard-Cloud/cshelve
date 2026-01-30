@@ -55,6 +55,19 @@ class TestAllProviderRouting:
             assert routing.get_read_targets(key, targets) == [db1]
             assert routing.get_write_targets(key, targets) == targets
 
+    def test_iter_returns_first_target_only(self):
+        """All routing should iterate first target only (all targets are replicated)."""
+        logger = Mock(spec=Logger)
+        routing = AllProviderRouting(logger)
+
+        db1, db2, db3 = Mock(), Mock(), Mock()
+        targets = [db1, db2, db3]
+
+        result = routing.iter(targets)
+
+        assert result == [db1]
+        assert len(result) == 1
+
 
 class TestHashProviderRouting:
     """Test the 'hash' provider routing strategy."""
@@ -151,6 +164,19 @@ class TestHashProviderRouting:
             read_target = routing.get_read_targets(key, targets)
             write_target = routing.get_write_targets(key, targets)
             assert read_target == write_target
+
+    def test_iter_returns_all_targets(self):
+        """Hash routing should iterate all targets (keys are distributed across them)."""
+        logger = Mock(spec=Logger)
+        routing = HashProviderRouting(logger)
+
+        db1, db2, db3 = Mock(), Mock(), Mock()
+        targets = [db1, db2, db3]
+
+        result = routing.iter(targets)
+
+        assert result == targets
+        assert len(result) == 3
 
 
 class TestCreateProviderRouting:
