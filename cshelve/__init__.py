@@ -33,6 +33,7 @@ from .exceptions import (
     UnknownCompressionAlgorithmError,
     UnknownEncryptionAlgorithmError,
     UnknownProviderError,
+    UnknownProviderRoutingError,
 )
 
 
@@ -53,6 +54,7 @@ __all__ = [
     "UnknownCompressionAlgorithmError",
     "UnknownEncryptionAlgorithmError",
     "UnknownProviderError",
+    "UnknownProviderRoutingError",
 ]
 
 

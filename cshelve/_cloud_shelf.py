@@ -6,6 +6,7 @@ from ._database import _Database
 from ._database_manager import _DatabaseManager
 from ._parser import load_from_file as Config
 from ._data_processing import DataProcessing
+from ._provider_routing import create_provider_routing
 
 
 class CloudShelf(shelve.Shelf):
@@ -78,8 +79,11 @@ class CloudShelf(shelve.Shelf):
             database._init()
             databases.append(database)
 
+        # Create the routing strategy based on configuration
+        routing = create_provider_routing(config.provider_routing, logger)
+
         # Wrap all databases in a DatabaseManager for multi-provider support
-        database_manager = _DatabaseManager(logger, databases)
+        database_manager = _DatabaseManager(logger, databases, routing)
         super().__init__(database_manager, protocol, writeback)
 
 

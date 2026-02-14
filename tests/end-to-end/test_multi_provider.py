@@ -367,3 +367,227 @@ def test_open_from_dict_multi_provider():
         with cshelve.open_from_dict(config, logger=logger) as shelf:
             with pytest.raises(Exception):
                 _ = shelf["user:bob"]
+
+
+def test_routing_all_strategy():
+    """
+    End-to-end test for AllProviderRouting strategy.
+
+    The AllProviderRouting strategy replicates data to all providers for redundancy.
+    - Writes go to all providers
+    - Reads come from the first provider
+    - Iterations come from the first provider
+
+    This test verifies:
+    1. Data is written to all providers
+    2. Data is read from the first provider
+    3. Iteration works correctly
+    4. Length operations work correctly
+    5. Data deletion propagates to all providers
+    """
+    config_file = Path("tests/configurations/config/routing-all-strategy.ini")
+    logger = Mock(spec=Logger)
+
+    # Test data with distinct keys
+    test_data = {
+        "user:alice": b"Alice's data",
+        "user:bob": b"Bob's data",
+        "config:key1": b"Config value 1",
+        "config:key2": b"Config value 2",
+    }
+
+    # Part 1: Write and read data using AllProviderRouting
+    with cshelve.open(config_file, logger=logger) as shelf:
+        # Verify we have 2 providers
+        assert len(shelf.dict.databases) == 2, "Should have 2 providers"
+
+        # Write all test data
+        for key, value in test_data.items():
+            shelf[key] = value
+
+        # Verify writes went to all providers
+        for key, expected_value in test_data.items():
+            _verify_data_in_all_databases(shelf, key, expected_value)
+
+        # Read data and verify it works
+        for key, expected_value in test_data.items():
+            read_value = shelf[key]
+            assert (
+                read_value == expected_value
+            ), f"Read mismatch for {key}: expected {expected_value}, got {read_value}"
+
+        # Verify iteration works (should iterate from first provider only)
+        shelf_keys = sorted(list(shelf.keys()))
+        expected_keys = sorted(list(test_data.keys()))
+        assert (
+            shelf_keys == expected_keys
+        ), f"Iteration mismatch. Expected {expected_keys}, got {shelf_keys}"
+
+        # Verify len() works correctly
+        assert len(shelf) == len(
+            test_data
+        ), f"Length mismatch: expected {len(test_data)}, got {len(shelf)}"
+
+    # Part 2: Verify data persists across opens
+    with cshelve.open(config_file, logger=logger) as shelf:
+        for key, expected_value in test_data.items():
+            read_value = shelf[key]
+            assert read_value == expected_value, f"Persistence check failed for {key}"
+
+    # Part 3: Verify all providers have the same data
+    with cshelve.open(config_file, logger=logger) as shelf:
+        for key, expected_value in test_data.items():
+            _verify_data_in_all_databases(shelf, key, expected_value)
+
+    # Part 4: Delete data and verify it's deleted from all providers
+    with cshelve.open(config_file, logger=logger) as shelf:
+        # Delete one key at a time
+        keys_to_delete = list(test_data.keys())[:2]
+        for key_to_delete in keys_to_delete:
+            del shelf[key_to_delete]
+
+            # Verify deletion from all providers
+            _verify_data_deleted_from_all_databases(shelf, key_to_delete)
+
+        # Verify remaining keys still exist and can be iterated
+        remaining_keys = {k for k in shelf.keys()}
+        expected_remaining = set(test_data.keys()) - set(keys_to_delete)
+        assert (
+            remaining_keys == expected_remaining
+        ), f"Remaining keys mismatch. Expected {expected_remaining}, got {remaining_keys}"
+
+        # Verify updated length after deletions
+        assert len(shelf) == len(test_data) - len(
+            keys_to_delete
+        ), f"Length mismatch after deletions"
+
+    # Part 5: Verify deletions persist
+    with cshelve.open(config_file, logger=logger) as shelf:
+        for key_to_check in keys_to_delete:
+            with pytest.raises(Exception):
+                _ = shelf[key_to_check]
+
+
+def test_routing_hash_strategy():
+    """
+    End-to-end test for HashProviderRouting strategy.
+
+    The HashProviderRouting strategy distributes keys across providers using hash-based sharding.
+    - Writes go to the provider determined by hash(key) % num_providers
+    - Reads come from the same provider as writes (consistent routing)
+    - Iterations iterate all providers (keys are distributed)
+
+    This test verifies:
+    1. Write operations store data in the correct provider based on hash
+    2. Read operations work consistently
+    3. List (keys()) returns all distributed keys
+    4. len() works correctly with distributed data
+    5. Data is NOT replicated to all providers (unlike AllProviderRouting)
+    6. _verify_data_in_all_databases fails because data is distributed, not replicated
+    """
+    config_file = Path("tests/configurations/config/routing-hash-strategy.ini")
+    logger = Mock(spec=Logger)
+
+    # Test data - distinct keys that will be distributed across providers
+    test_data = {
+        "user:alice": b"Alice's data",
+        "user:bob": b"Bob's data",
+        "config:key1": b"Config value 1",
+        "config:key2": b"Config value 2",
+        "session:abc": b"Session ABC",
+        "session:xyz": b"Session XYZ",
+    }
+
+    # Part 1: Write data
+    with cshelve.open(config_file, logger=logger) as shelf:
+        # Verify we have 2 providers
+        assert len(shelf.dict.databases) == 2, "Should have 2 providers"
+
+        # Write all test data
+        for key, value in test_data.items():
+            shelf[key] = value
+
+    # Part 2: Test READ operation works correctly
+    with cshelve.open(config_file, logger=logger) as shelf:
+        for key, expected_value in test_data.items():
+            read_value = shelf[key]
+            assert (
+                read_value == expected_value
+            ), f"Read mismatch for {key}: expected {expected_value}, got {read_value}"
+
+    # Part 3: Test LIST operation (keys()) returns all keys
+    with cshelve.open(config_file, logger=logger) as shelf:
+        shelf_keys = set(shelf.keys())
+        expected_keys = set(test_data.keys())
+        assert (
+            shelf_keys == expected_keys
+        ), f"Keys mismatch. Expected {expected_keys}, got {shelf_keys}"
+
+    # Part 4: Test LEN operation works correctly
+    with cshelve.open(config_file, logger=logger) as shelf:
+        assert len(shelf) == len(
+            test_data
+        ), f"Length mismatch: expected {len(test_data)}, got {len(shelf)}"
+
+    # Part 5: Verify data is distributed (NOT replicated to all providers)
+    # This is the key difference from AllProviderRouting
+    with cshelve.open(config_file, logger=logger) as shelf:
+        # Each key should be in exactly ONE provider, determined by hash
+        for key, expected_value in test_data.items():
+            key_bytes = key.encode("utf-8")
+            provider_index = hash(key_bytes) % 2
+            target_provider = shelf.dict.databases[provider_index]
+
+            # Verify key is in the correct provider
+            stored_pickled = target_provider[key_bytes]
+            stored_value = pickle.loads(stored_pickled)
+            assert stored_value == expected_value
+
+            # Verify it's NOT in the other provider
+            other_provider_index = 1 - provider_index
+            other_provider = shelf.dict.databases[other_provider_index]
+            with pytest.raises(KeyError):
+                _ = other_provider[key_bytes]
+
+    # Part 6: Verify _verify_data_in_all_databases FAILS
+    # This is expected because hash routing distributes data, not replicates it
+    with cshelve.open(config_file, logger=logger) as shelf:
+        # Pick a test key and verify the helper function fails
+        test_key = list(test_data.keys())[0]
+        test_value = test_data[test_key]
+
+        assert test_value == shelf[test_key], "Read should work for the test key"
+
+        # This should raise AssertionError because data is not in ALL databases
+        with pytest.raises(AssertionError, match="not found"):
+            _verify_data_in_all_databases(shelf, test_key, test_value)
+
+    # Part 7: Test WRITE (update) works correctly with hash routing
+    with cshelve.open(config_file, logger=logger) as shelf:
+        update_key = "user:alice"
+        update_value = b"Alice's updated data"
+        shelf[update_key] = update_value
+
+        # Verify the update persisted
+        read_value = shelf[update_key]
+        assert read_value == update_value
+
+        with pytest.raises(AssertionError, match="not found"):
+            _verify_data_in_all_databases(shelf, update_key, read_value)
+
+    # Part 8: Test DELETE operation works correctly
+    with cshelve.open(config_file, logger=logger) as shelf:
+        key_to_delete = list(test_data.keys())[0]
+        del shelf[key_to_delete]
+
+        # Verify deletion
+        with pytest.raises(Exception):
+            _ = shelf[key_to_delete]
+
+        # Verify other keys still exist
+        remaining_keys = {k for k in shelf.keys()}
+        expected_remaining = set(test_data.keys()) - {key_to_delete}
+        assert remaining_keys == expected_remaining
+
+        # Verify len decreased
+        assert len(shelf) == len(test_data) - 1
